@@ -41,3 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 1614290657
+    locked: 0
+  - name: Gems
+    uniqueID: 4015680249
+    locked: 0
