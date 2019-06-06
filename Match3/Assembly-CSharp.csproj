@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\BoardManagerScript.cs" />
      <Compile Include="Assets\Scripts\SwipeToMoveScript.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>/Users/TedLim/Documents/GitHub/Match3/Match3/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
