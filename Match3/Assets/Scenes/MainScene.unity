@@ -173,7 +173,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 6
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -246,10 +246,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1320cfe3e8a3245aa8aed443ae49d842, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardX: 5
-  boardY: 5
-  gemPool:
-  - {fileID: 435022089347703123, guid: 18f1496cd9c634f1a9562c37015c3984, type: 3}
+  boardDimX: 6
+  boardDimY: 5
+  boardYDropOffset: 5
+  camOffsetX: 2.5
+  camOffsetY: 2
+  gemOptions:
   - {fileID: 6023834250199086954, guid: 098d21a69098448a9856dc67d6a91a07, type: 3}
   - {fileID: 8173396996508799385, guid: fb696097d87f64b2a8c5a3c40cac2168, type: 3}
   - {fileID: 1280611335808132773, guid: e1eab22f193f6458ca9e75e325eaaf8c, type: 3}
+  - {fileID: 435022089347703123, guid: 18f1496cd9c634f1a9562c37015c3984, type: 3}
