@@ -14,8 +14,6 @@ public class BoardManagerScript : MonoBehaviour
         public int dropDist;
     }
 
-    public float camOffsetX = 2.5f;
-    public float camOffsetY = 2.0f;
     public int boardDimX = 6;
     public int boardDimY = 5;
     public int boardYDropOffset = 5;
@@ -145,7 +143,7 @@ public class BoardManagerScript : MonoBehaviour
                 }
 
                 //make the gem and place it in grid
-                GameObject currentGem = (GameObject)Instantiate(randGem, new Vector2((float)x - camOffsetX, (float)y - camOffsetY + (float)boardYDropOffset), Quaternion.identity);
+                GameObject currentGem = (GameObject)Instantiate(randGem, new Vector2((float)x, (float)y + (float)boardYDropOffset), Quaternion.identity);
                 currentGem.transform.parent = transform;
                 gemGridLayout[x, y] = new Gem {
                     gemObj = randGem,
@@ -195,8 +193,8 @@ public class BoardManagerScript : MonoBehaviour
     private void DisplayGemClone(Vector2 touchPos)
     {
         //should include how to ignore wildly stupid finger placements
-        int touchPosX = GetPosOnAxisWithOffset(touchPos.x, camOffsetX, boardDimX);
-        int touchPosY = GetPosOnAxisWithOffset(touchPos.y, camOffsetY, boardDimY);
+        int touchPosX = GetPosOnAxis(touchPos.x, boardDimX);
+        int touchPosY = GetPosOnAxis(touchPos.y, boardDimY);
         Debug.Log("Start Phase: X: " + touchPosX + ", Y: " + touchPosY);
 
         //get Gem in grid; change its alpha
@@ -208,9 +206,9 @@ public class BoardManagerScript : MonoBehaviour
         prevGemPos = new Vector2Int(touchPosX, touchPosY);
     }
 
-    private int GetPosOnAxisWithOffset(float main, float offset, int size)
+    private int GetPosOnAxis(float main, int size)
     {
-        int coordinate = Mathf.RoundToInt(main + offset);
+        int coordinate = Mathf.RoundToInt(main);
         if (coordinate < 0)
         {
             coordinate = 0;
@@ -233,7 +231,7 @@ public class BoardManagerScript : MonoBehaviour
     {
         gemClone = new Gem {
             gemObj = origGem.gemObj,
-            gemGridObj = (GameObject)Instantiate(origGem.gemGridObj, new Vector2(x - camOffsetX, y - camOffsetY), Quaternion.identity),
+            gemGridObj = (GameObject)Instantiate(origGem.gemGridObj, new Vector2(x, y), Quaternion.identity),
             matchCountHoriz = 0,
             matchCountVert = 0,
             dropDist = 0
@@ -245,8 +243,8 @@ public class BoardManagerScript : MonoBehaviour
     private void ShowGemMovement(Vector2 touchPos)
     {
         //should include how to ignore wildly stupid finger placements
-        int touchPosX = GetPosOnAxisWithOffset(touchPos.x, camOffsetX, boardDimX);
-        int touchPosY = GetPosOnAxisWithOffset(touchPos.y, camOffsetY, boardDimY);
+        int touchPosX = GetPosOnAxis(touchPos.x, boardDimX);
+        int touchPosY = GetPosOnAxis(touchPos.y, boardDimY);
         Debug.Log("Move Phase: X: " + touchPosX + ", Y: " + touchPosY);
 
         if (prevGemPos.x != touchPosX || prevGemPos.y != touchPosY)
@@ -264,15 +262,23 @@ public class BoardManagerScript : MonoBehaviour
     {
         //inits
         float rotatePercent = 0.0f;
+        rotationAngle = new Vector3(0, 0, 180.0f);
         //create GO that will rotate
         GameObject gemRotator = new GameObject();
-        gemRotator.transform.position = new Vector2 ((float)(prevGemPos.x - ((prevGemPos.x - currTouchPosX)/2)), (float)(prevGemPos.y - ((prevGemPos.y - currTouchPosY)/2)));
+        // Debug.Log("prevGemPos: " + prevGemPos);
+        // Debug.Log("currTouchPosX and Y: " + currTouchPosX + ", " + currTouchPosY);
+        gemRotator.transform.position = new Vector2 ((float)prevGemPos.x - (float)(prevGemPos.x - currTouchPosX)/2.0f, (float)prevGemPos.y - (float)(prevGemPos.y - currTouchPosY)/2.0f);
+        // gemRotator.transform.position = new Vector2 ((float)(prevGemPos.x - ((prevGemPos.x - currTouchPosX)/2)), (float)(prevGemPos.y - ((prevGemPos.y - currTouchPosY)/2)));
         Debug.Log("Rotator Pos: " + gemRotator.transform.position);
 
         //Reassign clone and involved gems to Rotator as children
         gemClone.gemGridObj.transform.parent = gemRotator.transform;
         gemGridLayout[prevGemPos.x, prevGemPos.y].gemGridObj.transform.parent = gemRotator.transform;
         gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = gemRotator.transform;
+        Debug.Log("Clone position: " + gemClone.gemGridObj.transform.position);
+        Debug.Log("OldGem position: " + gemGridLayout[prevGemPos.x, prevGemPos.y].gemGridObj.transform.position);
+        Debug.Log("NewGem position: " + gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.position);
+
 
         //rotate to desired positions
         while(rotatePercent <= 1.0f)
