@@ -31,14 +31,18 @@ public class BoardManagerScript : MonoBehaviour
     // private GameObject prevGem;
     // private GameObject[] prevGemRow;
 
-    public float fallDelay = .01f;
-    public float fallPercentInterval = .05f;
+    public float fallTimeInterval = .01f;
+    public float fallPercentIncrease = .05f;
 
     private Ray touchPos;
     public float underlayAlpha = .25f;
     public float overlayAlpha = .75f;
     private Gem gemClone;
-    private Vector2 firstTouchGemPos;
+    private Vector2Int prevGemPos;
+
+    public float rotationTimeInterval = .01f;
+    public float rotatePercentIncrease = .1f;
+    private Vector3 rotationAngle;
 
     // private bool isTouchingScreen;
 
@@ -71,9 +75,10 @@ public class BoardManagerScript : MonoBehaviour
         //if finger is off
         } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
         {
-            touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            Vector2 touchEndPos = touchPos.origin;
-            Debug.Log("End Coordinates: " + touchEndPos);
+            // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            // Vector2 touchEndPos = touchPos.origin;
+            // Debug.Log("End Coordinates: " + touchEndPos);
+            // Destroy(gemClone.gemGridObj);
         }
         //
     }
@@ -181,8 +186,8 @@ public class BoardManagerScript : MonoBehaviour
         while(fallPercent <= 1.0f)
         {
             gem.gemGridObj.transform.position = Vector2.Lerp(start, end, fallPercent);
-            fallPercent += fallPercentInterval;
-            yield return new WaitForSeconds(fallDelay);
+            fallPercent += fallPercentIncrease;
+            yield return new WaitForSeconds(fallTimeInterval);
         }
         gem.gemGridObj.transform.position = end;
     }
@@ -200,8 +205,7 @@ public class BoardManagerScript : MonoBehaviour
 
         //create new Gem at same location
         MakeGemClone(selectedGem, touchPosX, touchPosY);
-        firstTouchGemPos = new Vector2(touchPosX, touchPosY);
-
+        prevGemPos = new Vector2Int(touchPosX, touchPosY);
     }
 
     private int GetPosOnAxisWithOffset(float main, float offset, int size)
@@ -228,6 +232,7 @@ public class BoardManagerScript : MonoBehaviour
     private void MakeGemClone (Gem origGem, int x, int y)
     {
         gemClone = new Gem {
+            gemObj = origGem.gemObj,
             gemGridObj = (GameObject)Instantiate(origGem.gemGridObj, new Vector2(x - camOffsetX, y - camOffsetY), Quaternion.identity),
             matchCountHoriz = 0,
             matchCountVert = 0,
@@ -244,7 +249,7 @@ public class BoardManagerScript : MonoBehaviour
         int touchPosY = GetPosOnAxisWithOffset(touchPos.y, camOffsetY, boardDimY);
         Debug.Log("Move Phase: X: " + touchPosX + ", Y: " + touchPosY);
 
-        if (firstTouchGemPos.x != touchPosX || firstTouchGemPos.y != touchPosY)
+        if (prevGemPos.x != touchPosX || prevGemPos.y != touchPosY)
         {
             Debug.Log("MOVED");
             StartCoroutine(ShowGemMovementEnum(touchPosX, touchPosY));
@@ -254,16 +259,52 @@ public class BoardManagerScript : MonoBehaviour
         // StartCoroutine(ShowGemMovementEnum());
     }
 
-    IEnumerator ShowGemMovementEnum(float currTouchPosX, float currTouchPosY)
+//rotator not in ccorrect position from DEBUG. FIX THIS
+    IEnumerator ShowGemMovementEnum(int currTouchPosX, int currTouchPosY)
     {
-        //firstTouchGemPos
+        //inits
+        float rotatePercent = 0.0f;
+        //create GO that will rotate
+        GameObject gemRotator = new GameObject();
+        gemRotator.transform.position = new Vector2 ((float)(prevGemPos.x - ((prevGemPos.x - currTouchPosX)/2)), (float)(prevGemPos.y - ((prevGemPos.y - currTouchPosY)/2)));
+        Debug.Log("Rotator Pos: " + gemRotator.transform.position);
 
-        //cancel button position = 2,5 with radius of .5
-        //get position of initial starting gem
-        //
-        //create an empty game object
-        //
-        yield return new WaitForSeconds(1.0f);
+        //Reassign clone and involved gems to Rotator as children
+        gemClone.gemGridObj.transform.parent = gemRotator.transform;
+        gemGridLayout[prevGemPos.x, prevGemPos.y].gemGridObj.transform.parent = gemRotator.transform;
+        gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = gemRotator.transform;
+
+        //rotate to desired positions
+        while(rotatePercent <= 1.0f)
+        {
+            gemRotator.transform.eulerAngles = Vector3.Lerp(Vector3.zero, rotationAngle, rotatePercentIncrease);
+            rotatePercent += rotatePercentIncrease;
+            yield return new WaitForSeconds(rotationTimeInterval);
+        }
+
+        //finalize rotation and movements
+        gemRotator.transform.eulerAngles = rotationAngle;
+
+        //make clone go to new gem pos
+        //make old gem to to new gem pos
+        //make new gem go to old gem position
+        gemClone.gemGridObj.transform.position = new Vector2(currTouchPosX, currTouchPosY);
+        Vector2 tempPos = gemGridLayout[prevGemPos.x, prevGemPos.y].gemGridObj.transform.position;
+        gemGridLayout[prevGemPos.x, prevGemPos.y].gemGridObj.transform.position = new Vector2(currTouchPosX, currTouchPosY);
+        gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.position = tempPos;
+
+        //swap old gem and new gem in grid
+        Gem tempGem = gemGridLayout[prevGemPos.x, prevGemPos.y];
+        gemGridLayout[prevGemPos.x, prevGemPos.y] = gemGridLayout[currTouchPosX, currTouchPosY];
+        gemGridLayout[currTouchPosX, currTouchPosY] = tempGem;
+
+        //reparent/unparent appropriately
+        gemClone.gemGridObj.transform.parent = null;
+        gemGridLayout[prevGemPos.x, prevGemPos.y].gemGridObj.transform.parent = transform;
+        gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = transform;
+
+        //Cleanup
+        Destroy(gemRotator);
     }
 
 }
