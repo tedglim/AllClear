@@ -498,8 +498,9 @@ MonoBehaviour:
   fallPercentIncrease: 0.05
   underlayAlpha: 0.25
   overlayAlpha: 0.75
-  rotationTimeInterval: 0.1
-  rotatePercentIncrease: 0.1
+  moveSpeed: 25
+  rotationTimeInterval: 0.000001
+  rotatePercentIncrease: 0.25
 --- !u!1 &1927535642
 GameObject:
   m_ObjectHideFlags: 0
