@@ -43,6 +43,7 @@ public class BoardManagerScript : MonoBehaviour
     public float rotatePercentIncrease = .25f;
     private Vector3 rotationAngle;
     private bool isRotating = false;
+    private bool gridLocked = false;
 
 
 
@@ -57,6 +58,11 @@ public class BoardManagerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(gridLocked)
+        {
+            return;
+        }
+
         //On initial touch of screen
         if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
@@ -69,15 +75,24 @@ public class BoardManagerScript : MonoBehaviour
         } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
         {
             touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            // Debug.Log("touchPos: " + touchPos.origin);
-            // Debug.Log("gemClone: " + gemClone.gemGridObj.transform.position);
             gemClone.gemGridObj.transform.Translate((touchPos.origin - gemClone.gemGridObj.transform.position) * Time.deltaTime * moveSpeed);
             ShowGemMovement(touchPos.origin);
 
         //if finger is off
         } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
         {
-            // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            DropGem();
+            StartCoroutine(MatchGems());
+        }
+    }
+
+    private void DropGem()
+    {
+        gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y].gemGridObj.GetComponent<SpriteRenderer>().color = ChangeGemAlpha(gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y], 1.0f);
+        if (gemClone.gemGridObj != null)
+        {
+            Destroy(gemClone.gemGridObj);
         }
     }
 
@@ -166,7 +181,9 @@ public class BoardManagerScript : MonoBehaviour
                     Vector2 startPos = currGem.gemGridObj.transform.position;
                     Vector2 endPos = new Vector2(currGem.gemGridObj.transform.position.x, currGem.gemGridObj.transform.position.y - currGem.dropDist);
                     StartCoroutine(MoveGemsDownEnum(currGem, startPos, endPos));
-                    //reset drop distance
+                    //reset drop distance and matches
+                    currGem.matchCountHoriz = 0;
+                    currGem.matchCountVert = 0;
                     currGem.dropDist = 0;
                 }
             }
@@ -214,6 +231,7 @@ public class BoardManagerScript : MonoBehaviour
         return coordinate;
     }
 
+    //change alpha for animation purposes
     private Color ChangeGemAlpha(Gem gem, float aVal)
     {
         Color gemColor = gem.gemGridObj.GetComponent<SpriteRenderer>().color;
@@ -221,6 +239,7 @@ public class BoardManagerScript : MonoBehaviour
         return gemColor;
     }
 
+    //show currently held gem
     private void MakeGemClone (Gem origGem, int x, int y)
     {
         gemClone = new Gem {
@@ -234,6 +253,7 @@ public class BoardManagerScript : MonoBehaviour
         Debug.Log("Clone Pos: " + x + ", " + y);
     }
 
+    //wrapper for gem swap coroutine
     private void ShowGemMovement(Vector2 touchPos)
     {
         //should include how to ignore wildly stupid finger placements
@@ -268,22 +288,10 @@ public class BoardManagerScript : MonoBehaviour
         rotationAngle = new Vector3(0, 0, 180.0f);
         GameObject gemRotator = new GameObject();
         gemRotator.transform.position = new Vector2 ((float)currActiveTouchPos.x - (float)(currActiveTouchPos.x - currTouchPosX)/2.0f, (float)currActiveTouchPos.y - (float)(currActiveTouchPos.y - currTouchPosY)/2.0f);
-        Debug.Log("gemRotator: " + gemRotator.gameObject.transform.position);
 
-        // //update 
-        // int prevTouchPosX = currActiveTouchPos.x;
-        // int prevTouchPosY = currActiveTouchPos.y;
-
-
-        //Reassign clone and involved gems to Rotator as children
-        // gemClone.gemGridObj.transform.parent = gemRotator.transform;
+        // update involved gems's parent to gem Rotator
         gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y].gemGridObj.transform.parent = gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = null;
         gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y].gemGridObj.transform.parent = gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = gemRotator.transform;
-        // gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = gemRotator.transform;
-        // Debug.Log("Clone position: " + gemClone.gemGridObj.transform.position);
-        Debug.Log("OldGem position: " + gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y].gemGridObj.transform.position);
-        Debug.Log("NewGem position: " + gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.position);
-
 
         //rotate to desired positions
         while(rotatePercent <= 1.0f)
@@ -296,34 +304,28 @@ public class BoardManagerScript : MonoBehaviour
         //finalize rotation and movements
         gemRotator.transform.eulerAngles = rotationAngle;
 
-        // //make clone go to new gem pos
-        // //make old gem to to new gem pos
-        // //make new gem go to old gem position
-        // gemClone.gemGridObj.transform.position = new Vector2(currTouchPosX, currTouchPosY);
-        // Vector2 tempPos = gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y].gemGridObj.transform.position;
-        // gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y].gemGridObj.transform.position = new Vector2(currTouchPosX, currTouchPosY);
-        // gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.position = tempPos;
-
-
-
-        // //reparent/unparent appropriately
-        // gemClone.gemGridObj.transform.parent = null;
-        // gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y].gemGridObj.transform.parent = transform;
-        // gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = transform;
+        //reparent/unparent appropriately
         gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y].gemGridObj.transform.parent = gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = null;
         gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y].gemGridObj.transform.parent = gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = transform;
 
-        // //swap old gem and new gem in grid
+        //swap old gem and new gem in grid
         Gem tempGem = gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y];
         gemGridLayout[currActiveTouchPos.x, currActiveTouchPos.y] = gemGridLayout[currTouchPosX, currTouchPosY];
         gemGridLayout[currTouchPosX, currTouchPosY] = tempGem;
 
+        //update touch position
         currActiveTouchPos.x = currTouchPosX;
         currActiveTouchPos.y = currTouchPosY;
 
         //Cleanup
         Destroy(gemRotator);
         isRotating = false;
+    }
+
+    //actually match gems together and pop them
+    IEnumerator MatchGems()
+    {
+        yield return new WaitForSeconds(.01f);
     }
 
 }
