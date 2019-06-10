@@ -12,6 +12,18 @@ public class BoardManagerScript : MonoBehaviour
         public int matchCountHoriz;
         public int matchCountVert;
         public int dropDist;
+        //if you been grouped, no queue. If you been queued can still be grouped.
+        //grouped
+        //Queued
+        public bool grouped;
+        public bool wasQueued;
+        //placement for searching
+        //xLoc
+        //yLoc
+        public int xLoc;
+        public int yLoc;
+        //number for tracking how many in a row
+        public int matchCount;
     }
 
     public int boardDimX = 6;
@@ -26,8 +38,6 @@ public class BoardManagerScript : MonoBehaviour
     private Gem downGem;
     private int initHorizCount;
     private int initVertCount;
-    // private GameObject prevGem;
-    // private GameObject[] prevGemRow;
 
     public float fallTimeInterval = .01f;
     public float fallPercentIncrease = .05f;
@@ -44,6 +54,9 @@ public class BoardManagerScript : MonoBehaviour
     private Vector3 rotationAngle;
     private bool isRotating = false;
     private bool gridLocked = false;
+
+    private Gem gemLFM;
+    private bool rainCheck = false;
 
 
 
@@ -81,9 +94,25 @@ public class BoardManagerScript : MonoBehaviour
         //if finger is off
         } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
         {
+            if(isRotating)
+            {
+                rainCheck = true;
+            } else 
+            {
+                Debug.Log("NORMAL END");
+                touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+                DropGem();
+                StartCoroutine(MatchGems());
+            }
+        }
+        if(rainCheck)
+        {
+            //raincheck version
+            Debug.Log("RAINCHECK END");
             touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             DropGem();
             StartCoroutine(MatchGems());
+            rainCheck = false;  
         }
     }
 
@@ -162,7 +191,12 @@ public class BoardManagerScript : MonoBehaviour
                     gemGridObj = currentGem,
                     matchCountHoriz = initHorizCount,
                     matchCountVert = initVertCount,
-                    dropDist = boardYDropOffset
+                    dropDist = boardYDropOffset,
+                    grouped = false,
+                    wasQueued = false,
+                    xLoc = 0,
+                    yLoc = 0,
+                    matchCount = 0
                 };
             }
         }
@@ -208,7 +242,7 @@ public class BoardManagerScript : MonoBehaviour
         //should include how to ignore wildly stupid finger placements
         int touchPosX = GetPosOnAxis(touchPos.x, boardDimX);
         int touchPosY = GetPosOnAxis(touchPos.y, boardDimY);
-        Debug.Log("Start Phase: X: " + touchPosX + ", Y: " + touchPosY);
+    // Debug.Log("Start Phase: X: " + touchPosX + ", Y: " + touchPosY);
         //get Gem in grid; change its alpha
         Gem selectedGem = gemGridLayout[touchPosX, touchPosY];
         selectedGem.gemGridObj.GetComponent<SpriteRenderer>().color = ChangeGemAlpha(selectedGem, underlayAlpha);
@@ -247,10 +281,15 @@ public class BoardManagerScript : MonoBehaviour
             gemGridObj = (GameObject)Instantiate(origGem.gemGridObj, new Vector2(x, y), Quaternion.identity),
             matchCountHoriz = 0,
             matchCountVert = 0,
-            dropDist = 0
+            dropDist = 0,
+            grouped = false,
+            wasQueued = false,
+            xLoc = 0,
+            yLoc = 0,
+            matchCount = 0
         };
         gemClone.gemGridObj.GetComponent<SpriteRenderer>().color = ChangeGemAlpha(gemClone, overlayAlpha);
-        Debug.Log("Clone Pos: " + x + ", " + y);
+    // Debug.Log("Clone Pos: " + x + ", " + y);
     }
 
     //wrapper for gem swap coroutine
@@ -259,7 +298,7 @@ public class BoardManagerScript : MonoBehaviour
         //should include how to ignore wildly stupid finger placements
         int touchPosX = GetPosOnAxis(touchPos.x, boardDimX);
         int touchPosY = GetPosOnAxis(touchPos.y, boardDimY);
-        Debug.Log("Move Phase: X: " + touchPosX + ", Y: " + touchPosY);
+    // Debug.Log("Move Phase: X: " + touchPosX + ", Y: " + touchPosY);
 
         if ((currActiveTouchPos.x != touchPosX || currActiveTouchPos.y != touchPosY) && isRotating == false)
         {
@@ -325,7 +364,192 @@ public class BoardManagerScript : MonoBehaviour
     //actually match gems together and pop them
     IEnumerator MatchGems()
     {
+        for (int y = 0; y < boardDimY; y++)
+        {
+            for (int x = 0; x < boardDimX; x++)
+            {
+                Debug.Log("Gem Iteration");
+                Gem currGem  = gemGridLayout[x,y];
+                currGem.xLoc = x;
+                currGem.yLoc = y;
+                HelperGetStatusWrapper(currGem, x, y);
+                List<Gem> gemList = new List<Gem>();
+                if(!currGem.grouped)
+                {
+                    Queue gemQ = new Queue();
+                    gemQ.Enqueue(currGem);
+                    while (gemQ.Count != 0)
+                    {
+                        Gem gemLFM = (Gem)gemQ.Dequeue();
+                        Debug.Log("DQ: GEMLFM");
+                        HelperGetStatusWrapper(gemLFM, gemLFM.xLoc, gemLFM.yLoc);
+                        if (gemLFM.gemObj == currGem.gemObj)
+                        {
+                            gemGridLayout[gemLFM.xLoc, gemLFM.yLoc].grouped = true;
+                            gemList.Add(gemGridLayout[gemLFM.xLoc, gemLFM.yLoc]);
+                            if (gemLFM.xLoc < boardDimX - 1)
+                            {
+                                Gem rightGem = gemGridLayout[gemLFM.xLoc + 1, gemLFM.yLoc];
+                                //if not grouped AND not Q'd
+                                if (!rightGem.grouped && !rightGem.wasQueued)
+                                {
+                                    //mark as Q'd
+                                    rightGem.wasQueued = true;
+                                    //update right gem with right coords
+                                    rightGem.xLoc = gemLFM.xLoc + 1;
+                                    //update right gem with current ycoords
+                                    rightGem.yLoc = gemLFM.yLoc;
+                                    //add to Q
+                                    gemQ.Enqueue(rightGem);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Debug.Log("SKIP");
+                }
+                Debug.Log("# gems of same color: " + gemList.Count);
+                // //if HAS NOT been "Grouped: keyword"
+                // if(!gemGridLayout[x,y].grouped)
+                // {
+                //     //make an empty list that will contain (Gem)
+                //     List<Gem> gemList = new List<Gem>();
+                //     //make an empty Queue(Gem)
+                //     Queue gemQ = new Queue();
+                //     //put THIS Gem cell in the queue
+                //     gemQ.Enqueue(gemGridLayout[x,y]);
+                //     //while the queue is NOT empty
+                //     while(gemQ.Count != 0)
+                //     {
+                //         //dequeue from queue and assign to temp
+                //         Gem gemLFM = (Gem)gemQ.Dequeue();
+                //         Debug.Log("gemLFM x, y: " + gemLFM.xLoc + ", " + gemLFM.yLoc);
+                //         Debug.Log("x, y: " + x + ", " + y);
+                //         //if cell's GObj is not equal to initial cell
+                //         if (gemLFM.gemObj != gemGridLayout[x,y].gemObj)
+                //         {
+                //             Debug.Log("Default: should always be #1");
+                //             // Debug.Log("LFM gemobj: " + gemLFM.gemObj);
+                //             // Debug.Log("grid's: " + gemGridLayout[x,y].gemObj);
+                //             continue;
+                //         //otherwise since the cell is equal to initial cell so
+                //         } else 
+                //         {
+                //             //mark it "Grouped"
+                //             gemLFM.grouped = true;
+                //             //add this cell to empty list of GObj
+                //             gemList.Add(gemLFM);
+                //             //Look right of current Gem
+                            // if (gemLFM.xLoc < boardDimX - 1)
+                            // {
+                            //     //if not grouped AND not Q'd
+                            //     if (!gemGridLayout[gemLFM.xLoc + 1, gemLFM.yLoc].grouped && !gemGridLayout[gemLFM.xLoc + 1, gemLFM.yLoc].wasQueued)
+                            //     {
+                            //         Gem rightGem = gemGridLayout[gemLFM.xLoc + 1, gemLFM.yLoc];
+                            //         //mark as Q'd
+                            //         rightGem.wasQueued = true;
+                            //         //update right gem with right coords
+                            //         rightGem.xLoc = gemLFM.xLoc + 1;
+                            //         //update right gem with current ycoords
+                            //         rightGem.yLoc = gemLFM.yLoc;
+                            //         //add to Q
+                            //         gemQ.Enqueue(rightGem);
+                            //         Debug.Log("Right Gem: " + rightGem.xLoc + ", " + rightGem.yLoc);
+                            //     }
+                            // }
+                //             //Look up of current gem
+                //             if (gemLFM.yLoc < boardDimY - 1)
+                //             {
+                //                 //if not grouped AND not Q'd
+                //                 if (!gemGridLayout[gemLFM.xLoc, gemLFM.yLoc + 1].grouped && !gemGridLayout[gemLFM.xLoc, gemLFM.yLoc + 1].wasQueued)
+                //                 {
+                //                     Gem upGem = gemGridLayout[gemLFM.xLoc, gemLFM.yLoc + 1];
+                //                     //mark as Q'd
+                //                     upGem.wasQueued = true;
+                //                     //update up gem with current x
+                //                     upGem.xLoc = gemLFM.xLoc;
+                //                     //update up gem with up coords
+                //                     upGem.yLoc = gemLFM.yLoc + 1;
+                //                     //add to Q
+                //                     gemQ.Enqueue(upGem);
+                //                     Debug.Log("Right Gem: " + upGem.xLoc + ", " + upGem.yLoc);
+
+                //                 }
+                //             }
+                //             //Look left of current Gem
+                //             if (gemLFM.xLoc > 0)
+                //             {
+                //                 //if not grouped AND not Q'd
+                //                 if (!gemGridLayout[gemLFM.xLoc - 1, gemLFM.yLoc].grouped && !gemGridLayout[gemLFM.xLoc - 1, gemLFM.yLoc].wasQueued)
+                //                 {
+                //                     Gem leftGem = gemGridLayout[gemLFM.xLoc - 1, gemLFM.yLoc];
+                //                     //mark as Q'd
+                //                     leftGem.wasQueued = true;
+                //                     //update left gem with left coords
+                //                     leftGem.xLoc = gemLFM.xLoc - 1;
+                //                     //update left gem with current ycoords
+                //                     leftGem.yLoc = gemLFM.yLoc;
+                //                     //add to Q
+                //                     gemQ.Enqueue(leftGem);
+                //                     Debug.Log("Left Gem: " + leftGem.xLoc + ", " + leftGem.yLoc);
+
+                //                 }
+                //             }
+                //             //Look down
+                //             if (gemLFM.yLoc > 0)
+                //             {
+                //                 //if not grouped AND not Q'd
+                //                 if (!gemGridLayout[gemLFM.xLoc, gemLFM.yLoc - 1].grouped && !gemGridLayout[gemLFM.xLoc, gemLFM.yLoc - 1].wasQueued)
+                //                 {
+                //                     Gem downGem = gemGridLayout[gemLFM.xLoc, gemLFM.yLoc - 1];
+                //                     //mark as Q'd
+                //                     downGem.wasQueued = true;
+                //                     //update up gem with current x
+                //                     downGem.xLoc = gemLFM.xLoc;
+                //                     //update up gem with up coords
+                //                     downGem.yLoc = gemLFM.yLoc - 1;
+                //                     //add to Q
+                //                     gemQ.Enqueue(downGem);
+                //                     Debug.Log("Down Gem: " + downGem.xLoc + ", " + downGem.yLoc);
+
+                //                 }
+                //             }
+                //         }
+                //     }
+                //     for (int i = 0; i < gemList.Count; i++ )
+                //     {
+                //         //update matchcount with list length
+                //         Gem temp = gemList[i];
+                //         temp.matchCount = gemList.Count;
+                //     }
+                // }
+
+            }
+        }
+
+        //destroy matches greater than or equal to 3
+        // for (int y = 0; y < boardDimY; y++)
+        // {
+        //     for (int x = 0; x < boardDimX; x++)
+        //     {
+        //         if(gemGridLayout[x,y].matchCount >= 3)
+        //         {
+        //             Destroy(gemGridLayout[x,y].gemGridObj);
+        //         }
+        //     }
+        // }
+
         yield return new WaitForSeconds(.01f);
     }
 
+    private void HelperGetStatus(Gem gem)
+    {
+        Debug.Log("Color: " + gem.gemObj + " G: " + gem.grouped + " Q: " + gem.wasQueued);
+    }
+
+    private void HelperGetStatusWrapper(Gem gem, int x, int y)
+    {
+        Debug.Log("[x, y]: " + x + "," + y);
+        HelperGetStatus(gem);
+    }
 }
