@@ -17,6 +17,7 @@ public class BoardManagerScript : MonoBehaviour
         public bool groupedVert;
         public int xLoc;
         public int yLoc;
+        public bool destroyed;
 
     }
 
@@ -68,6 +69,7 @@ public class BoardManagerScript : MonoBehaviour
     {
         if(gridLocked)
         {
+            // Debug.Log("Gridlocked in update");
             return;
         }
 
@@ -97,6 +99,7 @@ public class BoardManagerScript : MonoBehaviour
                 Debug.Log("NORMAL END");
                 touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
                 DropGem();
+                gridLocked = true;
                 StartCoroutine(MatchGems());
             }
         }
@@ -106,6 +109,7 @@ public class BoardManagerScript : MonoBehaviour
             Debug.Log("RAINCHECK END");
             touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             DropGem();
+            gridLocked = true;
             StartCoroutine(MatchGems());
             rainCheck = false;  
         }
@@ -117,6 +121,7 @@ public class BoardManagerScript : MonoBehaviour
         if (gemClone.gemGridObj != null)
         {
             Destroy(gemClone.gemGridObj);
+            gemClone.destroyed = true;
         }
     }
 
@@ -191,6 +196,7 @@ public class BoardManagerScript : MonoBehaviour
                     groupedVert = false,
                     xLoc = 0,
                     yLoc = 0,
+                    destroyed = false,
                 };
             }
         }
@@ -280,6 +286,7 @@ public class BoardManagerScript : MonoBehaviour
             groupedVert = false,
             xLoc = 0,
             yLoc = 0,
+            destroyed = false,
         };
         gemClone.gemGridObj.GetComponent<SpriteRenderer>().color = ChangeGemAlpha(gemClone, overlayAlpha);
     // Debug.Log("Clone Pos: " + x + ", " + y);
@@ -357,6 +364,7 @@ public class BoardManagerScript : MonoBehaviour
     //actually match gems together and pop them
     IEnumerator MatchGems()
     {
+        gemListToDestroy = new List<Gem>();
         //Horizontal check first
         for (int y = 0; y < boardDimY; y++)
         {
@@ -463,20 +471,92 @@ public class BoardManagerScript : MonoBehaviour
         int count = 0;
         for (int i = 0; i < gemListToDestroy.Count; i++)
         {
-            if (gemListToDestroy[i].gemGridObj != null)
-            {
-                Debug.Log(gemListToDestroy[i].xLoc + ", " + gemListToDestroy[i].yLoc);
-                Destroy(gemListToDestroy[i].gemGridObj);
-                count++;
-            }
+            Debug.Log(gemListToDestroy[i].xLoc + ", " + gemListToDestroy[i].yLoc);
+            Destroy(gemListToDestroy[i].gemGridObj);
+            gemGridLayout[gemListToDestroy[i].xLoc, gemListToDestroy[i].yLoc].destroyed = true;
+            count++;
         }
         Debug.Log("Destroy list size: " + count);
+        if (count == 0)
+        {
+            yield return new WaitForSeconds(.01f);
+            gridLocked = false;
+            Debug.Log("NOT GRIDLOCKED");
 
-        yield return new WaitForSeconds(.01f);
+        } else 
+        {
+            Debug.Log("GRIDLOCKED");
+            //MAKE FUNCTION TO CHECK BOARD STATUS AT THIS POINT. THINGS ARE BEING MARKED AS DESTROYED.
+
+            // MoveLeftoverGemsDown();
+            // MoveNewGemsDown();
+        }
     }
 
     private void HelperGetStatus(Gem gem, int x, int y)
     {
         Debug.Log("Color: " + gem.gemObj + "; Coordinates[x, y]: " + x + "," + y);
     }
+
+    private void MoveLeftoverGemsDown()
+    {
+        int count = 0;
+        for (int y = 1; y < boardDimY; y++)
+        {
+            for (int x = 0; x < boardDimX; x++)
+            {
+                //if not a gem that was blown up
+                if (!gemGridLayout[x, y].destroyed)
+                {
+                    count++;
+                    int dropDistance = 0;
+                    for (int i = 1; i <= y; i++)
+                    {
+                        if (gemGridLayout[x, y - i].destroyed)
+                        {
+                            dropDistance++;
+                        }
+                    }
+                    if (dropDistance > 0)
+                    {
+                        gemGridLayout[x, y].dropDist = dropDistance;
+                        Gem temp = gemGridLayout[x, y - dropDistance];
+                        gemGridLayout[x, y - dropDistance] = gemGridLayout[x, y];
+                        gemGridLayout[x, y] = temp;
+                    }
+                }
+            }
+        }
+        Debug.Log(count + " should be move down");
+    }
+
+    // private void MoveNewGemsDown()
+    // {
+    //     for (int i = 0; i < gemListToDestroy.Count; i++)
+    //     {
+    //         MakeNewGem(gemListToDestroy[i].xLoc, gemListToDestroy[i].yLoc);
+    //     }
+    //     gemListToDestroy.Clear();
+    //     MoveGemsDown();
+
+    // }
+
+    // private void MakeNewGem(int x, int y)
+    // {
+    //     GameObject newGem = gemOptions[UnityEngine.Random.Range(0, gemOptions.Count)];
+    //     GameObject currentGem = (GameObject)Instantiate(newGem, new Vector2((float)x, (float)y + (float)boardYDropOffset), Quaternion.identity);
+    //     currentGem.transform.parent = transform;
+    //     gemGridLayout[x, y] = new Gem {
+    //         gemObj = newGem,
+    //         gemGridObj = currentGem,
+    //         matchCountHoriz = initHorizCount,
+    //         matchCountVert = initVertCount,
+    //         dropDist = boardYDropOffset,
+    //         groupedHoriz = false,
+    //         groupedVert = false,
+    //         xLoc = 0,
+    //         yLoc = 0,
+    //         destroyed = false,
+    //     };
+    // }
 }
