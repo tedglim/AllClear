@@ -486,7 +486,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1320cfe3e8a3245aa8aed443ae49d842, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardDimX: 5
+  boardDimX: 6
   boardDimY: 5
   boardYDropOffset: 5
   gemOptions:
@@ -500,7 +500,7 @@ MonoBehaviour:
   overlayAlpha: 0.75
   moveSpeed: 25
   rotationTimeInterval: 0.000001
-  rotatePercentIncrease: 0.25
+  rotatePercentIncrease: 0.33
 --- !u!1 &1927535642
 GameObject:
   m_ObjectHideFlags: 0

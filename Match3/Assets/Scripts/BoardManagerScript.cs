@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 public class BoardManagerScript : MonoBehaviour
 {
@@ -18,7 +17,6 @@ public class BoardManagerScript : MonoBehaviour
         public int xLoc;
         public int yLoc;
         public bool destroyed;
-
     }
 
     public int boardDimX = 6;
@@ -27,7 +25,6 @@ public class BoardManagerScript : MonoBehaviour
     private Gem[,] gemGridLayout;
 
     public List<GameObject> gemOptions;
-    // private GameObject randGem;
     private Gem leftGem;
     private Gem downGem;
     private int initHorizCount;
@@ -41,11 +38,11 @@ public class BoardManagerScript : MonoBehaviour
     public float underlayAlpha = .25f;
     public float overlayAlpha = .75f;
     private Gem gemClone;
-    private Vector2Int prevActiveTouchPos;
     public float moveSpeed = 25.0f;
+    private Vector2Int prevActiveTouchPos;
 
     public float rotationTimeInterval = .000001f;
-    public float rotatePercentIncrease = .25f;
+    public float rotatePercentIncrease = 1.0f / 3.0f;
     private Vector3 rotationAngle;
     private bool isRotating = false;
     private bool gridLocked = false;
@@ -62,21 +59,6 @@ public class BoardManagerScript : MonoBehaviour
         Application.targetFrameRate = 30;
         InitBoard();
         MoveGemsDown();
-        // checkBoardStatus();
-    }
-
-    private void checkBoardStatus()
-    {
-        for (int y = 0; y < boardDimY; y++)
-        {
-            for (int x = 0; x < boardDimX; x++)
-            {
-                Debug.Log("Coordinates: [" + x + ", " + y + "]");
-                Debug.Log("[DropDistance, xLoc, yLoc]: [" + gemGridLayout[x, y].dropDist + ", " + gemGridLayout[x,y].xLoc + ", " + gemGridLayout[x, y].yLoc + "]");
-                Debug.Log("[groupedH, groupedV, Destroyed]: [" + gemGridLayout[x, y].groupedHoriz.ToString() + ", " + gemGridLayout[x,y].groupedVert.ToString() + ", " + gemGridLayout[x, y].destroyed.ToString() + "]");
-                Debug.Log("Color: " + gemGridLayout[x, y].gemGObj);
-            }
-        }
     }
 
     private void InitBoard()
@@ -207,6 +189,8 @@ public class BoardManagerScript : MonoBehaviour
     {
         if(gridLocked || isShifting)
         {
+            Debug.Log("grid: " + gridLocked.ToString() + "isShifting: " + isShifting.ToString());
+            Debug.Log("Am I stuck here?");
             return;
         }
 
@@ -231,23 +215,23 @@ public class BoardManagerScript : MonoBehaviour
             if(isRotating)
             {
                 rainCheck = true;
+                touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             } else 
             {
                 touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
                 DropGem();
-                // gridLocked = true;
                 StartCoroutine(MatchGems());
             }
         }
+        //raincheck version
         if(rainCheck)
         {
-            //raincheck version
-            Debug.Log("RAINCHECK END");
-            touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            DropGem();
-            // gridLocked = true;
-            StartCoroutine(MatchGems());
-            rainCheck = false;  
+            if(!isRotating)
+            {
+                DropGem();
+                StartCoroutine(MatchGems());
+                rainCheck = false;
+            }
         }
     }
 
@@ -258,7 +242,7 @@ public class BoardManagerScript : MonoBehaviour
         //get Gem in grid; change its alpha
         Gem selectedGem = gemGridLayout[touchPosX, touchPosY];
         selectedGem.gemGridObj.GetComponent<SpriteRenderer>().color = ChangeGemAlpha(selectedGem, underlayAlpha);
-        //create new Gem at same location
+        //create Gem Clone at same location
         MakeGemClone(selectedGem, touchPosX, touchPosY);
         prevActiveTouchPos = new Vector2Int(touchPosX, touchPosY);
     }
@@ -493,7 +477,6 @@ public class BoardManagerScript : MonoBehaviour
                 //if not a gem that was blown up
                 if (!gemGridLayout[x, y].destroyed)
                 {
-                    
                     int dropDistance = 0;
                     for (int i = 1; i <= y; i++)
                     {
@@ -528,17 +511,9 @@ public class BoardManagerScript : MonoBehaviour
             }
         }
         MoveGemsDown();
-        Debug.Log("Check Board");
         ResetBoardForMatching();
-        checkBoardStatus();
+        // checkBoardStatusHelper();
         StartCoroutine(RepeatMatchGems());
-        // StartCoroutine(MatchGems());
-    }
-
-    IEnumerator RepeatMatchGems()
-    {
-        yield return new WaitUntil(() => !isShifting);
-        StartCoroutine(MatchGems());
     }
 
     private void ResetBoardForMatching()
@@ -555,5 +530,25 @@ public class BoardManagerScript : MonoBehaviour
                 gemGridLayout[x,y].destroyed = false;                
             }
         }
+    }
+
+    private void checkBoardStatusHelper()
+    {
+        for (int y = 0; y < boardDimY; y++)
+        {
+            for (int x = 0; x < boardDimX; x++)
+            {
+                Debug.Log("Coordinates: [" + x + ", " + y + "]");
+                Debug.Log("[DropDistance, xLoc, yLoc]: [" + gemGridLayout[x, y].dropDist + ", " + gemGridLayout[x,y].xLoc + ", " + gemGridLayout[x, y].yLoc + "]");
+                Debug.Log("[groupedH, groupedV, Destroyed]: [" + gemGridLayout[x, y].groupedHoriz.ToString() + ", " + gemGridLayout[x,y].groupedVert.ToString() + ", " + gemGridLayout[x, y].destroyed.ToString() + "]");
+                Debug.Log("Color: " + gemGridLayout[x, y].gemGObj);
+            }
+        }
+    }
+
+    IEnumerator RepeatMatchGems()
+    {
+        yield return new WaitUntil(() => !isShifting);
+        StartCoroutine(MatchGems());
     }
 }
