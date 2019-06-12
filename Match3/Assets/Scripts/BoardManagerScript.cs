@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BoardManagerScript : MonoBehaviour
 {
@@ -51,13 +52,64 @@ public class BoardManagerScript : MonoBehaviour
     private List<Gem> gemListToDestroy = new List<Gem>();
     private bool rainCheck = false;
 
+    public int textTime = 5;
+    public int countdown = 10; 
+    public Text text1;
+    public Text text2;
+    private bool isStarting;
+    private int shiftCount = 0;
 
 
     // Start is called before the first frame update
     void Awake()
     {
+        StartCoroutine(IntroScene());
+
+    }
+
+    IEnumerator IntroScene()
+    {
+        isStarting = true;
+        int showTextTime = textTime;
+        text1.text = "";
+        text2.text = "";
+        while (showTextTime > 0)
+        {
+            text1.text = "YOU GET\n 10 SECONDS\n TO PLAN...";
+            if (showTextTime <= 2)
+            {
+                text2.text = "USE THEM WISELY!";
+            }
+            showTextTime--;
+            yield return new WaitForSecondsRealtime(1);
+        }
+        text1.text = "";
+        text2.text = "";
+
         InitBoard();
         MoveGemsDown();
+    }
+
+    IEnumerator StartCountdown()
+    {
+        text1.fontSize = 48;
+        int countdownTime = countdown;
+        while (countdownTime >=0)
+        {
+            if (countdownTime == 0)
+            {
+                text1.text = "GO!";
+                gridLocked = false;
+                isShifting = false;
+                isStarting = false;
+            } else 
+            {            
+                text1.text = countdownTime.ToString();
+            }
+            countdownTime--;
+            yield return new WaitForSecondsRealtime(1);
+        }
+        text1.text = "";
     }
 
     private void InitBoard()
@@ -179,17 +231,28 @@ public class BoardManagerScript : MonoBehaviour
             yield return new WaitForSeconds(fallTimeInterval);
         }
         gem.gemGridObj.transform.position = end;
-        gridLocked = false;
-        isShifting = false;
+
+        if (shiftCount < 1)
+        {
+            StartCoroutine(StartCountdown());
+            shiftCount++;
+        } else {
+            gridLocked = false;
+            isShifting = false;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(isStarting)
+        {
+            return;
+        }
         if(gridLocked || isShifting)
         {
-            Debug.Log("grid: " + gridLocked.ToString() + "isShifting: " + isShifting.ToString());
-            Debug.Log("Am I stuck here?");
+            // Debug.Log("grid: " + gridLocked.ToString() + "isShifting: " + isShifting.ToString());
+            // Debug.Log("Am I stuck here?");
             return;
         }
 
