@@ -245,14 +245,8 @@ public class BoardManagerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(isStarting)
+        if(isStarting || gridLocked || isShifting)
         {
-            return;
-        }
-        if(gridLocked || isShifting)
-        {
-            // Debug.Log("grid: " + gridLocked.ToString() + "isShifting: " + isShifting.ToString());
-            // Debug.Log("Am I stuck here?");
             return;
         }
 
