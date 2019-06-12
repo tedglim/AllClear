@@ -487,7 +487,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardDimX: 5
-  boardDimY: 4
+  boardDimY: 5
   boardYDropOffset: 5
   gemOptions:
   - {fileID: 6023834250199086954, guid: 098d21a69098448a9856dc67d6a91a07, type: 3}

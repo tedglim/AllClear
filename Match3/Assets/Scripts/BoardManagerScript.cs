@@ -49,8 +49,8 @@ public class BoardManagerScript : MonoBehaviour
     private Vector3 rotationAngle;
     private bool isRotating = false;
     private bool gridLocked = false;
+    private bool isShifting = false;
 
-    private Gem gemLFM;
     private List<Gem> gemListToDestroy = new List<Gem>();
     private bool rainCheck = false;
 
@@ -62,7 +62,6 @@ public class BoardManagerScript : MonoBehaviour
         Application.targetFrameRate = 30;
         InitBoard();
         MoveGemsDown();
-        // Debug.Log("AT START METHOD");
         // checkBoardStatus();
     }
 
@@ -167,6 +166,8 @@ public class BoardManagerScript : MonoBehaviour
     //wrapper for moving gems down into position on screen
     private void MoveGemsDown()
     {
+        gridLocked = true;
+        isShifting = true;
         for(int y = 0; y < boardDimY; y++)
         {
             for(int x = 0; x < boardDimX; x++)
@@ -197,12 +198,14 @@ public class BoardManagerScript : MonoBehaviour
             yield return new WaitForSeconds(fallTimeInterval);
         }
         gem.gemGridObj.transform.position = end;
+        gridLocked = false;
+        isShifting = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(gridLocked)
+        if(gridLocked || isShifting)
         {
             return;
         }
@@ -232,22 +235,20 @@ public class BoardManagerScript : MonoBehaviour
             {
                 touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
                 DropGem();
-                gridLocked = true;
-                // Debug.Log("Checking Board STatus before matching.");
-                checkBoardStatus();
+                // gridLocked = true;
                 StartCoroutine(MatchGems());
             }
         }
-        // if(rainCheck)
-        // {
-        //     //raincheck version
-        //     Debug.Log("RAINCHECK END");
-        //     touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-        //     DropGem();
-        //     gridLocked = true;
-        //     StartCoroutine(MatchGems());
-        //     rainCheck = false;  
-        // }
+        if(rainCheck)
+        {
+            //raincheck version
+            Debug.Log("RAINCHECK END");
+            touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            DropGem();
+            // gridLocked = true;
+            StartCoroutine(MatchGems());
+            rainCheck = false;  
+        }
     }
 
     private void DisplayGemClone(Vector2 touchPos)
@@ -383,6 +384,7 @@ public class BoardManagerScript : MonoBehaviour
     //actually match gems together and pop them
     IEnumerator MatchGems()
     {
+        gridLocked = true;
         ResetBoardForMatching();
         gemListToDestroy = new List<Gem>();
         //Horizontal check first
@@ -459,44 +461,31 @@ public class BoardManagerScript : MonoBehaviour
             }
         }
 
-
-        //AT TIME OF DESTRUCTION, GRID PARAMETERS ARE NOT BEING MODIFIED
         //Destroy matched gems and check how many were destroyed
         int count = 0;
         for (int i = 0; i < gemListToDestroy.Count; i++)
         {
-            if (!gemListToDestroy[i].destroyed)
+            int a = gemListToDestroy[i].xLoc;
+            int b = gemListToDestroy[i].yLoc;
+            if (!gemGridLayout[a, b].destroyed)
             {
+                gemGridLayout[a, b].destroyed = true;
                 Destroy(gemListToDestroy[i].gemGridObj);
-                gemGridLayout[gemListToDestroy[i].xLoc, gemListToDestroy[i].yLoc].destroyed = true;
                 count++;
             }
         }
-        Debug.Log("Destroy list size: " + count);
-        // Debug.Log("COUNT: " + count);
         if (count == 0)
         {
-            // Debug.Log("wtf");
             yield return new WaitForSeconds(.01f);
             gridLocked = false;
         } else {
-            // Debug.Log("check my board");
-            // checkBoardStatus();
+            MoveLeftoverGemsDown();
+            MoveNewGemsDown();
         }
-
-        // } else 
-        // {
-            // Debug.Log("GRIDLOCKED");
-            // //MAKE FUNCTION TO CHECK BOARD STATUS AT THIS POINT. THINGS ARE BEING MARKED AS DESTROYED.
-            // checkBoardStatus();
-            // MoveLeftoverGemsDown();
-            // MoveNewGemsDown();
-        // }
     }
 
     private void MoveLeftoverGemsDown()
     {
-        Debug.Log("Move LEFTOVERS Down");
         for (int y = 1; y < boardDimY; y++)
         {
             for (int x = 0; x < boardDimX; x++)
@@ -523,7 +512,6 @@ public class BoardManagerScript : MonoBehaviour
                 }
             }
         }
-        checkBoardStatus();
     }
 
     private void MoveNewGemsDown()
@@ -540,6 +528,16 @@ public class BoardManagerScript : MonoBehaviour
             }
         }
         MoveGemsDown();
+        Debug.Log("Check Board");
+        ResetBoardForMatching();
+        checkBoardStatus();
+        StartCoroutine(RepeatMatchGems());
+        // StartCoroutine(MatchGems());
+    }
+
+    IEnumerator RepeatMatchGems()
+    {
+        yield return new WaitUntil(() => !isShifting);
         StartCoroutine(MatchGems());
     }
 
