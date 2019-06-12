@@ -54,9 +54,8 @@ public class BoardManagerScript : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        Application.targetFrameRate = 30;
         InitBoard();
         MoveGemsDown();
     }
