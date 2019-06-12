@@ -58,11 +58,14 @@ public class BoardManagerScript : MonoBehaviour
     public Text text2;
     private bool isStarting;
     private int shiftCount = 0;
+    private GameManagerScript gameManagerScript;
 
 
     // Start is called before the first frame update
     void Awake()
     {
+        GameObject gameManagerGObj = GameObject.Find("GameManager"); 
+        gameManagerScript = gameManagerGObj.GetComponent<GameManagerScript>();
         StartCoroutine(IntroScene());
 
     }
@@ -245,7 +248,7 @@ public class BoardManagerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(isStarting || gridLocked || isShifting)
+        if(isStarting || gridLocked || isShifting || gameManagerScript.isGameOver)
         {
             return;
         }
@@ -519,6 +522,10 @@ public class BoardManagerScript : MonoBehaviour
             yield return new WaitForSeconds(.01f);
             gridLocked = false;
         } else {
+            //Rule 00
+            yield return new WaitForSeconds(1.0f);
+            gameManagerScript.GameOver();
+            //
             MoveLeftoverGemsDown();
             MoveNewGemsDown();
         }
@@ -568,7 +575,6 @@ public class BoardManagerScript : MonoBehaviour
         }
         MoveGemsDown();
         ResetBoardForMatching();
-        // checkBoardStatusHelper();
         StartCoroutine(RepeatMatchGems());
     }
 

@@ -5,10 +5,13 @@ using UnityEngine.SceneManagement;
 
 public class GameManagerScript : MonoBehaviour
 {
+    public bool isGameOver = false;
+    public GameObject restartMenu;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        // restartMenu = GameObject.Find("Canvas/RestartMenu");
     }
 
     // Update is called once per frame
@@ -20,5 +23,18 @@ public class GameManagerScript : MonoBehaviour
     public void Restart()
     {
         SceneManager.LoadSceneAsync(0);
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
+
+    public void GameOver()
+    {
+        isGameOver = true;
+        restartMenu.SetActive(true);
+
+
     }
 }
