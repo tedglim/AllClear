@@ -1,23 +1,38 @@
-﻿using System.Collections;
+﻿using System.Net.Mime;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManagerScript : MonoBehaviour
 {
     public bool isGameOver = false;
-    public GameObject restartMenu;
+    private GameObject restartMenu;
+    private GameObject highScoreTableContainer;
+    private GameObject highScoreTableTemplate;
+    private List<HighScoreEntry> highScoreEntryList;
+    private List<GameObject> highScoreEntryGObjList;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        // restartMenu = GameObject.Find("Canvas/RestartMenu");
-    }
 
-    // Update is called once per frame
-    void Update()
+
+    void Awake()
     {
-        
+        restartMenu = GameObject.Find("Canvas/RestartMenu");
+        highScoreTableContainer = GameObject.Find("Canvas/RestartMenu/HighScoreTableContainer");
+        highScoreTableTemplate = GameObject.Find("Canvas/RestartMenu/HighScoreTableContainer/HighScoreTableTemplate");
+        restartMenu.SetActive(false);
+        highScoreTableTemplate.SetActive(false);
+
+        //KEEP TO INITIALIZE LIST INCASE I CLEAR IT
+        // highScoreEntryList = new List<HighScoreEntry>()
+        // {
+        //     new HighScoreEntry {time = 4.0f, gemsDestroyed = 4}
+        // };
+        // HighScores highscores = new HighScores{highScoreEntryList = highScoreEntryList};
+        // string json = JsonUtility.ToJson(highscores);
+        // PlayerPrefs.SetString("highScoreTable", json);
+        // PlayerPrefs.Save();
     }
 
     public void Restart()
@@ -30,11 +45,103 @@ public class GameManagerScript : MonoBehaviour
         Application.Quit();
     }
 
-    public void GameOver()
+    public void GameOver(float inGameTimer, int gemsDestroyed)
     {
-        isGameOver = true;
-        restartMenu.SetActive(true);
+        if (!isGameOver)
+        {
+            isGameOver = true;
+            restartMenu.SetActive(true);
 
+            AddHighScoreEntry(inGameTimer, gemsDestroyed);
+            string jsonString = PlayerPrefs.GetString("highScoreTable");
+            HighScores highscores = JsonUtility.FromJson<HighScores>(jsonString);
+
+            for (int i = 0; i < highscores.highScoreEntryList.Count; i++)
+            {
+                for (int j = i+1; j < highscores.highScoreEntryList.Count; j++)
+                {
+                    if(highscores.highScoreEntryList[j].gemsDestroyed > highscores.highScoreEntryList[i].gemsDestroyed)
+                    {
+                        HighScoreEntry tmp = highscores.highScoreEntryList[i];
+                        highscores.highScoreEntryList[i] = highscores.highScoreEntryList[j];
+                        highscores.highScoreEntryList[j] = tmp;
+                    }
+                    if (highscores.highScoreEntryList[j].gemsDestroyed == highscores.highScoreEntryList[i].gemsDestroyed)
+                    {
+                        if(highscores.highScoreEntryList[j].time < highscores.highScoreEntryList[i].time)
+                        {
+                            HighScoreEntry tmp = highscores.highScoreEntryList[i];
+                            highscores.highScoreEntryList[i] = highscores.highScoreEntryList[j];
+                            highscores.highScoreEntryList[j] = tmp; 
+                        }
+                    }
+                }
+            }
+
+            highScoreEntryGObjList = new List<GameObject>();
+            foreach (HighScoreEntry highScoreEntry in highscores.highScoreEntryList)
+            {
+                CreateHighScoreEntryGObj(highScoreEntry, highScoreTableContainer, highScoreEntryGObjList);
+            }
+        }
+    }
+
+    //make and spawn highscore data on screen
+    private void CreateHighScoreEntryGObj(HighScoreEntry highScoreEntry, GameObject container, List<GameObject> gObjList)
+    {
+        float height = 30;
+        GameObject entryGObj = (GameObject)Instantiate(highScoreTableTemplate, container.transform);
+        RectTransform entryRectTransform = entryGObj.GetComponent<RectTransform>();
+        entryRectTransform.anchoredPosition = new Vector2(0, -height * gObjList.Count);
+        entryGObj.SetActive(true);
+
+        int rank = gObjList.Count + 1;
+        string rankString = rank.ToString("D");
+        string timeString = highScoreEntry.time.ToString("F"); // timer.Tostring(f)
+        string gemString = highScoreEntry.gemsDestroyed.ToString(); // gemDestroyed.ToString
+
+        Transform rankTransform = entryGObj.transform.Find("Rank");
+        rankTransform.GetComponent<Text>().text = rankString;
+
+        Transform timeTransform = entryGObj.transform.Find("Time");
+        timeTransform.GetComponent<Text>().text = timeString;
+                
+        Transform gemsTransform = entryGObj.transform.Find("Gems");
+        gemsTransform.GetComponent<Text>().text = gemString;     
+
+        gObjList.Add(entryGObj);
+    }
+
+    private void AddHighScoreEntry (float time, int gemsDestroyed)
+    {
+        //Create Entry
+        HighScoreEntry highScoreEntry = new HighScoreEntry {
+            time = time,
+            gemsDestroyed = gemsDestroyed,
+        };
+
+        //load Saved HighScores
+        string jsonString = PlayerPrefs.GetString("highScoreTable");
+        HighScores highscores = JsonUtility.FromJson<HighScores>(jsonString);
+
+        //add entry to highscores
+        highscores.highScoreEntryList.Add(highScoreEntry);
+
+        //save updated highscores
+        string json = JsonUtility.ToJson(highscores);
+        PlayerPrefs.SetString("highScoreTable", json);
+        PlayerPrefs.Save();
+    }
+
+    private class HighScores {
+        public List<HighScoreEntry> highScoreEntryList;
+    }
+
+    [System.Serializable]
+    private class HighScoreEntry
+    {
+        public float time;
+        public int gemsDestroyed;
 
     }
 }

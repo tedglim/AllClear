@@ -59,6 +59,8 @@ public class BoardManagerScript : MonoBehaviour
     private bool isStarting;
     private int shiftCount = 0;
     private GameManagerScript gameManagerScript;
+    private float inGameTimer = 0.0f;
+    private bool inGameTimerOn = true;
 
 
     // Start is called before the first frame update
@@ -104,7 +106,7 @@ public class BoardManagerScript : MonoBehaviour
                 text1.text = "GO!";
                 gridLocked = false;
                 isShifting = false;
-                isStarting = false;
+
             } else 
             {            
                 text1.text = countdownTime.ToString();
@@ -112,7 +114,8 @@ public class BoardManagerScript : MonoBehaviour
             countdownTime--;
             yield return new WaitForSecondsRealtime(1);
         }
-        text1.text = "";
+        isStarting = false;
+        text1.text = inGameTimer.ToString();
     }
 
     private void InitBoard()
@@ -248,6 +251,14 @@ public class BoardManagerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!isStarting && !gameManagerScript.isGameOver)
+        {
+            if (inGameTimerOn)
+            {
+                inGameTimer += Time.deltaTime;
+                text1.text = (inGameTimer).ToString("F");
+            }
+        }
         if(isStarting || gridLocked || isShifting || gameManagerScript.isGameOver)
         {
             return;
@@ -523,8 +534,10 @@ public class BoardManagerScript : MonoBehaviour
             gridLocked = false;
         } else {
             //Rule 00
+            inGameTimerOn = false;
             yield return new WaitForSeconds(1.0f);
-            gameManagerScript.GameOver();
+            //give count and ingame timer
+            gameManagerScript.GameOver(inGameTimer, count);
             //
             MoveLeftoverGemsDown();
             MoveNewGemsDown();
