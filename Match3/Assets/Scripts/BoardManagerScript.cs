@@ -244,30 +244,33 @@ public class BoardManagerScript : MonoBehaviour
         }
 
         //On initial touch of screen
-        if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        // if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        if(Input.GetMouseButtonDown(0))
         {
-            touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
             // don't bother if finger is way off.
             if (Mathf.RoundToInt(touchPos.origin.y) < boardDimY + 1 && Mathf.RoundToInt(touchPos.origin.y) > -2)
             {
                 DisplayGemClone(touchPos.origin);
             }
         //if finger is moving on screen
-        } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+        // } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+        } else if (Input.GetMouseButton(0))
         {
-            touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
             gemClone.gemGridObj.transform.Translate((touchPos.origin - gemClone.gemGridObj.transform.position) * Time.deltaTime * moveSpeed);
             ShowGemMovement(touchPos.origin);
         //if finger is off
-        } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
+        // } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
+        } else if (Input.GetMouseButtonUp(0))
         {
             if(isRotating)
             {
                 rainCheck = true;
-                touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+                touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
             } else 
             {
-                touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+                touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
                 DropGem();
                 StartCoroutine(MatchGems());
             }
