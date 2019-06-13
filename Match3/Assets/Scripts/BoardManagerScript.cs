@@ -69,7 +69,6 @@ public class BoardManagerScript : MonoBehaviour
         GameObject gameManagerGObj = GameObject.Find("GameManager"); 
         gameManagerScript = gameManagerGObj.GetComponent<GameManagerScript>();
         StartCoroutine(IntroScene());
-
     }
 
     IEnumerator IntroScene()

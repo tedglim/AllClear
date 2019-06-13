@@ -13,7 +13,7 @@ public class GameManagerScript : MonoBehaviour
     private GameObject highScoreTableTemplate;
     private List<HighScoreEntry> highScoreEntryList;
     private List<GameObject> highScoreEntryGObjList;
-
+    private int highScoreLimit = 10;
 
 
     void Awake()
@@ -23,16 +23,6 @@ public class GameManagerScript : MonoBehaviour
         highScoreTableTemplate = GameObject.Find("Canvas/RestartMenu/HighScoreTableContainer/HighScoreTableTemplate");
         restartMenu.SetActive(false);
         highScoreTableTemplate.SetActive(false);
-
-        //KEEP TO INITIALIZE LIST INCASE I CLEAR IT
-        // highScoreEntryList = new List<HighScoreEntry>()
-        // {
-        //     new HighScoreEntry {time = 4.0f, gemsDestroyed = 4}
-        // };
-        // HighScores highscores = new HighScores{highScoreEntryList = highScoreEntryList};
-        // string json = JsonUtility.ToJson(highscores);
-        // PlayerPrefs.SetString("highScoreTable", json);
-        // PlayerPrefs.Save();
     }
 
     public void Restart()
@@ -79,9 +69,18 @@ public class GameManagerScript : MonoBehaviour
             }
 
             highScoreEntryGObjList = new List<GameObject>();
-            foreach (HighScoreEntry highScoreEntry in highscores.highScoreEntryList)
+            if (highscores.highScoreEntryList.Count >= highScoreLimit)
             {
-                CreateHighScoreEntryGObj(highScoreEntry, highScoreTableContainer, highScoreEntryGObjList);
+                for (int i = 0; i < highScoreLimit; i++)
+                {
+                    CreateHighScoreEntryGObj(highscores.highScoreEntryList[i], highScoreTableContainer, highScoreEntryGObjList);
+                }
+            } else 
+            {
+                foreach (HighScoreEntry highScoreEntry in highscores.highScoreEntryList)
+                {
+                    CreateHighScoreEntryGObj(highScoreEntry, highScoreTableContainer, highScoreEntryGObjList);
+                }
             }
         }
     }
@@ -120,6 +119,18 @@ public class GameManagerScript : MonoBehaviour
             gemsDestroyed = gemsDestroyed,
         };
 
+        if (!PlayerPrefs.HasKey("highScoreTable"))
+        {
+            //INIT LIST ON FIRST PLAY
+            highScoreEntryList = new List<HighScoreEntry>()
+            {
+                new HighScoreEntry {time = 100.0f, gemsDestroyed = 1}
+            };
+            HighScores hs = new HighScores{highScoreEntryList = highScoreEntryList};
+            string js = JsonUtility.ToJson(hs);
+            PlayerPrefs.SetString("highScoreTable", js);
+            PlayerPrefs.Save();
+        }
         //load Saved HighScores
         string jsonString = PlayerPrefs.GetString("highScoreTable");
         HighScores highscores = JsonUtility.FromJson<HighScores>(jsonString);
