@@ -1,5 +1,5 @@
 # Match3
-![](Match3.gif)
+![](Match3Demo.gif)
 </br>
 This is a mobile Match3 Demo game.
 </br>
