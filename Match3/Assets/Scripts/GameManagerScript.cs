@@ -14,6 +14,7 @@ public class GameManagerScript : MonoBehaviour
     private List<HighScoreEntry> highScoreEntryList;
     private List<GameObject> highScoreEntryGObjList;
     private int highScoreLimit = 10;
+    public Text yourScore;
 
 
     void Awake()
@@ -41,6 +42,8 @@ public class GameManagerScript : MonoBehaviour
         {
             isGameOver = true;
             restartMenu.SetActive(true);
+
+            yourScore.text = "Your Time: " + inGameTimer.ToString("F") + "\n" + "Your Gems: " + gemsDestroyed.ToString();
 
             AddHighScoreEntry(inGameTimer, gemsDestroyed);
             string jsonString = PlayerPrefs.GetString("highScoreTable");
@@ -88,7 +91,7 @@ public class GameManagerScript : MonoBehaviour
     //make and spawn highscore data on screen
     private void CreateHighScoreEntryGObj(HighScoreEntry highScoreEntry, GameObject container, List<GameObject> gObjList)
     {
-        float height = 30;
+        float height = 40;
         GameObject entryGObj = (GameObject)Instantiate(highScoreTableTemplate, container.transform);
         RectTransform entryRectTransform = entryGObj.GetComponent<RectTransform>();
         entryRectTransform.anchoredPosition = new Vector2(0, -height * gObjList.Count);
@@ -153,6 +156,5 @@ public class GameManagerScript : MonoBehaviour
     {
         public float time;
         public int gemsDestroyed;
-
     }
 }

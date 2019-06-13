@@ -52,10 +52,10 @@ public class BoardManagerScript : MonoBehaviour
     private List<Gem> gemListToDestroy = new List<Gem>();
     private bool rainCheck = false;
 
-    public int textTime = 5;
-    public int countdown = 10; 
+    public int textTime = 10;
     public Text text1;
     public Text text2;
+    public Text text3;
     private bool isStarting;
     private int shiftCount = 0;
     private GameManagerScript gameManagerScript;
@@ -77,44 +77,23 @@ public class BoardManagerScript : MonoBehaviour
         int showTextTime = textTime;
         text1.text = "";
         text2.text = "";
+        text3.text = "";
         while (showTextTime > 0)
         {
-            text1.text = "YOU GET\n 10 SECONDS\n TO PLAN...";
-            if (showTextTime <= 2)
+            text1.text = "Use your finger to drag\n a dot around the board.\n\n When a match of 3 or more\n of the same color is made,\n the game is over and\n your time will be recorded.\n\n Connect as many dots of\n the same color as possible\n and go for a Full-Clear!";
+            if (showTextTime <= 3)
             {
-                text2.text = "USE THEM WISELY!";
+                text2.text = "GAME BEGINS IN\n" + showTextTime.ToString();
             }
             showTextTime--;
             yield return new WaitForSecondsRealtime(1);
         }
         text1.text = "";
+        gridLocked = false;
+        isShifting = false;
         text2.text = "";
-
         InitBoard();
         MoveGemsDown();
-    }
-
-    IEnumerator StartCountdown()
-    {
-        text1.fontSize = 48;
-        int countdownTime = countdown;
-        while (countdownTime >=0)
-        {
-            if (countdownTime == 0)
-            {
-                text1.text = "GO!";
-                gridLocked = false;
-                isShifting = false;
-
-            } else 
-            {            
-                text1.text = countdownTime.ToString();
-            }
-            countdownTime--;
-            yield return new WaitForSecondsRealtime(1);
-        }
-        isStarting = false;
-        text1.text = inGameTimer.ToString();
     }
 
     private void InitBoard()
@@ -239,7 +218,8 @@ public class BoardManagerScript : MonoBehaviour
 
         if (shiftCount < 1)
         {
-            StartCoroutine(StartCountdown());
+            isStarting = false;
+            text3.text = inGameTimer.ToString();
             shiftCount++;
         } else {
             gridLocked = false;
@@ -255,7 +235,7 @@ public class BoardManagerScript : MonoBehaviour
             if (inGameTimerOn)
             {
                 inGameTimer += Time.deltaTime;
-                text1.text = (inGameTimer).ToString("F");
+                text3.text = (inGameTimer).ToString("F");
             }
         }
         if(isStarting || gridLocked || isShifting || gameManagerScript.isGameOver)
@@ -529,10 +509,8 @@ public class BoardManagerScript : MonoBehaviour
         }
         if (count == 0)
         {
-            inGameTimerOn = false;
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(0.1f);
             gridLocked = false;
-            gameManagerScript.GameOver(inGameTimer, count);
         } else {
             //Rule 00
             inGameTimerOn = false;
