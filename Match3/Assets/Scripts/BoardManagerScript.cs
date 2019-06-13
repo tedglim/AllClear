@@ -529,8 +529,10 @@ public class BoardManagerScript : MonoBehaviour
         }
         if (count == 0)
         {
-            yield return new WaitForSeconds(.01f);
+            inGameTimerOn = false;
+            yield return new WaitForSeconds(1.0f);
             gridLocked = false;
+            gameManagerScript.GameOver(inGameTimer, count);
         } else {
             //Rule 00
             inGameTimerOn = false;
