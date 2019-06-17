@@ -268,6 +268,7 @@ public class BoardManagerScript : MonoBehaviour
         } else if (Input.GetMouseButton(0))
         {
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
+            // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);            
             if (touchPos.origin.x < boardDimX && touchPos.origin.x > -1 && touchPos.origin.y < boardDimY && touchPos.origin.y > -1)
             {
                 gemClone.gemGridObj.transform.Translate((touchPos.origin - gemClone.gemGridObj.transform.position) * Time.deltaTime * moveSpeed);
@@ -281,9 +282,11 @@ public class BoardManagerScript : MonoBehaviour
             {
                 rainCheck = true;
                 touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
+                // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             } else 
             {
                 touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
+                // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
                 DropGem();
                 StartCoroutine(MatchGems());
             }
