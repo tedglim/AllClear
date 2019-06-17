@@ -57,6 +57,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\BoardManagerScript.cs" />
      <Compile Include="Assets\Scripts\GameManagerScript.cs" />
+     <Compile Include="Assets\Scripts\RulesScript.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>/Users/TedLim/Documents/GitHub/Match3/Match3/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>

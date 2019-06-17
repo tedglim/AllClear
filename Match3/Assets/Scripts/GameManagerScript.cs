@@ -17,6 +17,7 @@ public class GameManagerScript : MonoBehaviour
     public Text yourScore;
 
 
+
     void Awake()
     {
         restartMenu = GameObject.Find("Canvas/RestartMenu");
@@ -28,7 +29,7 @@ public class GameManagerScript : MonoBehaviour
 
     public void Restart()
     {
-        SceneManager.LoadSceneAsync(0);
+        SceneManager.LoadSceneAsync(1);
     }
 
     public void Quit()
@@ -42,7 +43,6 @@ public class GameManagerScript : MonoBehaviour
         {
             isGameOver = true;
             restartMenu.SetActive(true);
-
             yourScore.text = "Your Time: " + inGameTimer.ToString("F") + "\n" + "Your Gems: " + gemsDestroyed.ToString();
 
             AddHighScoreEntry(inGameTimer, gemsDestroyed);

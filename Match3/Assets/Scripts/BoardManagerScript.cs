@@ -52,10 +52,9 @@ public class BoardManagerScript : MonoBehaviour
     private List<Gem> gemListToDestroy = new List<Gem>();
     private bool rainCheck = false;
 
-    public int textTime = 10;
-    public Text text1;
-    public Text text2;
     public Text text3;
+    public Toggle timerToggle;
+    private bool toggleOn;
     private bool isStarting;
     private int shiftCount = 0;
     private GameManagerScript gameManagerScript;
@@ -63,35 +62,40 @@ public class BoardManagerScript : MonoBehaviour
     private bool inGameTimerOn = true;
 
 
-    // Start is called before the first frame update
+    // declare inits and get script references
     void Awake()
     {
+        GameObject timerToggleObj = GameObject.Find("Canvas/TimerToggle");
+        timerToggle = timerToggleObj.GetComponent<Toggle>();
+        timerToggle.onValueChanged.AddListener(delegate {
+            ToggleValueChanged(timerToggle);
+        });
+        timerToggle.isOn = false;
         GameObject gameManagerGObj = GameObject.Find("GameManager"); 
         gameManagerScript = gameManagerGObj.GetComponent<GameManagerScript>();
         StartCoroutine(IntroScene());
     }
 
+    // Toggle state
+    void ToggleValueChanged(Toggle change)
+    {
+        if (timerToggle.isOn)
+        {
+            toggleOn = true;
+        } else 
+        {
+            toggleOn = false;
+        }
+    }
+
+    //init intro state
     IEnumerator IntroScene()
     {
         isStarting = true;
-        int showTextTime = textTime;
-        text1.text = "";
-        text2.text = "";
         text3.text = "";
-        while (showTextTime > 0)
-        {
-            text1.text = "Use your finger to drag\n a dot around the board.\n\n When a match of 3 or more\n of the same color is made,\n the game is over and\n your time will be recorded.\n\n Connect as many dots of\n the same color as possible\n and go for a Full-Clear!";
-            if (showTextTime <= 3)
-            {
-                text2.text = "GAME BEGINS IN\n" + showTextTime.ToString();
-            }
-            showTextTime--;
-            yield return new WaitForSecondsRealtime(1);
-        }
-        text1.text = "";
         gridLocked = false;
         isShifting = false;
-        text2.text = "";
+        yield return new WaitForSecondsRealtime(3.0f);
         InitBoard();
         MoveGemsDown();
     }
@@ -219,7 +223,6 @@ public class BoardManagerScript : MonoBehaviour
         if (shiftCount < 1)
         {
             isStarting = false;
-            text3.text = inGameTimer.ToString();
             shiftCount++;
         } else {
             gridLocked = false;
@@ -235,9 +238,15 @@ public class BoardManagerScript : MonoBehaviour
             if (inGameTimerOn)
             {
                 inGameTimer += Time.deltaTime;
-                text3.text = (inGameTimer).ToString("F");
+                if (toggleOn)
+                {
+                    text3.text = (inGameTimer).ToString("F");
+                } else {
+                    text3.text = "";
+                }
             }
         }
+
         if(isStarting || gridLocked || isShifting || gameManagerScript.isGameOver)
         {
             return;
@@ -248,6 +257,7 @@ public class BoardManagerScript : MonoBehaviour
         if(Input.GetMouseButtonDown(0))
         {
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
+            // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             // don't bother if finger is way off.
             if (Mathf.RoundToInt(touchPos.origin.y) < boardDimY + 1 && Mathf.RoundToInt(touchPos.origin.y) > -2)
             {
@@ -258,8 +268,11 @@ public class BoardManagerScript : MonoBehaviour
         } else if (Input.GetMouseButton(0))
         {
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
-            gemClone.gemGridObj.transform.Translate((touchPos.origin - gemClone.gemGridObj.transform.position) * Time.deltaTime * moveSpeed);
-            ShowGemMovement(touchPos.origin);
+            if (touchPos.origin.x < boardDimX && touchPos.origin.x > -1 && touchPos.origin.y < boardDimY && touchPos.origin.y > -1)
+            {
+                gemClone.gemGridObj.transform.Translate((touchPos.origin - gemClone.gemGridObj.transform.position) * Time.deltaTime * moveSpeed);
+                ShowGemMovement(touchPos.origin);
+            }
         //if finger is off
         // } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
         } else if (Input.GetMouseButtonUp(0))
@@ -497,6 +510,7 @@ public class BoardManagerScript : MonoBehaviour
             }
         }
 
+
         //Destroy matched gems and check how many were destroyed
         int count = 0;
         for (int i = 0; i < gemListToDestroy.Count; i++)
@@ -506,21 +520,32 @@ public class BoardManagerScript : MonoBehaviour
             if (!gemGridLayout[a, b].destroyed)
             {
                 gemGridLayout[a, b].destroyed = true;
-                Destroy(gemListToDestroy[i].gemGridObj);
                 count++;
             }
         }
         if (count == 0)
         {
+            inGameTimerOn = true;
             yield return new WaitForSeconds(0.1f);
             gridLocked = false;
         } else {
+            float tempInGameTimer = inGameTimer;
+            inGameTimerOn=false;
+            yield return new WaitForSeconds(1.0f);
+            for (int i = 0; i < gemListToDestroy.Count; i++)
+            {
+                int a = gemListToDestroy[i].xLoc;
+                int b = gemListToDestroy[i].yLoc;
+                if (gemGridLayout[a, b].destroyed)
+                {
+                    Destroy(gemListToDestroy[i].gemGridObj);
+                }
+            }
             //Rule 00
             inGameTimerOn = false;
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(2.0f);
             //give count and ingame timer
-            gameManagerScript.GameOver(inGameTimer, count);
-            //
+            gameManagerScript.GameOver(tempInGameTimer, count);
             MoveLeftoverGemsDown();
             MoveNewGemsDown();
         }
