@@ -29,7 +29,12 @@ public class GameManagerScript : MonoBehaviour
 
     public void Restart()
     {
-        SceneManager.LoadSceneAsync(1);
+        SceneManager.LoadSceneAsync(2);
+    }
+
+    public void GetInstructions()
+    {
+        SceneManager.LoadSceneAsync(0);
     }
 
     public void Quit()
@@ -43,7 +48,7 @@ public class GameManagerScript : MonoBehaviour
         {
             isGameOver = true;
             restartMenu.SetActive(true);
-            yourScore.text = "Your Time: " + inGameTimer.ToString("F") + "\n" + "Your Gems: " + gemsDestroyed.ToString();
+            yourScore.text = "Your Time: " + inGameTimer.ToString("F") + "\n" + "Gems Cleared: " + gemsDestroyed.ToString();
 
             AddHighScoreEntry(inGameTimer, gemsDestroyed);
             string jsonString = PlayerPrefs.GetString("highScoreTable");
