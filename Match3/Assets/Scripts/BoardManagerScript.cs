@@ -24,6 +24,12 @@ public class BoardManagerScript : MonoBehaviour
     public int boardDimY = 5;
     public int boardYDropOffset = 5;
     private Gem[,] gemGridLayout;
+    public int minDots = 3;
+    private int redCount;
+    private int blueCount;
+    private int yellowCount;
+    private int greenCount;
+
 
     public List<GameObject> gemOptions;
     private Gem leftGem;
@@ -61,6 +67,7 @@ public class BoardManagerScript : MonoBehaviour
     private GameManagerScript gameManagerScript;
     private float inGameTimer = 0.0f;
     private bool inGameTimerOn = true;
+    private bool canPlay;
 
 
     // declare inits and get script references
@@ -92,13 +99,27 @@ public class BoardManagerScript : MonoBehaviour
     //init intro state
     IEnumerator IntroScene()
     {
+        canPlay = false;
+        redCount = 0;
+        blueCount = 0;
+        yellowCount = 0;
+        greenCount = 0; 
         isStarting = true;
         text3.text = "";
         text4.text = "";
         gridLocked = false;
         isShifting = false;
         yield return new WaitForSecondsRealtime(3.0f);
-        InitBoard();
+        while(true)
+        {
+            InitBoard();
+            if (redCount >= minDots && blueCount >= minDots && yellowCount >= minDots && greenCount >= minDots)
+            {
+                canPlay=true;
+                break;
+            }
+            ClearBoard();
+        }
         MoveGemsDown();
     }
 
@@ -160,6 +181,19 @@ public class BoardManagerScript : MonoBehaviour
                         }
                     }
                     break;
+                }
+                if (randGem == gemOptions[0])
+                {
+                    blueCount++;
+                } else if (randGem == gemOptions[1])
+                {
+                    yellowCount++;
+                } else if (randGem == gemOptions[2])
+                {
+                    greenCount++;
+                } else if (randGem == gemOptions[3])
+                {
+                    redCount++;
                 }
                 //make the gem and place it in grid
                 MakeNewGem(randGem, x ,y);
@@ -631,6 +665,21 @@ public class BoardManagerScript : MonoBehaviour
                 gemGridLayout[x,y].destroyed = false;                
             }
         }
+    }
+
+    private void ClearBoard()
+    {
+        for (int y =0; y < boardDimY; y++)
+        {
+            for (int x =0; x < boardDimX; x++)
+            {
+                Destroy(gemGridLayout[x,y].gemGridObj);               
+            }
+        }
+        redCount = 0;
+        yellowCount = 0;
+        blueCount = 0;
+        greenCount = 0;
     }
 
     private void checkBoardStatusHelper()
