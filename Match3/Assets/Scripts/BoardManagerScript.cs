@@ -43,7 +43,7 @@ public class BoardManagerScript : MonoBehaviour
     private Vector2Int prevActiveTouchPos;
 
     public float rotationTimeInterval = .000001f;
-    public float rotatePercentIncrease = 1.0f / 3.0f;
+    public float rotatePercentIncrease = 1.0f / 2.0f;
     private Vector3 rotationAngle;
     private bool isRotating = false;
     private bool gridLocked = false;
@@ -53,6 +53,7 @@ public class BoardManagerScript : MonoBehaviour
     private bool rainCheck = false;
 
     public Text text3;
+    public Text text4;
     public Toggle timerToggle;
     private bool toggleOn;
     private bool isStarting;
@@ -93,6 +94,7 @@ public class BoardManagerScript : MonoBehaviour
     {
         isStarting = true;
         text3.text = "";
+        text4.text = "";
         gridLocked = false;
         isShifting = false;
         yield return new WaitForSecondsRealtime(3.0f);
@@ -272,7 +274,9 @@ public class BoardManagerScript : MonoBehaviour
             if (touchPos.origin.x < boardDimX && touchPos.origin.x > -1 && touchPos.origin.y < boardDimY && touchPos.origin.y > -1)
             {
                 gemClone.gemGridObj.transform.Translate((touchPos.origin - gemClone.gemGridObj.transform.position) * Time.deltaTime * moveSpeed);
+
                 ShowGemMovement(touchPos.origin);
+
             }
         //if finger is off
         // } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
@@ -360,24 +364,37 @@ public class BoardManagerScript : MonoBehaviour
     {
         int touchPosX = GetPosOnAxis(touchPos.x, boardDimX);
         int touchPosY = GetPosOnAxis(touchPos.y, boardDimY);
-    // Debug.Log("Current finger pos: [" + touchPosX + ", " + touchPosY + "]");
         //Updates gem movement when finger moves to new cell and as fast as the rotation happens.
-        if ((prevActiveTouchPos.x != touchPosX || prevActiveTouchPos.y != touchPosY) && isRotating == false)
+        
+        if ((prevActiveTouchPos.x != touchPosX || prevActiveTouchPos.y != touchPosY) && !isRotating)
         {
+            // isRotating = true;
             if(touchPosX - prevActiveTouchPos.x > 0)
             {
                 touchPosX = prevActiveTouchPos.x + 1;
+                StartCoroutine(ShowGemMovementEnum(touchPosX, prevActiveTouchPos.y));
+                
+                // touchPosY = prevActiveTouchPos.y;
             } else if (touchPosX - prevActiveTouchPos.x < 0)
             {
                 touchPosX = prevActiveTouchPos.x - 1;
+                StartCoroutine(ShowGemMovementEnum(touchPosX, prevActiveTouchPos.y));
+            
+                // touchPosY = prevActiveTouchPos.y;
             } else if (touchPosY - prevActiveTouchPos.y > 0)
             {
                 touchPosY = prevActiveTouchPos.y + 1;
+                StartCoroutine(ShowGemMovementEnum(prevActiveTouchPos.x, touchPosY));
+
+                // touchPosX = prevActiveTouchPos.x;
             } else if (touchPosY - prevActiveTouchPos.y < 0)
             {
                 touchPosY = prevActiveTouchPos.y - 1;
+                StartCoroutine(ShowGemMovementEnum(prevActiveTouchPos.x, touchPosY));
+
+                // touchPosX = prevActiveTouchPos.x;
             }
-            StartCoroutine(ShowGemMovementEnum(touchPosX, touchPosY));
+        // Debug.Log("Current finger pos: [" + touchPosX + ", " + touchPosY + "]");
         } 
     }
 
@@ -545,8 +562,17 @@ public class BoardManagerScript : MonoBehaviour
                 }
             }
             //Rule 00
-            inGameTimerOn = false;
-            yield return new WaitForSeconds(2.0f);
+            // inGameTimerOn = false;
+            int gemTotal = boardDimX * boardDimY;
+            if (gemListToDestroy.Count == gemTotal)
+            {
+                text4.text = "ALL-CLEAR";
+                yield return new WaitForSeconds(2.0f);
+                text4.text = "";
+            } else
+            {
+                yield return new WaitForSeconds(2.0f);                
+            }
             //give count and ingame timer
             gameManagerScript.GameOver(tempInGameTimer, count);
             MoveLeftoverGemsDown();
