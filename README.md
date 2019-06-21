@@ -1,12 +1,12 @@
 # Match3
 ![](Match3Demo.gif)
 </br>
-This is a mobile Matching game prototype. The objective is to Match as many Gems as possible in the shortest amount of time possible with only 1 Match-Move. Players will Touch and Drag a Gem to perform Gem swapping.
+This is a mobile Puzzle game prototype. The objective is to clear as many Dots as possible by dragging a Dot around the board. Players will Touch and Drag a Dot to swap the position of the Dots. Lining up 3 or more Dots of the same color will clear them. Once any amount of Dots are cleared, the game will end.
 </br>
 </br>
 This game features the following:
-* Touch and Drag mechanics to swap Gems into different positions.
-* Matching algorithm to detect when 3 Gems in a row are found.
-* Includes ability to Respawn Gems and perform cascading matches.
+* Touch and Drag mechanics to swap Dots into different positions.
+* Matching algorithm to detect when 3 Dots in a row are found.
+* Includes ability to Respawn Dots and perform cascading matches.
 * Records Top 10 High Scores.
-* Quick Reset Button to restart the game.
+* Tutorial animated gifs and a Retry button to quickly play again.
