@@ -368,31 +368,22 @@ public class BoardManagerScript : MonoBehaviour
         
         if ((prevActiveTouchPos.x != touchPosX || prevActiveTouchPos.y != touchPosY) && !isRotating)
         {
-            // isRotating = true;
             if(touchPosX - prevActiveTouchPos.x > 0)
             {
                 touchPosX = prevActiveTouchPos.x + 1;
                 StartCoroutine(ShowGemMovementEnum(touchPosX, prevActiveTouchPos.y));
-                
-                // touchPosY = prevActiveTouchPos.y;
             } else if (touchPosX - prevActiveTouchPos.x < 0)
             {
                 touchPosX = prevActiveTouchPos.x - 1;
                 StartCoroutine(ShowGemMovementEnum(touchPosX, prevActiveTouchPos.y));
-            
-                // touchPosY = prevActiveTouchPos.y;
             } else if (touchPosY - prevActiveTouchPos.y > 0)
             {
                 touchPosY = prevActiveTouchPos.y + 1;
                 StartCoroutine(ShowGemMovementEnum(prevActiveTouchPos.x, touchPosY));
-
-                // touchPosX = prevActiveTouchPos.x;
             } else if (touchPosY - prevActiveTouchPos.y < 0)
             {
                 touchPosY = prevActiveTouchPos.y - 1;
                 StartCoroutine(ShowGemMovementEnum(prevActiveTouchPos.x, touchPosY));
-
-                // touchPosX = prevActiveTouchPos.x;
             }
         // Debug.Log("Current finger pos: [" + touchPosX + ", " + touchPosY + "]");
         } 
