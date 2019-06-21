@@ -554,7 +554,7 @@ public class BoardManagerScript : MonoBehaviour
             }
             //Rule 00
             int gemTotal = boardDimX * boardDimY;
-            if (gemListToDestroy.Count == gemTotal)
+            if (count == gemTotal)
             {
                 text4.text = "ALL-CLEAR";
                 yield return new WaitForSeconds(2.0f);
