@@ -562,7 +562,6 @@ public class BoardManagerScript : MonoBehaviour
                 }
             }
             //Rule 00
-            // inGameTimerOn = false;
             int gemTotal = boardDimX * boardDimY;
             if (gemListToDestroy.Count == gemTotal)
             {
