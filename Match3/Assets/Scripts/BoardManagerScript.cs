@@ -67,7 +67,7 @@ public class BoardManagerScript : MonoBehaviour
     private GameManagerScript gameManagerScript;
     private float inGameTimer = 0.0f;
     private bool inGameTimerOn = true;
-    private bool canPlay;
+
 
 
     // declare inits and get script references
@@ -99,7 +99,6 @@ public class BoardManagerScript : MonoBehaviour
     //init intro state
     IEnumerator IntroScene()
     {
-        canPlay = false;
         redCount = 0;
         blueCount = 0;
         yellowCount = 0;
@@ -115,7 +114,6 @@ public class BoardManagerScript : MonoBehaviour
             InitBoard();
             if (redCount >= minDots && blueCount >= minDots && yellowCount >= minDots && greenCount >= minDots)
             {
-                canPlay=true;
                 break;
             }
             ClearBoard();
