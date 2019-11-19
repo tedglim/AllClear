@@ -54,31 +54,26 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\BoardManagerScript.cs" />
+     <Compile Include="Assets\Scripts\GameEventsScript.cs" />
      <Compile Include="Assets\Scripts\GameManagerScript.cs" />
      <Compile Include="Assets\Scripts\RulesScript.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
+ <Reference Include="Unity.VSCode.Editor">
+ <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+ </Reference>
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UI">
+ <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Timeline">
  <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
  </Reference>
  <Reference Include="Unity.CollabProxy.Editor">
  <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
- </Reference>
- <Reference Include="Unity.TextMeshPro">
- <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
- </Reference>
- <Reference Include="Unity.Analytics.DataPrivacy">
- <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
- </Reference>
- <Reference Include="Unity.VSCode.Editor">
- <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.UI">
- <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Rider.Editor">
  <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
@@ -88,6 +83,12 @@
  </Reference>
  <Reference Include="Unity.2D.Tilemap.Editor">
  <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.2D.Tilemap.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.TextMeshPro">
+ <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Analytics.DataPrivacy">
+ <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.UI">
  <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>

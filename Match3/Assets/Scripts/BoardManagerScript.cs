@@ -22,7 +22,7 @@ public class BoardManagerScript : MonoBehaviour
 
     public int boardDimX = 6;
     public int boardDimY = 5;
-    public int boardYDropOffset = 5;
+    public int boardYDropOffset;
     private Gem[,] gemGridLayout;
     public int minDots = 3;
     private int redCount;
