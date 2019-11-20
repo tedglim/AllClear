@@ -7,6 +7,7 @@ public class GameEventsScript : MonoBehaviour
 {
 
     public static UnityEvent releaseHold = new UnityEvent();
+    public static UnityEvent gameIsOver = new UnityEvent();
     public static GemClearEvent clearGems = new GemClearEvent();
     //release hold,
     //count gems deleted

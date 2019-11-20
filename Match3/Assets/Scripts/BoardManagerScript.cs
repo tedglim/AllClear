@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class BoardManagerScript : MonoBehaviour
 {
@@ -64,7 +65,7 @@ public class BoardManagerScript : MonoBehaviour
     private bool toggleOn;
     private bool isStarting;
     private int shiftCount = 0;
-    private GameManagerScript gameManagerScript;
+    // private GameManagerScript gameManagerScript;
     private float inGameTimer = 0.0f;
     private bool inGameTimerOn = true;
 
@@ -73,15 +74,21 @@ public class BoardManagerScript : MonoBehaviour
     // declare inits and get script references
     void Awake()
     {
+        GameEventsScript.gameIsOver.AddListener(GameOver);
         GameObject timerToggleObj = GameObject.Find("Canvas/TimerToggle");
         timerToggle = timerToggleObj.GetComponent<Toggle>();
         timerToggle.onValueChanged.AddListener(delegate {
             ToggleValueChanged(timerToggle);
         });
         timerToggle.isOn = false;
-        GameObject gameManagerGObj = GameObject.Find("GameManager"); 
-        gameManagerScript = gameManagerGObj.GetComponent<GameManagerScript>();
+        // GameObject gameManagerGObj = GameObject.Find("GameManager"); 
+        // gameManagerScript = gameManagerGObj.GetComponent<GameManagerScript>();
         StartCoroutine(IntroScene());
+    }
+
+    private void GameOver()
+    {
+        SceneManager.LoadSceneAsync(3);
     }
 
     // Toggle state
@@ -267,7 +274,7 @@ public class BoardManagerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isStarting && !gameManagerScript.isGameOver)
+        if (!isStarting)
         {
             if (inGameTimerOn)
             {
@@ -281,7 +288,7 @@ public class BoardManagerScript : MonoBehaviour
             }
         }
 
-        if(isStarting || gridLocked || isShifting || gameManagerScript.isGameOver)
+        if(isStarting || gridLocked || isShifting)
         {
             return;
         }
@@ -596,7 +603,10 @@ public class BoardManagerScript : MonoBehaviour
                 yield return new WaitForSeconds(2.0f);                
             }
             //give count and ingame timer
-            gameManagerScript.GameOver(tempInGameTimer, count);
+            PlayStatsScript.GemsCleared = count;
+            PlayStatsScript.Time = tempInGameTimer;
+            GameEventsScript.gameIsOver.Invoke();
+            // gameManagerScript.GameOver(tempInGameTimer, count);
             MoveLeftoverGemsDown();
             MoveNewGemsDown();
         }
