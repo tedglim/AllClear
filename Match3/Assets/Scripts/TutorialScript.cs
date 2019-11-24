@@ -6,8 +6,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class BoardManagerScript : MonoBehaviour
+public class TutorialScript : MonoBehaviour
 {
+    private struct Gemm
+    {
+        public GameObject gemGObj;
+        public int dropDist;
+        public int gridXLoc;
+        public int gridYLoc;
+    }
     private struct Gem {
         public GameObject gemGObj;
         public GameObject gemGridObj;
@@ -23,8 +30,9 @@ public class BoardManagerScript : MonoBehaviour
 
     public int boardDimX = 6;
     public int boardDimY = 5;
-    public int boardYDropOffset;
+    public int dropOffset;
     private Gem[,] gemGridLayout;
+    private Gemm[,] gemmGridLayout;
     public int minDots = 3;
     private int redCount;
     private int blueCount;
@@ -50,7 +58,7 @@ public class BoardManagerScript : MonoBehaviour
     private Vector2Int prevActiveTouchPos;
 
     public float rotationTimeInterval = .000001f;
-    public float rotatePercentIncrease = 1.0f / 2.0f;
+    public float rotatePercentIncrease;
     private Vector3 rotationAngle;
     private bool isRotating = false;
     private bool gridLocked = false;
@@ -68,24 +76,22 @@ public class BoardManagerScript : MonoBehaviour
     // private GameManagerScript gameManagerScript;
     private float inGameTimer = 0.0f;
     private bool inGameTimerOn = true;
-
+    
+    private bool isFirstDrop;
+    [SerializeField]
+    //moves grid up/down screen; "+" = down, "-" = up
+    private float gridScreenOffset;
+    private Gemm gemmClone;
+    private bool isGemmSelected;
+    private bool canGemmFollowMe;
+    private bool wantGemmDrop;
+    private bool isGemmCloneAlive;
 
 
     // declare inits and get script references
     void Awake()
     {
         GameEventsScript.gameIsOver.AddListener(GameOver);
-        // GameEventsScript.clearGems.AddListener(CountGems);
-        // GameObject timerToggleObj = GameObject.Find("Canvas/TimerToggle");
-        // timerToggle = timerToggleObj.GetComponent<Toggle>();
-        // timerToggle.onValueChanged.AddListener(delegate {
-        //     ToggleValueChanged(timerToggle);
-        // });
-        // timerToggle.isOn = false;
-
-        // GameObject gameManagerGObj = GameObject.Find("GameManager"); 
-        // gameManagerScript = gameManagerGObj.GetComponent<GameManagerScript>();
-        StartCoroutine(IntroScene());
     }
 
     private void GameOver()
@@ -93,279 +99,183 @@ public class BoardManagerScript : MonoBehaviour
         SceneManager.LoadSceneAsync(3);
     }
 
-    private void CountGems()
+    void Start()
     {
-        //count gems destroyed
+        isFirstDrop = true;
+        StartCoroutine(SetupTutorialBoard());
     }
 
-    // Toggle state
-    // void ToggleValueChanged(Toggle change)
-    // {
-    //     if (timerToggle.isOn)
-    //     {
-    //         toggleOn = true;
-    //     } else 
-    //     {
-    //         toggleOn = false;
-    //     }
-    // }
-
-    //init intro state
-    IEnumerator IntroScene()
+    //Wrapper for creating initial board
+    IEnumerator SetupTutorialBoard()
     {
-        redCount = 0;
-        blueCount = 0;
-        yellowCount = 0;
-        greenCount = 0; 
-        isStarting = true;
-        text3.text = "";
-        text4.text = "";
-        gridLocked = false;
-        isShifting = false;
-        yield return new WaitForSecondsRealtime(3.0f);
-        while(true)
-        {
-            InitBoard();
-            if (redCount >= minDots && blueCount >= minDots && yellowCount >= minDots && greenCount >= minDots)
-            {
-                break;
-            }
-            ClearBoard();
-        }
-        MoveGemsDown();
+        yield return new WaitForSecondsRealtime(1.0f);
+
+        MakeGemmsInGrid();
+        // checkGridState();
+        MoveGemmsDown();
+        // checkGridState();
+        isFirstDrop = false;
     }
 
-    private void InitBoard()
+    //Create Gemms in Grid
+    private void MakeGemmsInGrid()
     {
-        gemGridLayout = new Gem[boardDimX, boardDimY];
-        GameObject randGem;
+        gemmGridLayout = new Gemm[boardDimX, boardDimY];
         for (int y = 0; y < boardDimY; y++)
         {
             for (int x = 0; x < boardDimX; x++)
             {
-                //List possible gem options
-                List<GameObject> availableGems = new List<GameObject>();    
-                availableGems.AddRange(gemOptions);
-                while (true)
+                int z = x + 2;
+                GameObject gemm;
+
+                //if rows 3/6, shift gem to the left by 1 color
+                if (y % gemOptions.Count == gemOptions.Count - 1)
                 {
-                    //initialization for while loop
-                    randGem = availableGems[UnityEngine.Random.Range(0, availableGems.Count)];
-                    initHorizCount = 1;
-                    initVertCount = 1;
-                    //if not in far left column
-                    if(x > 0)
-                    {
-                        leftGem = gemGridLayout[x - 1, y];
-                        //if rand gem is same as 1 to left
-                        if (randGem.Equals(leftGem.gemGObj))
-                        {
-                            //repick if left already has 2 in a row
-                            if (leftGem.matchCountHoriz > 1)
-                            {
-                                availableGems.Remove(randGem);
-                                continue;
-                            //set both prev and current to have horiz count 2
-                            } else 
-                            {
-                                leftGem.matchCountHoriz++;
-                                initHorizCount++;
-                            }
-                        }
-                    }
-                    //if not in bottom row
-                    if(y > 0)
-                    {
-                        downGem = gemGridLayout[x, y - 1];
-                        //if rand is same as 1 below
-                        if (randGem.Equals(downGem.gemGObj))
-                        {
-                            //repick if down already has 2 in a row
-                            if (downGem.matchCountVert > 1)
-                            {
-                                availableGems.Remove(randGem);
-                                continue;
-                            //set both 1 below and current to have vert count 2
-                            } else
-                            {
-                                downGem.matchCountVert++;
-                                initVertCount++;
-                            }
-                        }
-                    }
-                    break;
+                    gemm = gemOptions[z%gemOptions.Count];
+                } else 
+                {
+                    gemm = gemOptions[x%gemOptions.Count];
                 }
-                if (randGem == gemOptions[0])
-                {
-                    blueCount++;
-                } else if (randGem == gemOptions[1])
-                {
-                    yellowCount++;
-                } else if (randGem == gemOptions[2])
-                {
-                    greenCount++;
-                } else if (randGem == gemOptions[3])
-                {
-                    redCount++;
-                }
-                //make the gem and place it in grid
-                MakeNewGem(randGem, x ,y);
+                MakeGemm(gemm, x, y);
             }
         }
     }
 
-    //place Gem GObj into grid.
-    private void MakeNewGem(GameObject gemGObj, int x, int y)
+    //Instantiate Gemm
+    private void MakeGemm(GameObject gemGObj, int x, int y)
     {
-        GameObject currentGem = (GameObject)Instantiate(gemGObj, new Vector2((float)x, (float)y + (float)boardYDropOffset), Quaternion.identity);
+        GameObject currentGem = (GameObject)Instantiate(gemGObj, new Vector2((float)x, (float)y + (float)dropOffset), Quaternion.identity);
         currentGem.transform.parent = transform;
-        gemGridLayout[x, y] = new Gem {
-            gemGObj = gemGObj,
-            gemGridObj = currentGem,
-            matchCountHoriz = initHorizCount,
-            matchCountVert = initVertCount,
-            dropDist = boardYDropOffset,
-            groupedHoriz = false,
-            groupedVert = false,
-            xLoc = x,
-            yLoc = y,
-            destroyed = false,
+        gemmGridLayout[x, y] = new Gemm {
+            gemGObj = currentGem,
+            dropDist = dropOffset,
+            gridXLoc = x,
+            gridYLoc = y,
         };
     }
 
-    //wrapper for moving gems down into position on screen
-    private void MoveGemsDown()
+    //Wrapper to move Gemms down to be in the screen
+    private void MoveGemmsDown()
     {
-        gridLocked = true;
-        isShifting = true;
         for(int y = 0; y < boardDimY; y++)
         {
             for(int x = 0; x < boardDimX; x++)
             {
-                if(gemGridLayout[x, y].dropDist > 0)
+                if(gemmGridLayout[x, y].dropDist > 0)
                 {
-                    //set start and end pos before coroutine
-                    Vector2 startPos = gemGridLayout[x, y].gemGridObj.transform.position;
-                    Vector2 endPos = new Vector2(gemGridLayout[x, y].gemGridObj.transform.position.x, gemGridLayout[x, y].gemGridObj.transform.position.y - gemGridLayout[x, y].dropDist);
-                    StartCoroutine(MoveGemsDownEnum(gemGridLayout[x, y], startPos, endPos));
-                    //reset drop distance and matches
-                    gemGridLayout[x, y].matchCountHoriz = notUsed;
-                    gemGridLayout[x, y].matchCountVert = notUsed;
-                    gemGridLayout[x, y].dropDist = 0;
+                    Vector2 startPos = gemmGridLayout[x, y].gemGObj.transform.position;
+                    Vector2 endPos = new Vector2(gemmGridLayout[x, y].gemGObj.transform.position.x, gemmGridLayout[x, y].gemGObj.transform.position.y - gemmGridLayout[x, y].dropDist);
+                    StartCoroutine(MoveGemsDownEnum(gemmGridLayout[x, y], startPos, endPos));
+                    gemmGridLayout[x, y].dropDist = 0;
                 }
             }
         }
     }
 
-    //moves Gems down at specified lerp rate
-    IEnumerator MoveGemsDownEnum(Gem gem, Vector2 start, Vector2 end)
+    //animate move Gemms down
+    IEnumerator MoveGemsDownEnum(Gemm gemm, Vector2 start, Vector2 end)
     {
         float fallPercent = 0.0f;
         while(fallPercent <= 1.0f)
         {
-            gem.gemGridObj.transform.position = Vector2.Lerp(start, end, fallPercent);
+            gemm.gemGObj.transform.position = Vector2.Lerp(start, end, fallPercent);
             fallPercent += fallPercentIncrease;
             yield return new WaitForSeconds(fallTimeInterval);
         }
-        gem.gemGridObj.transform.position = end;
+        gemm.gemGObj.transform.position = end;
+    }
 
-        if (shiftCount < 1)
+    //Debug function for diff attributes
+    private void checkGridState()
+    {
+        for (int y = 0; y < boardDimY; y++)
         {
-            isStarting = false;
-            shiftCount++;
-        } else {
-            gridLocked = false;
-            isShifting = false;
+            for (int x = 0; x < boardDimX; x++)
+            {
+                Debug.Log("Coordinates: [" + x + ", " + y + "]" + "\n" + 
+                "[DropDistance, gridX, gridY]: [" + gemmGridLayout[x, y].dropDist + ", " + gemmGridLayout[x,y].gridXLoc + ", " + gemmGridLayout[x, y].gridYLoc + "]");
+                Debug.Log("Color: " + gemmGridLayout[x, y].gemGObj + "\n" +
+                "World Space: " + gemmGridLayout[x, y].gemGObj.transform.position);
+            }
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // if (!isStarting)
-        // {
-        //     if (inGameTimerOn)
-        //     {
-        //         inGameTimer += Time.deltaTime;
-        //         if (toggleOn)
-        //         {
-        //             text3.text = (inGameTimer).ToString("F");
-        //         } else {
-        //             text3.text = "";
-        //         }
-        //     }
-        // }
-
-        if(isStarting || gridLocked || isShifting)
+        if (isFirstDrop)
         {
             return;
         }
-
-        //On initial touch of screen
-        // if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
-            // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            // don't bother if finger is way off.
-            if (Mathf.RoundToInt(touchPos.origin.y) < boardDimY + 1 && Mathf.RoundToInt(touchPos.origin.y) > -2)
+            
+            if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
-                DisplayGemClone(touchPos.origin);
+                Debug.Log("Touch Pos: " + touchPos.origin);
+                // checkGridState();
+                isGemmSelected = true;
+                DisplayGemmClone(touchPos.origin);
             }
-        //if finger is moving on screen
-        // } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+        // }
         } else if (Input.GetMouseButton(0))
         {
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
-            // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);            
-            if (touchPos.origin.x < boardDimX && touchPos.origin.x > -1 && touchPos.origin.y < boardDimY && touchPos.origin.y > -1)
+            // touchPos.origin = new Vector3(touchPos.origin.x, touchPos.origin.y + gridScreenOffset, touchPos.origin.z);
+
+            if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
-                gemClone.gemGridObj.transform.Translate((touchPos.origin - gemClone.gemGridObj.transform.position) * Time.deltaTime * moveSpeed);
-
-                ShowGemMovement(touchPos.origin);
-
-            }
-        //if finger is off
-        // } else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
+                canGemmFollowMe = true;
+            } 
+        // } 
         } else if (Input.GetMouseButtonUp(0))
         {
-            if(isRotating)
-            {
-                rainCheck = true;
-                touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
-                // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            } else 
-            {
-                touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
-                // touchPos = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-                DropGem();
-                StartCoroutine(MatchGems());
-            }
-        }
-        //raincheck version
-        if(rainCheck)
-        {
-            if(!isRotating)
-            {
-                DropGem();
-                StartCoroutine(MatchGems());
-                rainCheck = false;
-            }
+            wantGemmDrop = true;
+            isGemmSelected = canGemmFollowMe = false;
         }
     }
 
-    private void DisplayGemClone(Vector2 touchPos)
+    void FixedUpdate()
     {
-        int touchPosX = GetPosOnAxis(touchPos.x, boardDimX);
-        int touchPosY = GetPosOnAxis(touchPos.y, boardDimY);
-        //get Gem in grid; change its alpha
-        Gem selectedGem = gemGridLayout[touchPosX, touchPosY];
-        selectedGem.gemGridObj.GetComponent<SpriteRenderer>().color = ChangeGemAlpha(selectedGem, underlayAlpha);
-        //create Gem Clone at same location
-        MakeGemClone(selectedGem, touchPosX, touchPosY);
-        prevActiveTouchPos = new Vector2Int(touchPosX, touchPosY);
+        if (isFirstDrop)
+        {
+            return;
+        }
+        if(isGemmSelected && canGemmFollowMe)
+        {
+            if(isGemmCloneAlive)
+            {
+                gemmClone.gemGObj.transform.Translate((touchPos.origin - gemmClone.gemGObj.transform.position) * Time.deltaTime * moveSpeed);
+                ShowGemmMovement(touchPos.origin);
+            }
+        }
+        if (wantGemmDrop)
+        {
+            DropGemm();
+            // checkGridState();
+        }
     }
 
-    private int GetPosOnAxis(float main, int size)
+    //Wrapper for showing gemm clone
+    private void DisplayGemmClone(Vector2 touchPos)
+    {
+        Debug.Log("X before: " + touchPos.x);
+        int gridXPos = GetPosOnGrid(touchPos.x, boardDimX);
+        Debug.Log("X after: " + gridXPos);
+        Debug.Log("Y before: " + touchPos.y);
+        int gridYPos = GetPosOnGrid(touchPos.y, boardDimY);
+        Debug.Log("Y after: " + gridYPos);
+        prevActiveTouchPos = new Vector2Int(gridXPos, gridYPos);
+
+        //get Gem in grid
+        Gemm selectedGem = gemmGridLayout[gridXPos, gridYPos];
+        //create Gem Clone at same location
+        MakeGemmClone(selectedGem, gridXPos, gridYPos);
+        //change its alpha
+        selectedGem.gemGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(selectedGem, underlayAlpha);
+    }
+
+    private int GetPosOnGrid(float main, int size)
     {
         int coordinate = Mathf.RoundToInt(main);
         if (coordinate < 0)
@@ -379,66 +289,60 @@ public class BoardManagerScript : MonoBehaviour
         return coordinate;
     }
 
-    //change alpha for animation purposes
-    private Color ChangeGemAlpha(Gem gem, float aVal)
+    //makes gemm clone to display movement
+    private void MakeGemmClone (Gemm origGem, int x, int y)
     {
-        Color gemColor = gem.gemGridObj.GetComponent<SpriteRenderer>().color;
+        // Debug.Log("place pos to make gemm: " + x + ", " + y);
+        gemmClone = new Gemm {
+            gemGObj = (GameObject)Instantiate(origGem.gemGObj, new Vector2(x, y), Quaternion.identity),
+            dropDist = 0,
+            gridXLoc = x,
+            gridYLoc = y,
+        };
+        gemmClone.gemGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(gemmClone, overlayAlpha);
+        isGemmCloneAlive = true;
+    }
+
+    //adjusts gemm transparency
+    private Color ChangeGemmAlpha(Gemm gem, float aVal)
+    {
+        Color gemColor = gem.gemGObj.GetComponent<SpriteRenderer>().color;
         gemColor.a = aVal;
         return gemColor;
     }
 
-    //show currently held gem
-    private void MakeGemClone (Gem origGem, int x, int y)
-    {
-        gemClone = new Gem {
-            gemGObj = origGem.gemGObj,
-            gemGridObj = (GameObject)Instantiate(origGem.gemGridObj, new Vector2(x, y), Quaternion.identity),
-            matchCountHoriz = 0,
-            matchCountVert = 0,
-            dropDist = 0,
-            groupedHoriz = false,
-            groupedVert = false,
-            xLoc = 0,
-            yLoc = 0,
-            destroyed = false,
-        };
-        gemClone.gemGridObj.GetComponent<SpriteRenderer>().color = ChangeGemAlpha(gemClone, overlayAlpha);
-    }
-
     //wrapper for gem swap coroutine
-    private void ShowGemMovement(Vector2 touchPos)
+    private void ShowGemmMovement(Vector2 touchPos)
     {
-        int touchPosX = GetPosOnAxis(touchPos.x, boardDimX);
-        int touchPosY = GetPosOnAxis(touchPos.y, boardDimY);
+        int gridXPos = GetPosOnGrid(touchPos.x, boardDimX);
+        int gridYPos = GetPosOnGrid(touchPos.y, boardDimY);
+
         //Updates gem movement when finger moves to new cell and as fast as the rotation happens.
-        
-        if ((prevActiveTouchPos.x != touchPosX || prevActiveTouchPos.y != touchPosY) && !isRotating)
+        if ((prevActiveTouchPos.x != gridXPos || prevActiveTouchPos.y != gridYPos) && !isRotating)
         {
-            if(touchPosX - prevActiveTouchPos.x > 0)
+            if(gridXPos - prevActiveTouchPos.x > 0)
             {
-                touchPosX = prevActiveTouchPos.x + 1;
-                StartCoroutine(ShowGemMovementEnum(touchPosX, prevActiveTouchPos.y));
-            } else if (touchPosX - prevActiveTouchPos.x < 0)
+                gridXPos = prevActiveTouchPos.x + 1;
+                StartCoroutine(ShowGemmMovementEnum(gridXPos, prevActiveTouchPos.y));
+            } else if (gridXPos - prevActiveTouchPos.x < 0)
             {
-                touchPosX = prevActiveTouchPos.x - 1;
-                StartCoroutine(ShowGemMovementEnum(touchPosX, prevActiveTouchPos.y));
-            } else if (touchPosY - prevActiveTouchPos.y > 0)
+                gridXPos = prevActiveTouchPos.x - 1;
+                StartCoroutine(ShowGemmMovementEnum(gridXPos, prevActiveTouchPos.y));
+            } else if (gridYPos - prevActiveTouchPos.y > 0)
             {
-                touchPosY = prevActiveTouchPos.y + 1;
-                StartCoroutine(ShowGemMovementEnum(prevActiveTouchPos.x, touchPosY));
-            } else if (touchPosY - prevActiveTouchPos.y < 0)
+                gridYPos = prevActiveTouchPos.y + 1;
+                StartCoroutine(ShowGemmMovementEnum(prevActiveTouchPos.x, gridYPos));
+            } else if (gridYPos - prevActiveTouchPos.y < 0)
             {
-                touchPosY = prevActiveTouchPos.y - 1;
-                StartCoroutine(ShowGemMovementEnum(prevActiveTouchPos.x, touchPosY));
+                gridYPos = prevActiveTouchPos.y - 1;
+                StartCoroutine(ShowGemmMovementEnum(prevActiveTouchPos.x, gridYPos));
             }
-        // Debug.Log("Current finger pos: [" + touchPosX + ", " + touchPosY + "]");
         } 
     }
 
-    IEnumerator ShowGemMovementEnum(int currTouchPosX, int currTouchPosY)
+    IEnumerator ShowGemmMovementEnum(int currTouchPosX, int currTouchPosY)
     {
         //inits
-    // Debug.Log("Prev Finger Pos: [" + prevActiveTouchPos.x + ", " + prevActiveTouchPos.y + "]");
         isRotating = true;
         float rotatePercent = 0.0f;
         rotationAngle = new Vector3(0, 0, 180.0f);
@@ -446,8 +350,10 @@ public class BoardManagerScript : MonoBehaviour
         gemRotator.transform.position = new Vector2 ((float)prevActiveTouchPos.x - (float)(prevActiveTouchPos.x - currTouchPosX)/2.0f, (float)prevActiveTouchPos.y - (float)(prevActiveTouchPos.y - currTouchPosY)/2.0f);
 
         // update involved gems's parent to gem Rotator
-        gemGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGridObj.transform.parent = gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = null;
-        gemGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGridObj.transform.parent = gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = gemRotator.transform;
+        gemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGObj.transform.Rotate(0.0f, 0.0f, 180.0f, Space.Self);        
+        gemmGridLayout[currTouchPosX, currTouchPosY].gemGObj.transform.Rotate(0.0f, 0.0f, 180.0f, Space.Self);
+        gemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGObj.transform.parent = gemmGridLayout[currTouchPosX, currTouchPosY].gemGObj.transform.parent = null;
+        gemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGObj.transform.parent = gemmGridLayout[currTouchPosX, currTouchPosY].gemGObj.transform.parent = gemRotator.transform;
 
         //rotate to desired positions
         while(rotatePercent <= 1.0f)
@@ -461,13 +367,13 @@ public class BoardManagerScript : MonoBehaviour
         gemRotator.transform.eulerAngles = rotationAngle;
 
         //reparent/unparent appropriately
-        gemGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGridObj.transform.parent = gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = null;
-        gemGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGridObj.transform.parent = gemGridLayout[currTouchPosX, currTouchPosY].gemGridObj.transform.parent = transform;
+        gemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGObj.transform.parent = gemmGridLayout[currTouchPosX, currTouchPosY].gemGObj.transform.parent = null;
+        gemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGObj.transform.parent = gemmGridLayout[currTouchPosX, currTouchPosY].gemGObj.transform.parent = transform;
 
         //swap old gem and new gem in grid
-        Gem tempGem = gemGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y];
-        gemGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y] = gemGridLayout[currTouchPosX, currTouchPosY];
-        gemGridLayout[currTouchPosX, currTouchPosY] = tempGem;
+        Gemm tempGem = gemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y];
+        gemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y] = gemmGridLayout[currTouchPosX, currTouchPosY];
+        gemmGridLayout[currTouchPosX, currTouchPosY] = tempGem;
 
         //update touch position
         prevActiveTouchPos.x = currTouchPosX;
@@ -478,13 +384,16 @@ public class BoardManagerScript : MonoBehaviour
         isRotating = false;
     }
 
-    private void DropGem()
+    //ends player turn
+    private void DropGemm()
     {
-        gemGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGridObj.GetComponent<SpriteRenderer>().color = ChangeGemAlpha(gemGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y], 1.0f);
-        if (gemClone.gemGridObj != null)
+        gemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(gemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y], 1.0f);
+        if (gemmClone.gemGObj != null)
         {
-            Destroy(gemClone.gemGridObj);
+            Destroy(gemmClone.gemGObj);
         }
+        wantGemmDrop = false;
+        isGemmCloneAlive = false;
     }
 
     //actually match gems together and pop them
@@ -657,11 +566,11 @@ public class BoardManagerScript : MonoBehaviour
                 if (gemGridLayout[x,y].destroyed)
                 {
                     GameObject newGem = gemOptions[UnityEngine.Random.Range(0, gemOptions.Count)];
-                    MakeNewGem(newGem, x, y);
+                    // MakeNewGem(newGem, x, y);
                 }
             }
         }
-        MoveGemsDown();
+        // MoveGemsDown();
         ResetBoardForMatching();
         StartCoroutine(RepeatMatchGems());
     }
@@ -692,7 +601,7 @@ public class BoardManagerScript : MonoBehaviour
             }
         }
         redCount = 0;
-        yellowCount = 0;
+        // yellowCount = 0;
         blueCount = 0;
         greenCount = 0;
     }
