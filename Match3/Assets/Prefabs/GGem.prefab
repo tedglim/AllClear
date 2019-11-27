@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 885413592384229078}
   m_Layer: 0
   m_Name: GGem
-  m_TagString: Untagged
+  m_TagString: Green
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
