@@ -1835,16 +1835,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f952862c225ee4c3a9b8d01b1f4f3a56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardDimX: 3
+  boardDimX: 6
   boardDimY: 3
   dropOffset: 6
-  fallTimeInterval: 0.01
+  fallTimeInterval: 0.001
   fallPercentIncrease: 0.05
   underlayAlpha: 0.5
   overlayAlpha: 0.75
-  moveSpeed: 25
-  rotationTimeInterval: 0.0001
-  rotatePercentIncrease: 0.1
+  moveSpeed: 50
+  rotationTimeInterval: 0.0005
+  rotatePercentIncrease: 0.5
   GemmOptions:
   - {fileID: 13706659628005381, guid: d2c31ec124f18448398d2516ac46e1ef, type: 3}
   - {fileID: 3685747503264877811, guid: 335ad970efcbd4b6a8736918dccdaee3, type: 3}

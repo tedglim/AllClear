@@ -98,6 +98,10 @@ public class TutorialScript : MonoBehaviour
         {
             return;
         }
+        if (isMatching)
+        {
+            return;
+        }
         if (areGemmsFalling)
         {
             return;
@@ -146,7 +150,7 @@ public class TutorialScript : MonoBehaviour
         {
             if(isGemmCloneAlive)
             {
-                gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.deltaTime * moveSpeed);
+                gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
                 ShowGemmMovement(touchPos.origin);
             }
         }
@@ -295,6 +299,9 @@ public class TutorialScript : MonoBehaviour
         //Updates gem movement when finger moves to new cell and as fast as the rotation happens.
         if ((prevActiveTouchPos.x != gridXPos || prevActiveTouchPos.y != gridYPos) && !isRotating)
         {
+            //diagonals
+            
+            //cardinal directions
             if(gridXPos - prevActiveTouchPos.x > 0)
             {
                 gridXPos = prevActiveTouchPos.x + 1;
