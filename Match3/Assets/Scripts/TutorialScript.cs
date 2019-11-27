@@ -300,9 +300,28 @@ public class TutorialScript : MonoBehaviour
         if ((prevActiveTouchPos.x != gridXPos || prevActiveTouchPos.y != gridYPos) && !isRotating)
         {
             //diagonals
-            
+            if(gridXPos - prevActiveTouchPos.x > 0 && gridYPos - prevActiveTouchPos.y > 0)
+            {
+                gridXPos = prevActiveTouchPos.x + 1;
+                gridYPos = prevActiveTouchPos.y + 1;
+                StartCoroutine(ShowGemmMovementEnum(gridXPos, gridYPos));
+            } else if (gridXPos - prevActiveTouchPos.x > 0 && gridYPos - prevActiveTouchPos.y < 0)
+            {
+                gridXPos = prevActiveTouchPos.x + 1;
+                gridYPos = prevActiveTouchPos.y - 1;
+                StartCoroutine(ShowGemmMovementEnum(gridXPos, gridYPos));
+            } else if (gridXPos - prevActiveTouchPos.x < 0 && gridYPos - prevActiveTouchPos.y < 0)
+            {
+                gridXPos = prevActiveTouchPos.x - 1;
+                gridYPos = prevActiveTouchPos.y - 1;
+                StartCoroutine(ShowGemmMovementEnum(gridXPos, gridYPos));
+            } else if (gridXPos - prevActiveTouchPos.x < 0 && gridYPos - prevActiveTouchPos.y > 0)
+            {
+                gridXPos = prevActiveTouchPos.x - 1;
+                gridYPos = prevActiveTouchPos.y + 1;
+                StartCoroutine(ShowGemmMovementEnum(gridXPos, gridYPos));
             //cardinal directions
-            if(gridXPos - prevActiveTouchPos.x > 0)
+            } else if(gridXPos - prevActiveTouchPos.x > 0)
             {
                 gridXPos = prevActiveTouchPos.x + 1;
                 StartCoroutine(ShowGemmMovementEnum(gridXPos, prevActiveTouchPos.y));
