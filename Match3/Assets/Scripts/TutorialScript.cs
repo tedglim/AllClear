@@ -206,7 +206,6 @@ public class TutorialScript : MonoBehaviour
     //Wrapper to move Gemms down to be in the screen
     private void MoveGemmsDown()
     {
-        areGemmsFalling = true;
         for(int y = 0; y < boardDimY; y++)
         {
             for(int x = 0; x < boardDimX; x++)
@@ -225,6 +224,7 @@ public class TutorialScript : MonoBehaviour
     //animate move Gemms down
     IEnumerator MoveGemsDownEnum(Gemm gemm, Vector2 start, Vector2 end)
     {
+        areGemmsFalling = true;
         float fallPercent = 0.0f;
         while(fallPercent <= 1.0f)
         {
@@ -418,16 +418,17 @@ public class TutorialScript : MonoBehaviour
         Debug.Log("done moving");
         checkGridState();
 //check list of boolean states?
+        Debug.Log(canContinueMatching);
+        Debug.Log(isMatching);
 
-
-        // if(canContinueMatching)
-        // {
-        //     canContinueMatching = false;
-        //     StartCoroutine(RepeatMatchGemms());
-        // } else
-        // {
-        //     isMatching = false;
-        // }
+        if(canContinueMatching)
+        {
+            canContinueMatching = false;
+            StartCoroutine(RepeatMatchGemms());
+        } else
+        {
+            isMatching = false;
+        }
     }
 
     private void ResetBoardForMatching()
