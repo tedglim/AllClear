@@ -54,6 +54,10 @@ public class TutorialScript : MonoBehaviour
     private struct Gemm
     {
         public GameObject gemmGObj;
+        public bool horizVisited;
+        public bool vertVisited;
+        public bool floodVisited;
+        public bool floodMatched;
         public bool destroyed;
         public int dropDist;
         public int gridXLoc;
@@ -68,15 +72,17 @@ public class TutorialScript : MonoBehaviour
     private Vector2Int prevActiveTouchPos;
     private Vector3 rotationAngle;
     private Gemm gemmClone;
-    private Dictionary<GemmLoc, Gemm> CurrGemmMatchDict;
+    private Dictionary<GemmLoc, Gemm> FloodMatchDict;
     private Dictionary<GemmLoc, Gemm> GemmDictToDestroy;
+    private List<GemmLoc> Check3List;
 
     // declare inits and get script references
     void Awake()
     {
         GameEventsScript.gameIsOver.AddListener(GameOver);
-        CurrGemmMatchDict = new Dictionary<GemmLoc, Gemm>();
+        FloodMatchDict = new Dictionary<GemmLoc, Gemm>();
         GemmDictToDestroy = new Dictionary<GemmLoc, Gemm>();
+        Check3List = new List<GemmLoc>();
     }
 
     private void GameOver()
@@ -201,6 +207,9 @@ public class TutorialScript : MonoBehaviour
         currentGemm.transform.parent = transform;
         GemmGridLayout[x, y] = new Gemm {
             gemmGObj = currentGemm,
+            floodVisited = false,
+            floodMatched = false,
+            destroyed = false,
             dropDist = dropOffset,
             gridXLoc = x,
             gridYLoc = y,
@@ -274,6 +283,9 @@ public class TutorialScript : MonoBehaviour
     {
         gemmClone = new Gemm {
             gemmGObj = (GameObject)Instantiate(origGemm.gemmGObj, new Vector2(x, y), Quaternion.identity),
+            floodVisited = false,
+            floodMatched = false,
+            destroyed = false,
             dropDist = 0,
             gridXLoc = x,
             gridYLoc = y,
@@ -411,27 +423,20 @@ public class TutorialScript : MonoBehaviour
                 Debug.Log("CURRENT POSITION: " + x + ", " + y);
                 if(!GemmGridLayout[x,y].destroyed)
                 {
-                    if (x >= boardDimX - 2)
-                    {
-                        //only do vert checks
-                        CheckForMatches(x, y, false);
-                    } else if (y >= boardDimY - 2)
-                    {
-                        //only do horiz checks
-                        CheckForMatches(x, y, true);
-                    } else 
-                    {
-                        //do both horiz and vert checks
-                        CheckForMatches(x, y, false);
-                        CheckForMatches(x, y, true);
-                    }
+                    ResetBoardForFloodMarking();
+                    FloodMark(x, y, GemmGridLayout[x, y].gemmGObj.tag);
+                    Check3PlusInDirectionWrapper(1, 0);
+                    Check3PlusInDirectionWrapper(0, 1);
                     CountAndDestroyGems();
                     if(didDestroy)
                     {
                         //if u destroyed shit, you should wait
-                        yield return new WaitForSeconds(1.0f);
+                        yield return new WaitForSeconds(0.25f);
                         didDestroy = false;
                     }
+                } else
+                {
+                    //don't do anything
                 }
             }
         }
@@ -455,6 +460,7 @@ public class TutorialScript : MonoBehaviour
         {
             isMatching = false;
         }
+        yield return new WaitForSeconds(1.0f);
     }
 
     private void ResetBoardForMatching()
@@ -463,6 +469,10 @@ public class TutorialScript : MonoBehaviour
         {
             for (int x =0; x < boardDimX; x++)
             {
+                GemmGridLayout[x,y].horizVisited = false;
+                GemmGridLayout[x,y].vertVisited = false;
+                GemmGridLayout[x,y].floodVisited = false;
+                GemmGridLayout[x,y].floodMatched = false;
                 GemmGridLayout[x,y].destroyed = false;
                 GemmGridLayout[x,y].dropDist = 0;
                 GemmGridLayout[x,y].gridXLoc = x;
@@ -471,80 +481,122 @@ public class TutorialScript : MonoBehaviour
         }
     }
 
-    //chooses 1 gemm, gathers all matches linked to that gemm.
-    private void CheckForMatches(int x, int y, bool isHoriz)
+    private void ResetBoardForFloodMarking()
     {
-        CurrGemmMatchDict.Clear();
-        Queue gemmQ = new Queue();
-        gemmQ.Enqueue(GemmGridLayout[x,y]);
-        int qCount = 0;
-        //Q each gem in grid in succession, if DQ'd gem is same as Orig, add gemm to Q
-        while (gemmQ.Count != 0)
+        for (int y =0; y < boardDimY; y++)
         {
-            qCount++;
-            Debug.Log("qCount iteration: " + qCount);
-            Gemm gemmLFM = (Gemm)gemmQ.Dequeue();
-            //if dQ'd gemm same as OG gemm
-            if (gemmLFM.gemmGObj.tag == GemmGridLayout[x,y].gemmGObj.tag)
+            for (int x =0; x < boardDimX; x++)
             {
-                Debug.Log("gemms are same: ");
-                //make key
-                GemmLoc gemmLoc = new GemmLoc {
+                GemmGridLayout[x,y].floodVisited = false;
+                GemmGridLayout[x,y].floodMatched = false;             
+            }
+        }
+    }
+
+    private void FloodMark(int x, int y, string origTag)
+    {
+        //assume this ain't destroyed.
+        //create ToDo List
+        Stack gemmStack = new Stack();
+        gemmStack.Push(GemmGridLayout[x,y]);
+        while (gemmStack.Count > 0)
+        {
+            Gemm gemmLFM = (Gemm) gemmStack.Pop();
+            GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc].floodVisited = true;
+            if (gemmLFM.gemmGObj.tag == origTag)
+            {
+                GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc].floodMatched = true;
+                //create key to add to running list
+                GemmLoc key = new GemmLoc {
                     gridXLoc = gemmLFM.gridXLoc,
                     gridYLoc = gemmLFM.gridYLoc,
                 };
-                //if dictionary already has key,  
-                if(CurrGemmMatchDict.ContainsKey(gemmLoc))
+                if(!FloodMatchDict.ContainsKey(key))
                 {
-                    //skip
-                } else 
-                {
-                    //add to list of gemms that are of the same color
-                    CurrGemmMatchDict.Add(gemmLoc, GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc]);
-                    //can check right
-                    if(isHoriz)
-                    {
-                        if (gemmLFM.gridXLoc < boardDimX - 1)
-                        {
-                            if (!GemmGridLayout[gemmLFM.gridXLoc + 1, gemmLFM.gridYLoc].destroyed)
-                            {
-                                Debug.Log("Looked Right");
-                                gemmQ.Enqueue(GemmGridLayout[gemmLFM.gridXLoc + 1, gemmLFM.gridYLoc]);
-                            }
-                        }
-                    //can check up
-                    } else
-                    {
-                        if (gemmLFM.gridYLoc < boardDimY - 1)
-                        {
-                            if (!GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc + 1].destroyed)
-                            {
-                                Debug.Log("Looked Up");
-                                gemmQ.Enqueue(GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc + 1]);
-                            }
-                        }
-                    } 
+                    FloodMatchDict.Add(key, GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc]);
                 }
+                //add appropriate cells around current to the ToDoList
+                if (gemmLFM.gridXLoc > 0)
+                {
+                    if (!GemmGridLayout[gemmLFM.gridXLoc - 1, gemmLFM.gridYLoc].floodVisited && !GemmGridLayout[gemmLFM.gridXLoc - 1, gemmLFM.gridYLoc].destroyed)
+                    {
+                        gemmStack.Push(GemmGridLayout[gemmLFM.gridXLoc - 1, gemmLFM.gridYLoc]);
+                    }
+                }
+                if (gemmLFM.gridXLoc < boardDimX - 1)
+                {
+                    if (!GemmGridLayout[gemmLFM.gridXLoc + 1, gemmLFM.gridYLoc].floodVisited && !GemmGridLayout[gemmLFM.gridXLoc + 1, gemmLFM.gridYLoc].destroyed)
+                    {
+                        gemmStack.Push(GemmGridLayout[gemmLFM.gridXLoc + 1, gemmLFM.gridYLoc]);
+                    }
+                }
+                if (gemmLFM.gridYLoc > 0)
+                {
+                    if (!GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc - 1].floodVisited && !GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc - 1].destroyed)
+                    {
+                        gemmStack.Push(GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc - 1]);
+                    }
+                }
+                if (gemmLFM.gridYLoc < boardDimY - 1)
+                {
+                    if (!GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc + 1].floodVisited && !GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc + 1].destroyed)
+                    {
+                        gemmStack.Push(GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc + 1]);
+                    }
+                }
+            } else 
+            {
+                Debug.Log("Skip");
             }
         }
-        SetGemmsToDestroy();
     }
 
-    //mark gemms as need to be destroyed
-    private void SetGemmsToDestroy()
+    //wrapper for check 3 plus gemms in a row method. uses horiz and vert int to indicate whether searching horizontal or vertical matches
+    //if the gemm's been visited, skip over that iteration. it's been accounted for.
+    private void Check3PlusInDirectionWrapper(int horiz, int vert)
     {
-        //Mark gems for Destruction if 3+ matched
-        if(CurrGemmMatchDict.Count >= 3)
+        // bool do3PlusCheck;
+        foreach(var gemm in FloodMatchDict)
         {
-            foreach(var gemm in CurrGemmMatchDict)
+            Check3PlusInDirection(gemm.Key, horiz, vert);
+        }
+    }
+
+    //Q each candidate for horiz/vert 3 in a row 1 at a time.
+    //if match, add to temp; else see if temp has >=3
+    //if so, record for destroying, otherwise clear temp.
+    private void Check3PlusInDirection(GemmLoc gemmKey, int horiz, int vert)
+    {
+        Queue Check3Q = new Queue();
+        Check3Q.Enqueue(gemmKey);
+        while(Check3Q.Count > 0)
+        {
+            GemmLoc key = (GemmLoc) Check3Q.Dequeue();
+            //if gemm to right/up is not in match blob, not a 3 in a row
+            if (FloodMatchDict.ContainsKey(key))
             {
-                if(!GemmDictToDestroy.ContainsKey(gemm.Key))
+                Check3List.Add(key);
+                GemmLoc newKey = new GemmLoc {
+                    gridXLoc = key.gridXLoc + horiz,
+                    gridYLoc = key.gridYLoc + vert,
+                };
+                Check3Q.Enqueue(newKey);
+            } else
+            {
+                if(Check3List.Count >= 3)
                 {
-                    GemmDictToDestroy.Add(gemm.Key, gemm.Value);
+                    for(int i = 0; i < Check3List.Count; i++)
+                    {
+                        if(!GemmDictToDestroy.ContainsKey(Check3List[i]))
+                        {
+                            GemmDictToDestroy.Add(Check3List[i], GemmGridLayout[Check3List[i].gridXLoc, Check3List[i].gridYLoc]);
+                        }
+                    }
                 }
+                Check3List.Clear();
+                break;
             }
         }
-        Debug.Log("# of considered candidates to destroy: " + CurrGemmMatchDict.Count);
     }
 
     private void CountAndDestroyGems()
@@ -587,6 +639,7 @@ public class TutorialScript : MonoBehaviour
         Debug.Log("redsdestroyed: " + redsDestroyed);
         Debug.Log("greensdestroyed: " + greensDestroyed);
         Debug.Log("cyansdestroyed: " + cyansDestroyed);
+        FloodMatchDict.Clear();
         GemmDictToDestroy.Clear();
     }
 
@@ -638,7 +691,7 @@ public class TutorialScript : MonoBehaviour
     IEnumerator RepeatMatchGemms()
     {
         yield return new WaitUntil(() => !areGemmsFalling);
-        checkGridState();
+        // checkGridState();
         StartCoroutine(MatchGemms());
     }
 
@@ -653,6 +706,8 @@ public class TutorialScript : MonoBehaviour
                 "[DropDistance, gridX, gridY]: [" + GemmGridLayout[x, y].dropDist + ", " + GemmGridLayout[x,y].gridXLoc + ", " + GemmGridLayout[x, y].gridYLoc + "]");
                 Debug.Log("Color: " + GemmGridLayout[x, y].gemmGObj.tag + "\n" +
                 "World Space: " + GemmGridLayout[x, y].gemmGObj.transform.position);
+                Debug.Log("Matched: " + GemmGridLayout[x, y].floodMatched + "\n" +
+                "Visited: " + GemmGridLayout[x,y].floodVisited);
             }
         }
     }
