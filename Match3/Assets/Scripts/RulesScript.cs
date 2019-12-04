@@ -5,6 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class RulesScript : MonoBehaviour
 {
+    void Awake()
+    {
+        // GameEventsScript.clearGems.AddListener(UpdateTextCount);
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -16,6 +20,11 @@ public class RulesScript : MonoBehaviour
     {
         
     }
+
+    // private void UpdateTextCount(GemsDestroyedData data)
+    // {
+
+    // }
 
     public void StartGame()
     {

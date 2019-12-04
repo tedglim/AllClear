@@ -61,6 +61,7 @@
      <Compile Include="Assets\Scripts\RulesScript.cs" />
      <Compile Include="Assets\Scripts\TimerScript.cs" />
      <Compile Include="Assets\Scripts\TutorialScript.cs" />
+     <Compile Include="Assets\Scripts\UIManagerScript.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>

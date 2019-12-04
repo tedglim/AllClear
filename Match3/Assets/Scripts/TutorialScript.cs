@@ -19,6 +19,7 @@ public class TutorialScript : MonoBehaviour
     private bool isMatching;
     private bool didDestroy;
     private bool canContinueMatching;
+    private bool isGameOver;
 
 //serial values
     [SerializeField]
@@ -27,6 +28,16 @@ public class TutorialScript : MonoBehaviour
     private int boardDimY;
     [SerializeField]
     private int dropOffset;
+    [SerializeField]
+    private int totalRounds;
+    [SerializeField]
+    private int movesPerRound;
+    [SerializeField]
+    private int goalNumCyan;
+    [SerializeField]
+    private int goalNumGreen;
+    [SerializeField]
+    private int goalNumRed;
     [SerializeField]
     private float fallTimeInterval;
     [SerializeField]
@@ -43,9 +54,11 @@ public class TutorialScript : MonoBehaviour
     private float rotatePercentIncrease;
     
 //nonserial values
-    private float redsDestroyed;
-    private float greensDestroyed;
-    private float cyansDestroyed;
+    private int currNumRounds;
+    private int currNumMoves;
+    private int redsRemaining;
+    private int greensRemaining;
+    private int cyansRemaining;
 
 //other
     [SerializeField]
@@ -79,10 +92,19 @@ public class TutorialScript : MonoBehaviour
     // declare inits and get script references
     void Awake()
     {
-        GameEventsScript.gameIsOver.AddListener(GameOver);
         FloodMatchDict = new Dictionary<GemmLoc, Gemm>();
         GemmDictToDestroy = new Dictionary<GemmLoc, Gemm>();
         Check3List = new List<GemmLoc>();
+        
+        isMatching = false;
+        areGemmsFalling = false;
+        isFirstDrop = true;
+        
+        cyansRemaining = goalNumCyan;
+        greensRemaining = goalNumGreen;
+        redsRemaining = goalNumRed;
+        currNumMoves = movesPerRound;
+        currNumRounds = 1;
     }
 
     private void GameOver()
@@ -92,9 +114,11 @@ public class TutorialScript : MonoBehaviour
 
     void Start()
     {
-        isMatching = false;
-        areGemmsFalling = false;
-        isFirstDrop = true;
+        // GameEventsScript.gameIsOver.AddListener(GameOver);
+        GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
+        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, redsRemaining));
+        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+
         StartCoroutine(SetupTutorialBoard());
     }
 
@@ -109,6 +133,10 @@ public class TutorialScript : MonoBehaviour
             return;
         }
         if (areGemmsFalling)
+        {
+            return;
+        }
+        if(isGameOver)
         {
             return;
         }
@@ -149,6 +177,10 @@ public class TutorialScript : MonoBehaviour
             return;
         }
         if (isMatching)
+        {
+            return;
+        }
+        if(isGameOver)
         {
             return;
         }
@@ -332,6 +364,7 @@ public class TutorialScript : MonoBehaviour
                 gridXPos = prevActiveTouchPos.x - 1;
                 gridYPos = prevActiveTouchPos.y + 1;
                 StartCoroutine(ShowGemmMovementEnum(gridXPos, gridYPos));
+            
             //cardinal directions
             } else if(gridXPos - prevActiveTouchPos.x > 0)
             {
@@ -356,6 +389,12 @@ public class TutorialScript : MonoBehaviour
     //shows rotation speed of gemm movement
     IEnumerator ShowGemmMovementEnum(int currTouchPosX, int currTouchPosY)
     {
+        if(currNumMoves > 0)
+        {
+            currNumMoves--;
+        }
+        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+        
         //inits
         isRotating = true;
         float rotatePercent = 0.0f;
@@ -413,14 +452,14 @@ public class TutorialScript : MonoBehaviour
     //Matches gemms; looks for 3 gemms or more in a row
     IEnumerator MatchGemms()
     {
-        Debug.Log("Start Match");
+        // Debug.Log("Start Match");
         ResetBoardForMatching();
         isMatching = true;
         for (int y = 0; y < boardDimY; y++)
         {
             for (int x = 0; x < boardDimX; x++)
             {
-                Debug.Log("CURRENT POSITION: " + x + ", " + y);
+                // Debug.Log("CURRENT POSITION: " + x + ", " + y);
                 if(!GemmGridLayout[x,y].destroyed)
                 {
                     ResetBoardForFloodMarking();
@@ -430,6 +469,8 @@ public class TutorialScript : MonoBehaviour
                     CountAndDestroyGems();
                     if(didDestroy)
                     {
+                        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, redsRemaining));
+                        //update destroyed #
                         //if u destroyed shit, you should wait
                         yield return new WaitForSeconds(0.25f);
                         didDestroy = false;
@@ -441,16 +482,17 @@ public class TutorialScript : MonoBehaviour
             }
         }
         //looped through everything
+        
         SetupRemainingGemmsForDrop();
         RemakeDestroyedGemms();
         MoveGemmsDown();
 //BUG AREA
         yield return new WaitUntil(() => !areGemmsFalling);
-        Debug.Log("done moving");
-        checkGridState();
-//check list of boolean states?
-        Debug.Log(canContinueMatching);
-        Debug.Log(isMatching);
+//         Debug.Log("done moving");
+//         checkGridState();
+// //check list of boolean states?
+//         Debug.Log(canContinueMatching);
+//         Debug.Log(isMatching);
 
         if(canContinueMatching)
         {
@@ -459,7 +501,16 @@ public class TutorialScript : MonoBehaviour
         } else
         {
             isMatching = false;
+            currNumMoves = movesPerRound;
+            GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+            currNumRounds++;
+            if(currNumRounds > totalRounds)
+            {
+                isGameOver = true;
+            }
+            GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
         }
+        //can say round ends
         yield return new WaitForSeconds(1.0f);
     }
 
@@ -555,7 +606,6 @@ public class TutorialScript : MonoBehaviour
     //if the gemm's been visited, skip over that iteration. it's been accounted for.
     private void Check3PlusInDirectionWrapper(int horiz, int vert)
     {
-        // bool do3PlusCheck;
         foreach(var gemm in FloodMatchDict)
         {
             Check3PlusInDirection(gemm.Key, horiz, vert);
@@ -610,13 +660,22 @@ public class TutorialScript : MonoBehaviour
         {
             if(gemm.Value.gemmGObj.tag == "Red")
             {
-                redsDestroyed++;
+                if(redsRemaining > 0)
+                {
+                    redsRemaining--;
+                }
             } else if (gemm.Value.gemmGObj.tag == "Green")
             {
-                greensDestroyed++;
+                if(greensRemaining > 0)
+                {
+                    greensRemaining--;
+                }
             } else if (gemm.Value.gemmGObj.tag == "Cyan")
             {
-                cyansDestroyed++;
+                if(cyansRemaining > 0)
+                {
+                    cyansRemaining--;
+                }
             }
         }
     }
@@ -636,9 +695,9 @@ public class TutorialScript : MonoBehaviour
                 canContinueMatching = true;
             }
         }
-        Debug.Log("redsdestroyed: " + redsDestroyed);
-        Debug.Log("greensdestroyed: " + greensDestroyed);
-        Debug.Log("cyansdestroyed: " + cyansDestroyed);
+        Debug.Log("redsRemaining: " + redsRemaining);
+        Debug.Log("greensRemaining: " + greensRemaining);
+        Debug.Log("cyansRemaining: " + cyansRemaining);
         FloodMatchDict.Clear();
         GemmDictToDestroy.Clear();
     }
