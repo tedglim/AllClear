@@ -74,7 +74,7 @@ public class BoardManagerScript : MonoBehaviour
     // declare inits and get script references
     void Awake()
     {
-        GameEventsScript.gameIsOver.AddListener(GameOver);
+        // GameEventsScript.gameIsOver.AddListener(GameOver);
         // GameEventsScript.clearGems.AddListener(CountGems);
         // GameObject timerToggleObj = GameObject.Find("Canvas/TimerToggle");
         // timerToggle = timerToggleObj.GetComponent<Toggle>();
@@ -612,7 +612,7 @@ public class BoardManagerScript : MonoBehaviour
             //give count and ingame timer
             PlayStatsScript.GemsCleared = count;
             // PlayStatsScript.Time = tempInGameTimer;
-            GameEventsScript.gameIsOver.Invoke();
+            // GameEventsScript.gameIsOver.Invoke();
             // gameManagerScript.GameOver(tempInGameTimer, count);
             MoveLeftoverGemsDown();
             MoveNewGemsDown();

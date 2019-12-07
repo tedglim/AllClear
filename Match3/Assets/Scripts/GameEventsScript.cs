@@ -9,16 +9,18 @@ public class GameEventsScript : MonoBehaviour
     // public static UnityEvent releaseHold = new UnityEvent();
     // public static UnityEvent countMove = new UnityEvent();
     // public static UnityEvent countRound = new UnityEvent();
-    public static UnityEvent gameIsOver = new UnityEvent();
+    // public static UnityEvent gameIsOver = new UnityEvent();
     public static GemsDestroyedEvent clearGems = new GemsDestroyedEvent();
     public static CountRoundEvent countRound = new CountRoundEvent();
     public static CountMoveEvent countMove = new CountMoveEvent();
+    public static GameOverEvent gameIsOver = new GameOverEvent();
     //release hold,
     //count gems deleted
 
     public class GemsDestroyedEvent: UnityEvent<DestroyedGemsData>{}
     public class CountRoundEvent: UnityEvent<CountRoundsData>{}
     public class CountMoveEvent: UnityEvent<CountMoveData>{}
+    public class GameOverEvent: UnityEvent<GameOverData>{}
 
     public class DestroyedGemsData {
         public int cyanCleared;
@@ -54,5 +56,15 @@ public class GameEventsScript : MonoBehaviour
             this.totalMoves = totalMoves;
         }
     }
-    
+
+    public class GameOverData {
+
+        public bool isWin;
+
+        public GameOverData(bool isWin)
+        {
+            this.isWin = isWin;
+        }
+    }
+
 }

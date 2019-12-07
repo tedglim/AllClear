@@ -20,6 +20,7 @@ public class TutorialScript : MonoBehaviour
     private bool didDestroy;
     private bool canContinueMatching;
     private bool isGameOver;
+    private bool isWin;
 
 //serial values
     [SerializeField]
@@ -52,6 +53,8 @@ public class TutorialScript : MonoBehaviour
     private float rotationTimeInterval;
     [SerializeField]
     private float rotatePercentIncrease;
+    [SerializeField]
+    private float fadeStep;
     
 //nonserial values
     private int currNumRounds;
@@ -504,14 +507,33 @@ public class TutorialScript : MonoBehaviour
             currNumMoves = movesPerRound;
             GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
             currNumRounds++;
-            if(currNumRounds > totalRounds)
+            GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
+            if (redsRemaining <= 0 && greensRemaining <= 0 && cyansRemaining <=0)
             {
                 isGameOver = true;
+                isWin = true;
+            } else if (currNumRounds > totalRounds)
+            {
+                isGameOver = true;
+                isWin = false;
             }
-            GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
+        
         }
+
+
+        //determine win/lose
+        //numGemsDestroyed
+        // if(currNumRounds > totalRounds)
+        // {
+        //     isGameOver = true;
+        //     //determine win or lose
+        // }
         //can say round ends
         yield return new WaitForSeconds(1.0f);
+        if (isGameOver)
+        {
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(isWin));
+        }
     }
 
     private void ResetBoardForMatching()
@@ -690,9 +712,12 @@ public class TutorialScript : MonoBehaviour
             if (!GemmGridLayout[a, b].destroyed)
             {
                 GemmGridLayout[a, b].destroyed = true;
-                Destroy(gemm.Value.gemmGObj);
+                StartCoroutine(fadeGem(gemm.Value.gemmGObj, 1.0f));
+                //do fade and wait
+                // Destroy(gemm.Value.gemmGObj);
                 didDestroy = true;
                 canContinueMatching = true;
+                // ParticleSystem.i
             }
         }
         Debug.Log("redsRemaining: " + redsRemaining);
@@ -700,6 +725,27 @@ public class TutorialScript : MonoBehaviour
         Debug.Log("cyansRemaining: " + cyansRemaining);
         FloodMatchDict.Clear();
         GemmDictToDestroy.Clear();
+    }
+
+    IEnumerator fadeGem(GameObject gemm, float fadeDuration)
+    {
+        SpriteRenderer sr = gemm.GetComponent<SpriteRenderer>();
+        for (float t = 0f; t < fadeDuration; t += Time.deltaTime)
+        {
+            Color c = sr.color;
+            Color fine = sr.color;
+            c.a = c.a - fadeStep;
+            sr.color = c;
+           
+            yield return null;
+ 
+            if (sr.color.a <= 0f)
+            {
+                Destroy(gemm);
+                break;
+            }
+ 
+        }
     }
 
     //if gemms were deleted, drop remaining gems to fill in gaps
