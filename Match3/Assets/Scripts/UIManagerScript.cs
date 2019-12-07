@@ -20,12 +20,18 @@ public class UIManagerScript : MonoBehaviour
     private Text moveNumber;
     [SerializeField]
     private GameObject gameOverPanel;
+
 //nonserialized
-    private int currRoundNum;
+    private Color origColor;
 
 //serialized
     [SerializeField]
     private List<GameObject> roundCircles;
+    [SerializeField]
+    private ParticleSystem movesParticles;
+    [SerializeField]
+    private int numTrigMovesParticles;
+
 
     void Awake()
     {
@@ -38,7 +44,7 @@ public class UIManagerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        origColor = moveNumber.color;
     }
 
     // Update is called once per frame
@@ -75,6 +81,18 @@ public class UIManagerScript : MonoBehaviour
 
     private void UpdateMoveCountText(GameEventsScript.CountMoveData data)
     {
+        if(data.currMove <= numTrigMovesParticles)
+        {
+            moveNumber.color = Color.red;
+            if (!movesParticles.isPlaying)
+            {
+                movesParticles.Play();
+            }
+        } else
+        {
+            moveNumber.color = origColor;
+            movesParticles.Stop();
+        }
         moveNumber.text = data.currMove.ToString();
     }
 

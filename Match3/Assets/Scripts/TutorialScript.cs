@@ -676,6 +676,7 @@ public class TutorialScript : MonoBehaviour
         CountDestroyedGems();
         DestroyGems();
     }
+
     private void CountDestroyedGems()
     {
         foreach (var gemm in GemmDictToDestroy)
