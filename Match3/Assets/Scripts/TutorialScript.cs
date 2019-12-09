@@ -21,6 +21,7 @@ public class TutorialScript : MonoBehaviour
     private bool canContinueMatching;
     private bool isGameOver;
     private bool isWin;
+    private bool noMoves;
 
 //serial values
     [SerializeField]
@@ -189,10 +190,19 @@ public class TutorialScript : MonoBehaviour
         }
         if(isGemmSelected && canGemmFollowMe)
         {
-            if(isGemmCloneAlive)
+            //moves clone and and gemm to correct pos; locks last move
+            if(isGemmCloneAlive && !noMoves)
             {
                 gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
                 ShowGemmMovement(touchPos.origin);
+                if (currNumMoves<=0)
+                {
+                    gemmClone.gemmGObj.SetActive(false);
+                    noMoves = true;
+                }
+            } else if (currNumMoves > 0)
+            {
+                noMoves = false;
             }
         }
         if (wantGemmDrop)
