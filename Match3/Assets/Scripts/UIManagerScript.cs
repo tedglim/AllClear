@@ -35,15 +35,16 @@ public class UIManagerScript : MonoBehaviour
 
     void Awake()
     {
-        GameEventsScript.clearGems.AddListener(UpdateDestroyedCountText);
-        GameEventsScript.countRound.AddListener(UpdateRoundCountText);
-        GameEventsScript.countMove.AddListener(UpdateMoveCountText);
-        GameEventsScript.gameIsOver.AddListener(DisplayGameOverPanel);
+
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        GameEventsScript.clearGems.AddListener(UpdateDestroyedCountText);
+        GameEventsScript.countRound.AddListener(UpdateRoundCountText);
+        GameEventsScript.countMove.AddListener(UpdateMoveCountText);
+        GameEventsScript.gameIsOver.AddListener(DisplayGameOverPanel);
         origColor = moveNumber.color;
     }
 

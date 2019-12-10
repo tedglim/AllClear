@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 public class TutorialScript : MonoBehaviour
 {
@@ -22,6 +23,9 @@ public class TutorialScript : MonoBehaviour
     private bool isGameOver;
     private bool isWin;
     private bool noMoves;
+    private bool showUndo;
+    private bool canUndo;
+    private bool wantsUndo;
 
 //serial values
     [SerializeField]
@@ -64,9 +68,15 @@ public class TutorialScript : MonoBehaviour
     private int greensRemaining;
     private int cyansRemaining;
 
-//other
+//other serialized
     [SerializeField]
     private List<GameObject> GemmOptions;
+    [SerializeField]
+    private GameObject undoButton;
+    [SerializeField]
+    private GameObject roundsButton;
+
+//other nonserialized
     private Gemm[,] GemmGridLayout;
     private struct Gemm
     {
@@ -93,6 +103,7 @@ public class TutorialScript : MonoBehaviour
     private Dictionary<GemmLoc, Gemm> GemmDictToDestroy;
     private List<GemmLoc> Check3List;
 
+
     // declare inits and get script references
     void Awake()
     {
@@ -103,12 +114,24 @@ public class TutorialScript : MonoBehaviour
         isMatching = false;
         areGemmsFalling = false;
         isFirstDrop = true;
-        
+        canUndo = false;
+        showUndo = false;
+        wantsUndo = false;
+
         cyansRemaining = goalNumCyan;
         greensRemaining = goalNumGreen;
         redsRemaining = goalNumRed;
         currNumMoves = movesPerRound;
         currNumRounds = 1;
+
+        SwapUndoStates();
+    }
+
+    private void SwapUndoStates()
+    {
+        showUndo = !showUndo;
+        undoButton.SetActive(!showUndo);
+        roundsButton.SetActive(showUndo);
     }
 
     private void GameOver()
@@ -119,11 +142,23 @@ public class TutorialScript : MonoBehaviour
     void Start()
     {
         // GameEventsScript.gameIsOver.AddListener(GameOver);
+        GameEventsScript.undoOnOff.AddListener(DoUndo);
         GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, redsRemaining));
         GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
 
         StartCoroutine(SetupTutorialBoard());
+    }
+
+    private void DoUndo()
+    {
+        wantsUndo = !wantsUndo;
+        if(wantsUndo)
+        {
+            Debug.Log("CAN undo");
+        } else{
+            Debug.Log("CAN'T undo");
+        }
     }
 
     void Update()
@@ -146,10 +181,17 @@ public class TutorialScript : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(0))
         {
+            Debug.Log("make a copy of the board");
+            //copy Board
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
             
             if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
+                if(!canUndo)
+                {
+                    SwapUndoStates();
+                    canUndo = true;
+                }
                 isGemmSelected = true;
                 DisplayGemmClone(touchPos.origin);
             }
@@ -161,12 +203,36 @@ public class TutorialScript : MonoBehaviour
             if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
                 canGemmFollowMe = true;
-            } 
+            }
+
+            // if(EventSystem.current.IsPointerOverGameObject())
+            // {
+            //     // Debug.Log("Current game object hover: " + EventSystem.current.RaycastAll);
+            // }
         // } 
         } else if (Input.GetMouseButtonUp(0))
         {
-            wantGemmDrop = true;
-            isGemmSelected = canGemmFollowMe = false;
+            //Swapping out red undo button
+            if(canUndo)
+            {
+                SwapUndoStates();
+                canUndo = false;
+            }
+            //perform undo on board
+            if(wantsUndo)
+            {
+                DropGemm();
+                //revert board state
+                Debug.Log("undo board state");
+                currNumMoves = movesPerRound;
+                GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+            } else
+            {
+                //continue with board state
+                wantGemmDrop = true;
+            }
+            
+            isGemmSelected = canGemmFollowMe = wantsUndo = false;
         }
     }
 

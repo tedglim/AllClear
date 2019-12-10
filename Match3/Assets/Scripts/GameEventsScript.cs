@@ -9,7 +9,7 @@ public class GameEventsScript : MonoBehaviour
     // public static UnityEvent releaseHold = new UnityEvent();
     // public static UnityEvent countMove = new UnityEvent();
     // public static UnityEvent countRound = new UnityEvent();
-    // public static UnityEvent gameIsOver = new UnityEvent();
+    public static UnityEvent undoOnOff = new UnityEvent();
     public static GemsDestroyedEvent clearGems = new GemsDestroyedEvent();
     public static CountRoundEvent countRound = new CountRoundEvent();
     public static CountMoveEvent countMove = new CountMoveEvent();
