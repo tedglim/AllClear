@@ -26,13 +26,13 @@ public class ResetAlphaScript : MonoBehaviour
         tempColor.a = 1f;
         image.color = tempColor;
         GameEventsScript.undoOnOff.Invoke();
-        Debug.Log("FULL");
+        // Debug.Log("FULL");
     }
 
     public void changeAlphaHalf()
     {
         image.color = origColor;
         GameEventsScript.undoOnOff.Invoke();
-        Debug.Log("HALF");
+        // Debug.Log("HALF");
     }
 }

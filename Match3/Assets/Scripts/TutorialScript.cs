@@ -78,9 +78,11 @@ public class TutorialScript : MonoBehaviour
 
 //other nonserialized
     private Gemm[,] GemmGridLayout;
+    private Gemm[,] GemmGridLayoutCopy;
     private struct Gemm
     {
         public GameObject gemmGObj;
+        public string tagId;
         public bool horizVisited;
         public bool vertVisited;
         public bool floodVisited;
@@ -107,6 +109,8 @@ public class TutorialScript : MonoBehaviour
     // declare inits and get script references
     void Awake()
     {
+        GemmGridLayout = new Gemm[boardDimX, boardDimY];
+        GemmGridLayoutCopy = new Gemm[boardDimX, boardDimY];
         FloodMatchDict = new Dictionary<GemmLoc, Gemm>();
         GemmDictToDestroy = new Dictionary<GemmLoc, Gemm>();
         Check3List = new List<GemmLoc>();
@@ -155,9 +159,9 @@ public class TutorialScript : MonoBehaviour
         wantsUndo = !wantsUndo;
         if(wantsUndo)
         {
-            Debug.Log("CAN undo");
+            // Debug.Log("CAN undo");
         } else{
-            Debug.Log("CAN'T undo");
+            // Debug.Log("CAN'T undo");
         }
     }
 
@@ -182,6 +186,8 @@ public class TutorialScript : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Debug.Log("make a copy of the board");
+            GemmGridLayoutCopy = GemmGridLayout.Clone() as Gemm[,];
+            checkGridState();
             //copy Board
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
             
@@ -223,7 +229,18 @@ public class TutorialScript : MonoBehaviour
             {
                 DropGemm();
                 //revert board state
+                Debug.Log("BEFORE\n");
+                checkGridState();
+                Debug.Log("COPY\n");
+                checkGridStateCopy();
+                Debug.Log("AFTER\n");
+                GemmGridLayout = GemmGridLayoutCopy;
+                checkGridState();
                 Debug.Log("undo board state");
+                ClearGridLayout();
+                Debug.Log("CLEARED");
+                RemakeGemmsForUndo();
+                Debug.Log("REMAKE GEMMS");
                 currNumMoves = movesPerRound;
                 GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
             } else
@@ -290,7 +307,6 @@ public class TutorialScript : MonoBehaviour
     //Create Gemms in Grid
     private void MakeGemmsInGrid()
     {
-        GemmGridLayout = new Gemm[boardDimX, boardDimY];
         for (int y = 0; y < boardDimY; y++)
         {
             for (int x = 0; x < boardDimX; x++)
@@ -318,6 +334,7 @@ public class TutorialScript : MonoBehaviour
         currentGemm.transform.parent = transform;
         GemmGridLayout[x, y] = new Gemm {
             gemmGObj = currentGemm,
+            tagId = currentGemm.tag,
             floodVisited = false,
             floodMatched = false,
             destroyed = false,
@@ -618,6 +635,7 @@ public class TutorialScript : MonoBehaviour
         {
             for (int x =0; x < boardDimX; x++)
             {
+                GemmGridLayout[x,y].tagId = GemmGridLayout[x,y].gemmGObj.tag;
                 GemmGridLayout[x,y].horizVisited = false;
                 GemmGridLayout[x,y].vertVisited = false;
                 GemmGridLayout[x,y].floodVisited = false;
@@ -695,7 +713,7 @@ public class TutorialScript : MonoBehaviour
                 }
             } else 
             {
-                Debug.Log("Skip");
+                // Debug.Log("Skip");
             }
         }
     }
@@ -781,7 +799,7 @@ public class TutorialScript : MonoBehaviour
 
     private void DestroyGems()
     {
-        Debug.Log("# Gems to destroy: " + GemmDictToDestroy.Count);
+        // Debug.Log("# Gems to destroy: " + GemmDictToDestroy.Count);
         foreach (var gemm in GemmDictToDestroy)
         {
             int a = gemm.Value.gridXLoc;
@@ -797,9 +815,9 @@ public class TutorialScript : MonoBehaviour
                 // ParticleSystem.i
             }
         }
-        Debug.Log("redsRemaining: " + redsRemaining);
-        Debug.Log("greensRemaining: " + greensRemaining);
-        Debug.Log("cyansRemaining: " + cyansRemaining);
+        // Debug.Log("redsRemaining: " + redsRemaining);
+        // Debug.Log("greensRemaining: " + greensRemaining);
+        // Debug.Log("cyansRemaining: " + cyansRemaining);
         FloodMatchDict.Clear();
         GemmDictToDestroy.Clear();
     }
@@ -877,6 +895,41 @@ public class TutorialScript : MonoBehaviour
         StartCoroutine(MatchGemms());
     }
 
+    private void ClearGridLayout()
+    {
+        for(int y = 0; y < boardDimY; y++)
+        {
+            for(int x = 0; x < boardDimX; x++)
+            {
+                if (GemmGridLayout[x,y].gemmGObj != null)
+                {
+                    Destroy(GemmGridLayout[x,y].gemmGObj);
+                }
+            }
+        }
+    }
+
+    private void RemakeGemmsForUndo()
+    {
+        for(int y = 0; y < boardDimY; y++)
+        {
+            for(int x = 0; x < boardDimX; x++)
+            {
+                for(int z = 0; z < GemmOptions.Count; z++)
+                {
+                    if (GemmGridLayout[x,y].tagId == GemmOptions[z].tag)
+                    {
+                        // GameObject gObj = GemmOptions[z];
+                        GameObject gObj = (GameObject) Instantiate(GemmOptions[z], new Vector2((float)x, (float)y), Quaternion.identity);
+                        gObj.transform.parent = transform;
+                        GemmGridLayout[x,y].gemmGObj = gObj;
+                        break;
+                    }
+                }
+            }
+        } 
+    }
+
     //Debug function for diff attributes
     private void checkGridState()
     {
@@ -886,10 +939,25 @@ public class TutorialScript : MonoBehaviour
             {
                 Debug.Log("Coordinates: [" + x + ", " + y + "]" + "\n" + 
                 "[DropDistance, gridX, gridY]: [" + GemmGridLayout[x, y].dropDist + ", " + GemmGridLayout[x,y].gridXLoc + ", " + GemmGridLayout[x, y].gridYLoc + "]");
-                Debug.Log("Color: " + GemmGridLayout[x, y].gemmGObj.tag + "\n" +
+                Debug.Log("Color: " + GemmGridLayout[x, y].gemmGObj.tag + ": " + GemmGridLayout[x,y].tagId + "\n" +
                 "World Space: " + GemmGridLayout[x, y].gemmGObj.transform.position);
                 Debug.Log("Matched: " + GemmGridLayout[x, y].floodMatched + "\n" +
                 "Visited: " + GemmGridLayout[x,y].floodVisited);
+            }
+        }
+    }
+    private void checkGridStateCopy()
+    {
+        for (int y = 0; y < boardDimY; y++)
+        {
+            for (int x = 0; x < boardDimX; x++)
+            {
+                Debug.Log("Coordinates: [" + x + ", " + y + "]" + "\n" + 
+                "[DropDistance, gridX, gridY]: [" + GemmGridLayoutCopy[x, y].dropDist + ", " + GemmGridLayoutCopy[x,y].gridXLoc + ", " + GemmGridLayoutCopy[x, y].gridYLoc + "]");
+                Debug.Log("Color: " + GemmGridLayoutCopy[x, y].gemmGObj.tag + ": " + GemmGridLayoutCopy[x,y].tagId + "\n" +
+                "World Space: " + GemmGridLayoutCopy[x, y].gemmGObj.transform.position);
+                Debug.Log("Matched: " + GemmGridLayoutCopy[x, y].floodMatched + "\n" +
+                "Visited: " + GemmGridLayoutCopy[x,y].floodVisited);
             }
         }
     }
