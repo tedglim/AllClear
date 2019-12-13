@@ -22,13 +22,21 @@ public class GameEventsScript : MonoBehaviour
     public class DestroyedGemsData {
         public int cyanCleared;
         public int greenCleared;
+        public int orangeCleared;
+        public int pinkCleared;
         public int redCleared;
+        public int violetCleared;
+        public int yellowCleared;
         
-        public DestroyedGemsData(int cyan, int green, int red)
+        public DestroyedGemsData(int cyan, int green, int orange, int pink, int red, int violet, int yellow)
         {
             this.cyanCleared = cyan;
             this.greenCleared = green;
+            this.orangeCleared = orange;
+            this.pinkCleared = pink;
             this.redCleared = red;
+            this.violetCleared = violet;
+            this.yellowCleared = yellow;
         }
     }
 

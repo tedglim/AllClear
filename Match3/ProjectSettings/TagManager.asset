@@ -7,9 +7,10 @@ TagManager:
   - Cyan
   - Green
   - Orange
-  - Purple
   - Red
   - Yellow
+  - Pink
+  - Violet
   layers:
   - Default
   - TransparentFX

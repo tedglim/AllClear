@@ -38,6 +38,12 @@ TextureImporter:
   - first:
       213: -1369963757217345809
     second: OrbSheet_11
+  - first:
+      213: 7006311465968736538
+    second: OrbSheet_12
+  - first:
+      213: -4873619076683056262
+    second: OrbSheet_13
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -160,7 +166,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 58287ebdc4b4b42538cec3b0eeb76bc0
+      spriteID: 79b19da2f458f4423826f5adceb62f39
       internalID: -376905732474766964
       vertices: []
       indices: 
@@ -181,7 +187,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4b14f04cce1e24e949dbae52b6328859
+      spriteID: b996491fd5bab4b64b84f0e317937de4
       internalID: 9197759348750515766
       vertices: []
       indices: 
@@ -202,7 +208,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4b017a3e44bdd4a47b888c4a602603d4
+      spriteID: efe5d8a8b7525477a8084843cd3c74d0
       internalID: -4789652696693734543
       vertices: []
       indices: 
@@ -223,7 +229,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 057386b778de84e2180e79488aefef5e
+      spriteID: 360b9a551272c4989bc4604514cbf112
       internalID: -4228184366555664795
       vertices: []
       indices: 
@@ -244,7 +250,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0b055cc3e9be14fbfb17b77de4f16eee
+      spriteID: 47b5a4cf64fec40a0874f8372df94d27
       internalID: -3799433592641233480
       vertices: []
       indices: 
@@ -265,7 +271,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dff93670789ea4c4e8af6451953ce237
+      spriteID: e4805e99230224850855291074e8a6cf
       internalID: -2987978088328948527
       vertices: []
       indices: 
@@ -273,6 +279,27 @@ TextureImporter:
       weights: []
     - serializedVersion: 2
       name: OrbSheet_6
+      rect:
+        serializedVersion: 2
+        x: 699
+        y: 603
+        width: 109
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6f977e3c3756040a199d61206337119d
+      internalID: -6517248023098833562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OrbSheet_7
       rect:
         serializedVersion: 2
         x: 8
@@ -286,14 +313,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: add856372160144b7b764118ee97ff18
-      internalID: -6517248023098833562
+      spriteID: 9c29883896c654b0d87d836fa0852c13
+      internalID: 5978182332354372569
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: OrbSheet_7
+      name: OrbSheet_8
       rect:
         serializedVersion: 2
         x: 123
@@ -307,14 +334,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e51c34600f9de4f668581bc20d1120ff
-      internalID: 5978182332354372569
+      spriteID: 6595b2559d18f4836b39d802de35077b
+      internalID: 4290553899684460144
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: OrbSheet_8
+      name: OrbSheet_9
       rect:
         serializedVersion: 2
         x: 239
@@ -328,14 +355,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 03eb82f4118764fbabd37d1d98786de3
-      internalID: 4290553899684460144
+      spriteID: 436a3f7d352e944b3987e7d638f8fb49
+      internalID: 2722451893543567282
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: OrbSheet_9
+      name: OrbSheet_10
       rect:
         serializedVersion: 2
         x: 354
@@ -349,14 +376,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e0851955a5a9c4421b7ca1fd8ca30bc3
-      internalID: 2722451893543567282
+      spriteID: 65d707ccd40b14b71af5a2bfc783b205
+      internalID: -4482580573948544296
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: OrbSheet_10
+      name: OrbSheet_11
       rect:
         serializedVersion: 2
         x: 469
@@ -370,14 +397,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d27ad5babd14a44e0be2e9d6aa4491e8
-      internalID: -4482580573948544296
+      spriteID: 975930ba6452c4ee6b1a5e6cfae61cab
+      internalID: -1369963757217345809
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: OrbSheet_11
+      name: OrbSheet_12
       rect:
         serializedVersion: 2
         x: 584
@@ -391,8 +418,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bb9c1fc7e94f84ff2ac5ec57cb7794d0
-      internalID: -1369963757217345809
+      spriteID: 55e19df9c3fb24b44835c2938427483e
+      internalID: 7006311465968736538
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OrbSheet_13
+      rect:
+        serializedVersion: 2
+        x: 699
+        y: 488
+        width: 109
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 46a7d478993b5479c8b881cd9e8fe837
+      internalID: -4873619076683056262
       vertices: []
       indices: 
       edges: []

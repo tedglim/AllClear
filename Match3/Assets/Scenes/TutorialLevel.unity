@@ -400,7 +400,6 @@ MonoBehaviour:
   redDestroyedText: {fileID: 641312962}
   roundNumber: {fileID: 1797241259}
   moveNumber: {fileID: 182036949}
-  gameOverPanel: {fileID: 154017168}
   roundCircles:
   - {fileID: 541004225}
   - {fileID: 1723573214}
@@ -412,6 +411,7 @@ MonoBehaviour:
   numMovesTrigParticles: 5
   posX: -0.05
   posY: 5.75
+  gameOverPanel: {fileID: 154017168}
 --- !u!1 &233594573
 GameObject:
   m_ObjectHideFlags: 0
@@ -652,7 +652,7 @@ SpriteRenderer:
   m_SortingLayerID: -750878567
   m_SortingLayer: 3
   m_SortingOrder: 2
-  m_Sprite: {fileID: 4290553899684460144, guid: d80ba4519b99b44b49b6fb2686570fb3,
+  m_Sprite: {fileID: 2722451893543567282, guid: d80ba4519b99b44b49b6fb2686570fb3,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -2782,7 +2782,7 @@ SpriteRenderer:
   m_SortingLayerID: -750878567
   m_SortingLayer: 3
   m_SortingOrder: 2
-  m_Sprite: {fileID: 2722451893543567282, guid: d80ba4519b99b44b49b6fb2686570fb3,
+  m_Sprite: {fileID: -4482580573948544296, guid: d80ba4519b99b44b49b6fb2686570fb3,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -3530,7 +3530,7 @@ SpriteRenderer:
   m_SortingLayerID: -750878567
   m_SortingLayer: 3
   m_SortingOrder: 2
-  m_Sprite: {fileID: 5978182332354372569, guid: d80ba4519b99b44b49b6fb2686570fb3,
+  m_Sprite: {fileID: 4290553899684460144, guid: d80ba4519b99b44b49b6fb2686570fb3,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

@@ -60,6 +60,7 @@
      <Compile Include="Assets\Scripts\ResetAlphaScript.cs" />
      <Compile Include="Assets\Scripts\RestartMenuScript.cs" />
      <Compile Include="Assets\Scripts\RulesScript.cs" />
+     <Compile Include="Assets\Scripts\StandardLevelScript.cs" />
      <Compile Include="Assets\Scripts\TimerScript.cs" />
      <Compile Include="Assets\Scripts\TutorialScript.cs" />
      <Compile Include="Assets\Scripts\UIManagerScript.cs" />

@@ -13,7 +13,15 @@ public class UIManagerScript : MonoBehaviour
     [SerializeField]
     private Text greenDestroyedText;
     [SerializeField]
+    private Text orangeDestroyedText;
+    [SerializeField]
+    private Text pinkDestroyedText;
+    [SerializeField]
     private Text redDestroyedText;
+    [SerializeField]
+    private Text violetDestroyedText;
+    [SerializeField]
+    private Text yellowDestroyedText;
     [SerializeField]
     private Text roundNumber;
     [SerializeField]
@@ -54,9 +62,34 @@ public class UIManagerScript : MonoBehaviour
 
     private void UpdateDestroyedCountText(GameEventsScript.DestroyedGemsData data)
     {
-        cyanDestroyedText.text = data.cyanCleared.ToString();
-        greenDestroyedText.text = data.greenCleared.ToString();
-        redDestroyedText.text = data.redCleared.ToString();
+        if(cyanDestroyedText != null)
+        {
+            cyanDestroyedText.text = data.cyanCleared.ToString();
+        }
+        if(greenDestroyedText != null)
+        {
+            greenDestroyedText.text = data.greenCleared.ToString();
+        }
+        if(orangeDestroyedText != null)
+        {
+            orangeDestroyedText.text = data.orangeCleared.ToString();
+        }
+        if(pinkDestroyedText != null)
+        {
+            pinkDestroyedText.text = data.pinkCleared.ToString();
+        }
+        if(redDestroyedText != null)
+        {
+            redDestroyedText.text = data.redCleared.ToString();
+        }
+        if(violetDestroyedText != null)
+        {
+            violetDestroyedText.text = data.violetCleared.ToString();
+        }
+        if(yellowDestroyedText != null)
+        {
+            yellowDestroyedText.text = data.yellowCleared.ToString();
+        }
     }
 
     private void UpdateRoundCountText(GameEventsScript.CountRoundsData data)
