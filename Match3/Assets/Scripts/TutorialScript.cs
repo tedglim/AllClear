@@ -26,6 +26,7 @@ public class TutorialScript : MonoBehaviour
     private bool showUndo;
     private bool canUndo;
     private bool wantsUndo;
+    private bool movedGemm;
 
 //serial values
     [SerializeField]
@@ -83,8 +84,6 @@ public class TutorialScript : MonoBehaviour
     {
         public GameObject gemmGObj;
         public string tagId;
-        public bool horizVisited;
-        public bool vertVisited;
         public bool floodVisited;
         public bool floodMatched;
         public bool destroyed;
@@ -104,9 +103,11 @@ public class TutorialScript : MonoBehaviour
     private Dictionary<GemmLoc, Gemm> FloodMatchDict;
     private Dictionary<GemmLoc, Gemm> GemmDictToDestroy;
     private List<GemmLoc> Check3List;
+    private Image undoButtonImg;
+    private Color undoButtonOrigColor;
 
 
-    // declare inits and get script references
+    // declare inits
     void Awake()
     {
         GemmGridLayout = new Gemm[boardDimX, boardDimY];
@@ -114,7 +115,9 @@ public class TutorialScript : MonoBehaviour
         FloodMatchDict = new Dictionary<GemmLoc, Gemm>();
         GemmDictToDestroy = new Dictionary<GemmLoc, Gemm>();
         Check3List = new List<GemmLoc>();
-        
+        undoButtonImg = undoButton.GetComponent<Image>();
+        undoButtonOrigColor = undoButtonImg.color;
+
         isMatching = false;
         areGemmsFalling = false;
         isFirstDrop = true;
@@ -131,21 +134,17 @@ public class TutorialScript : MonoBehaviour
         SwapUndoStates();
     }
 
+    //controls display of "UNDO" vs "ROUND"
     private void SwapUndoStates()
     {
         showUndo = !showUndo;
+        undoButton.GetComponent<Image>().color = undoButtonOrigColor;
         undoButton.SetActive(!showUndo);
         roundsButton.SetActive(showUndo);
     }
 
-    private void GameOver()
-    {
-        SceneManager.LoadSceneAsync(3);
-    }
-
     void Start()
     {
-        // GameEventsScript.gameIsOver.AddListener(GameOver);
         GameEventsScript.undoOnOff.AddListener(DoUndo);
         GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, redsRemaining));
@@ -154,43 +153,25 @@ public class TutorialScript : MonoBehaviour
         StartCoroutine(SetupTutorialBoard());
     }
 
+    //Controls boolean for undo state from ResetAlphaScript
     private void DoUndo()
     {
         wantsUndo = !wantsUndo;
-        if(wantsUndo)
-        {
-            // Debug.Log("CAN undo");
-        } else{
-            // Debug.Log("CAN'T undo");
-        }
     }
 
     void Update()
     {
-        if (isFirstDrop)
-        {
-            return;
-        }
-        if (isMatching)
-        {
-            return;
-        }
-        if (areGemmsFalling)
-        {
-            return;
-        }
-        if(isGameOver)
+        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver)
         {
             return;
         }
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("make a copy of the board");
+            //copy BoardState for Revert
             GemmGridLayoutCopy = GemmGridLayout.Clone() as Gemm[,];
-            checkGridState();
-            //copy Board
-            touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
-            
+
+            //track cursor position/state for if gemmselected, clone, and undo button
+            touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);            
             if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
                 if(!canUndo)
@@ -201,97 +182,81 @@ public class TutorialScript : MonoBehaviour
                 isGemmSelected = true;
                 DisplayGemmClone(touchPos.origin);
             }
-        // }
         } else if (Input.GetMouseButton(0))
         {
+            //track cursor position/state for if gemm can follow cursor
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
-
             if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
                 canGemmFollowMe = true;
             }
-
-            // if(EventSystem.current.IsPointerOverGameObject())
-            // {
-            //     // Debug.Log("Current game object hover: " + EventSystem.current.RaycastAll);
-            // }
-        // } 
         } else if (Input.GetMouseButtonUp(0))
         {
-            //Swapping out red undo button
+            //check for UNDO
+            if(wantsUndo)
+            {
+                DropGemm();
+                GemmGridLayout = GemmGridLayoutCopy;
+                ClearGridLayout();
+                RemakeGemmsForUndo();
+                currNumMoves = movesPerRound;
+                GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+            } else
+            {
+                //proceed to matching state
+                wantGemmDrop = true;
+            }
+
+            //Swap out UNDO button
             if(canUndo)
             {
                 SwapUndoStates();
                 canUndo = false;
             }
-            //perform undo on board
-            if(wantsUndo)
-            {
-                DropGemm();
-                //revert board state
-                Debug.Log("BEFORE\n");
-                checkGridState();
-                Debug.Log("COPY\n");
-                checkGridStateCopy();
-                Debug.Log("AFTER\n");
-                GemmGridLayout = GemmGridLayoutCopy;
-                checkGridState();
-                Debug.Log("undo board state");
-                ClearGridLayout();
-                Debug.Log("CLEARED");
-                RemakeGemmsForUndo();
-                Debug.Log("REMAKE GEMMS");
-                currNumMoves = movesPerRound;
-                GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
-            } else
-            {
-                //continue with board state
-                wantGemmDrop = true;
-            }
-            
+
+            //Reset States
             isGemmSelected = canGemmFollowMe = wantsUndo = false;
         }
     }
 
     void FixedUpdate()
     {
-        if (isFirstDrop)
+        if (isFirstDrop || areGemmsFalling || isMatching || isGameOver)
         {
             return;
         }
-        if (areGemmsFalling)
-        {
-            return;
-        }
-        if (isMatching)
-        {
-            return;
-        }
-        if(isGameOver)
-        {
-            return;
-        }
+
+        //if GemmSelected and Gemmcan follow cursor
         if(isGemmSelected && canGemmFollowMe)
         {
-            //moves clone and and gemm to correct pos; locks last move
+            //if GemmClone alive and there are remaining moves, show all the gemm movements on screen
             if(isGemmCloneAlive && !noMoves)
             {
                 gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
                 ShowGemmMovement(touchPos.origin);
-                if (currNumMoves<=0)
+
+                //once you run out of moves, hide clone, noMoves = true
+                if (currNumMoves <= 0)
                 {
                     gemmClone.gemmGObj.SetActive(false);
                     noMoves = true;
                 }
+            
+            //if there are moves remaining, set noMoves = false
             } else if (currNumMoves > 0)
             {
                 noMoves = false;
             }
         }
+
+        //when player releases gemm and gemm has moved, start matching
         if (wantGemmDrop)
         {
             DropGemm();
-            StartCoroutine(MatchGemms());
+            if (movedGemm)
+            {
+                StartCoroutine(MatchGemms());
+            }
         }
     }
 
@@ -304,20 +269,21 @@ public class TutorialScript : MonoBehaviour
         isFirstDrop = false;
     }
 
-    //Create Gemms in Grid
+    //Create Gemms in Tutorial Grid
     private void MakeGemmsInGrid()
     {
         for (int y = 0; y < boardDimY; y++)
         {
             for (int x = 0; x < boardDimX; x++)
             {
-                int z = x + 2;
                 GameObject gemm;
-
-                //if rows 3/6, shift gem to the left by 1 color
-                if (y % GemmOptions.Count == GemmOptions.Count - 1)
+                //if rows 3/5, shift gem to the left by 1/2 color
+                if (y == 4)
                 {
-                    gemm = GemmOptions[z%GemmOptions.Count];
+                    gemm = GemmOptions[(x+2)%GemmOptions.Count];
+                } else if (y == 2)
+                {
+                    gemm = GemmOptions[(x+1)%GemmOptions.Count];
                 } else 
                 {
                     gemm = GemmOptions[x%GemmOptions.Count];
@@ -327,7 +293,7 @@ public class TutorialScript : MonoBehaviour
         }
     }
 
-    //Instantiate Gemm
+    //Instantiate Gemm in Setup Grid
     private void MakeGemm(GameObject gemmGObj, int x, int y)
     {
         GameObject currentGemm = (GameObject)Instantiate(gemmGObj, new Vector2((float)x, (float)y + (float)dropOffset), Quaternion.identity);
@@ -380,18 +346,16 @@ public class TutorialScript : MonoBehaviour
     //Wrapper for showing gemm clone
     private void DisplayGemmClone(Vector2 touchPos)
     {
+        //make gemm clone at cursor position
         int gridXPos = GetPosOnGrid(touchPos.x, boardDimX);
         int gridYPos = GetPosOnGrid(touchPos.y, boardDimY);
         prevActiveTouchPos = new Vector2Int(gridXPos, gridYPos);
-
-        //get Gem in grid
         Gemm selectedGem = GemmGridLayout[gridXPos, gridYPos];
-        //create Gem Clone at same location
         MakeGemmClone(selectedGem, gridXPos, gridYPos);
-        //change its alpha
         selectedGem.gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(selectedGem, underlayAlpha);
     }
 
+    //Get grid position of cursor x/y independently
     private int GetPosOnGrid(float main, int size)
     {
         int coordinate = Mathf.RoundToInt(main);
@@ -411,18 +375,12 @@ public class TutorialScript : MonoBehaviour
     {
         gemmClone = new Gemm {
             gemmGObj = (GameObject)Instantiate(origGemm.gemmGObj, new Vector2(x, y), Quaternion.identity),
-            floodVisited = false,
-            floodMatched = false,
-            destroyed = false,
-            dropDist = 0,
-            gridXLoc = x,
-            gridYLoc = y,
         };
         gemmClone.gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(gemmClone, overlayAlpha);
         isGemmCloneAlive = true;
     }
 
-    //adjusts gemm transparency
+    //adjusts gemm transparency (clone and gid)
     private Color ChangeGemmAlpha(Gemm gemm, float aVal)
     {
         Color gemmColor = gemm.gemmGObj.GetComponent<SpriteRenderer>().color;
@@ -436,7 +394,7 @@ public class TutorialScript : MonoBehaviour
         int gridXPos = GetPosOnGrid(touchPos.x, boardDimX);
         int gridYPos = GetPosOnGrid(touchPos.y, boardDimY);
 
-        //Updates gem movement when finger moves to new cell and as fast as the rotation happens.
+        //Updates gem movement when finger moves to new cell
         if ((prevActiveTouchPos.x != gridXPos || prevActiveTouchPos.y != gridYPos) && !isRotating)
         {
             //diagonals
@@ -485,13 +443,8 @@ public class TutorialScript : MonoBehaviour
     //shows rotation speed of gemm movement
     IEnumerator ShowGemmMovementEnum(int currTouchPosX, int currTouchPosY)
     {
-        if(currNumMoves > 0)
-        {
-            currNumMoves--;
-        }
-        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
-        
         //inits
+        movedGemm = true;
         isRotating = true;
         float rotatePercent = 0.0f;
         rotationAngle = new Vector3(0, 0, 180.0f);
@@ -531,9 +484,17 @@ public class TutorialScript : MonoBehaviour
         //Cleanup
         Destroy(gemRotator);
         isRotating = false;
+
+        //Count Move
+        if(currNumMoves > 0)
+        {
+            currNumMoves--;
+        }
+        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+        
     }
 
-    //ends player turn
+    //Setup for Gemm Matching
     private void DropGemm()
     {
         GemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(GemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y], 1.0f);
@@ -541,62 +502,51 @@ public class TutorialScript : MonoBehaviour
         {
             Destroy(gemmClone.gemmGObj);
         }
-        wantGemmDrop = false;
-        isGemmCloneAlive = false;
+        wantGemmDrop = isGemmCloneAlive = false;
     }
 
     //Matches gemms; looks for 3 gemms or more in a row
     IEnumerator MatchGemms()
     {
-        // Debug.Log("Start Match");
         ResetBoardForMatching();
         isMatching = true;
         for (int y = 0; y < boardDimY; y++)
         {
             for (int x = 0; x < boardDimX; x++)
             {
-                // Debug.Log("CURRENT POSITION: " + x + ", " + y);
                 if(!GemmGridLayout[x,y].destroyed)
                 {
                     ResetBoardForFloodMarking();
                     FloodMark(x, y, GemmGridLayout[x, y].gemmGObj.tag);
                     Check3PlusInDirectionWrapper(1, 0);
                     Check3PlusInDirectionWrapper(0, 1);
-                    CountAndDestroyGems();
+                    CountAndDestroyGemms();
                     if(didDestroy)
                     {
                         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, redsRemaining));
-                        //update destroyed #
-                        //if u destroyed shit, you should wait
                         yield return new WaitForSeconds(0.25f);
                         didDestroy = false;
                     }
-                } else
-                {
-                    //don't do anything
                 }
             }
         }
-        //looped through everything
         
+        //Cleanup board after matching
         SetupRemainingGemmsForDrop();
         RemakeDestroyedGemms();
         MoveGemmsDown();
-//BUG AREA
         yield return new WaitUntil(() => !areGemmsFalling);
-//         Debug.Log("done moving");
-//         checkGridState();
-// //check list of boolean states?
-//         Debug.Log(canContinueMatching);
-//         Debug.Log(isMatching);
 
+        //if gemms were destroyed, we can repeat matching process 
         if(canContinueMatching)
         {
             canContinueMatching = false;
             StartCoroutine(RepeatMatchGemms());
         } else
         {
+            //Cleanup board, reset moves, count round, check win/gameover conditions
             isMatching = false;
+            movedGemm = false;
             currNumMoves = movesPerRound;
             GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
             currNumRounds++;
@@ -610,25 +560,17 @@ public class TutorialScript : MonoBehaviour
                 isGameOver = true;
                 isWin = false;
             }
-        
         }
-
-
-        //determine win/lose
-        //numGemsDestroyed
-        // if(currNumRounds > totalRounds)
-        // {
-        //     isGameOver = true;
-        //     //determine win or lose
-        // }
-        //can say round ends
         yield return new WaitForSeconds(1.0f);
+
+        //check game over
         if (isGameOver)
         {
             GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(isWin));
         }
     }
 
+    //cleanup all gemm states for matching
     private void ResetBoardForMatching()
     {
         for (int y =0; y < boardDimY; y++)
@@ -636,8 +578,6 @@ public class TutorialScript : MonoBehaviour
             for (int x =0; x < boardDimX; x++)
             {
                 GemmGridLayout[x,y].tagId = GemmGridLayout[x,y].gemmGObj.tag;
-                GemmGridLayout[x,y].horizVisited = false;
-                GemmGridLayout[x,y].vertVisited = false;
                 GemmGridLayout[x,y].floodVisited = false;
                 GemmGridLayout[x,y].floodMatched = false;
                 GemmGridLayout[x,y].destroyed = false;
@@ -648,6 +588,7 @@ public class TutorialScript : MonoBehaviour
         }
     }
 
+    //cleanup gemm state for flood marking
     private void ResetBoardForFloodMarking()
     {
         for (int y =0; y < boardDimY; y++)
@@ -660,12 +601,13 @@ public class TutorialScript : MonoBehaviour
         }
     }
 
+    //Mark blob of same colored gemms; track with Floodmatchdict
     private void FloodMark(int x, int y, string origTag)
     {
-        //assume this ain't destroyed.
         //create ToDo List
         Stack gemmStack = new Stack();
         gemmStack.Push(GemmGridLayout[x,y]);
+        //while ToDo List not empty
         while (gemmStack.Count > 0)
         {
             Gemm gemmLFM = (Gemm) gemmStack.Pop();
@@ -711,9 +653,6 @@ public class TutorialScript : MonoBehaviour
                         gemmStack.Push(GemmGridLayout[gemmLFM.gridXLoc, gemmLFM.gridYLoc + 1]);
                     }
                 }
-            } else 
-            {
-                // Debug.Log("Skip");
             }
         }
     }
@@ -729,8 +668,8 @@ public class TutorialScript : MonoBehaviour
     }
 
     //Q each candidate for horiz/vert 3 in a row 1 at a time.
-    //if match, add to temp; else see if temp has >=3
-    //if so, record for destroying, otherwise clear temp.
+    //if match, add to temp; else see if temp has >= 3
+    //if so, record for destroying and clear temp, otherwise clear temp.
     private void Check3PlusInDirection(GemmLoc gemmKey, int horiz, int vert)
     {
         Queue Check3Q = new Queue();
@@ -738,7 +677,6 @@ public class TutorialScript : MonoBehaviour
         while(Check3Q.Count > 0)
         {
             GemmLoc key = (GemmLoc) Check3Q.Dequeue();
-            //if gemm to right/up is not in match blob, not a 3 in a row
             if (FloodMatchDict.ContainsKey(key))
             {
                 Check3List.Add(key);
@@ -765,13 +703,14 @@ public class TutorialScript : MonoBehaviour
         }
     }
 
-    private void CountAndDestroyGems()
+    //count and destroy Gemms
+    private void CountAndDestroyGemms()
     {
-        CountDestroyedGems();
-        DestroyGems();
+        CountDestroyedGemms();
+        DestroyGemms();
     }
 
-    private void CountDestroyedGems()
+    private void CountDestroyedGemms()
     {
         foreach (var gemm in GemmDictToDestroy)
         {
@@ -797,9 +736,9 @@ public class TutorialScript : MonoBehaviour
         }
     }
 
-    private void DestroyGems()
+    //Destroy gemms, fade them out, reset floodmatch and gemmtodestroy dictionaries
+    private void DestroyGemms()
     {
-        // Debug.Log("# Gems to destroy: " + GemmDictToDestroy.Count);
         foreach (var gemm in GemmDictToDestroy)
         {
             int a = gemm.Value.gridXLoc;
@@ -807,22 +746,17 @@ public class TutorialScript : MonoBehaviour
             if (!GemmGridLayout[a, b].destroyed)
             {
                 GemmGridLayout[a, b].destroyed = true;
-                StartCoroutine(fadeGem(gemm.Value.gemmGObj, 1.0f));
-                //do fade and wait
-                // Destroy(gemm.Value.gemmGObj);
+                StartCoroutine(fadeGemm(gemm.Value.gemmGObj, 1.0f));
                 didDestroy = true;
                 canContinueMatching = true;
-                // ParticleSystem.i
             }
         }
-        // Debug.Log("redsRemaining: " + redsRemaining);
-        // Debug.Log("greensRemaining: " + greensRemaining);
-        // Debug.Log("cyansRemaining: " + cyansRemaining);
         FloodMatchDict.Clear();
         GemmDictToDestroy.Clear();
     }
 
-    IEnumerator fadeGem(GameObject gemm, float fadeDuration)
+    //Fades gemms to be destroyed
+    IEnumerator fadeGemm(GameObject gemm, float fadeDuration)
     {
         SpriteRenderer sr = gemm.GetComponent<SpriteRenderer>();
         for (float t = 0f; t < fadeDuration; t += Time.deltaTime)
@@ -888,13 +822,14 @@ public class TutorialScript : MonoBehaviour
         }
     }
 
+    //Repeats Gemm Matching process
     IEnumerator RepeatMatchGemms()
     {
         yield return new WaitUntil(() => !areGemmsFalling);
-        // checkGridState();
         StartCoroutine(MatchGemms());
     }
 
+    //Prep for Undo procedure
     private void ClearGridLayout()
     {
         for(int y = 0; y < boardDimY; y++)
@@ -909,6 +844,7 @@ public class TutorialScript : MonoBehaviour
         }
     }
 
+    //Remake Gemms for UNDO process; revert to previous board state
     private void RemakeGemmsForUndo()
     {
         for(int y = 0; y < boardDimY; y++)
@@ -919,7 +855,6 @@ public class TutorialScript : MonoBehaviour
                 {
                     if (GemmGridLayout[x,y].tagId == GemmOptions[z].tag)
                     {
-                        // GameObject gObj = GemmOptions[z];
                         GameObject gObj = (GameObject) Instantiate(GemmOptions[z], new Vector2((float)x, (float)y), Quaternion.identity);
                         gObj.transform.parent = transform;
                         GemmGridLayout[x,y].gemmGObj = gObj;
@@ -930,7 +865,7 @@ public class TutorialScript : MonoBehaviour
         } 
     }
 
-    //Debug function for diff attributes
+    //Debug function for main grid
     private void checkGridState()
     {
         for (int y = 0; y < boardDimY; y++)
@@ -946,6 +881,8 @@ public class TutorialScript : MonoBehaviour
             }
         }
     }
+
+    //Debug function for grid copy
     private void checkGridStateCopy()
     {
         for (int y = 0; y < boardDimY; y++)

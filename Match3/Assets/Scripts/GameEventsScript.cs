@@ -5,23 +5,20 @@ using UnityEngine.Events;
 
 public class GameEventsScript : MonoBehaviour
 {
-
-    // public static UnityEvent releaseHold = new UnityEvent();
-    // public static UnityEvent countMove = new UnityEvent();
-    // public static UnityEvent countRound = new UnityEvent();
+    //Event Declarations
     public static UnityEvent undoOnOff = new UnityEvent();
     public static GemsDestroyedEvent clearGems = new GemsDestroyedEvent();
     public static CountRoundEvent countRound = new CountRoundEvent();
     public static CountMoveEvent countMove = new CountMoveEvent();
     public static GameOverEvent gameIsOver = new GameOverEvent();
-    //release hold,
-    //count gems deleted
 
+    //Even Class Declarations
     public class GemsDestroyedEvent: UnityEvent<DestroyedGemsData>{}
     public class CountRoundEvent: UnityEvent<CountRoundsData>{}
     public class CountMoveEvent: UnityEvent<CountMoveData>{}
     public class GameOverEvent: UnityEvent<GameOverData>{}
 
+    //Event Classes
     public class DestroyedGemsData {
         public int cyanCleared;
         public int greenCleared;

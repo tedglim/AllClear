@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class UIManagerScript : MonoBehaviour
 {
-//serialized nums
+//serialized Texts
     [SerializeField]
     private Text cyanDestroyedText;
     [SerializeField]
@@ -18,11 +18,10 @@ public class UIManagerScript : MonoBehaviour
     private Text roundNumber;
     [SerializeField]
     private Text moveNumber;
-    [SerializeField]
-    private GameObject gameOverPanel;
 
 //nonserialized
     private Color origColor;
+    private ParticleSystem ps;
 
 //serialized
     [SerializeField]
@@ -30,28 +29,27 @@ public class UIManagerScript : MonoBehaviour
     [SerializeField]
     private ParticleSystem movesParticles;
     [SerializeField]
-    private int numTrigMovesParticles;
-
+    private int numMovesTrigParticles;
+    [SerializeField]
+    private float posX;
+    [SerializeField]
+    private float posY;
+    [SerializeField]
+    private GameObject gameOverPanel;
 
     void Awake()
     {
-
+        origColor = moveNumber.color;
+        ps = Instantiate(movesParticles, new Vector2(posX, posY), Quaternion.identity);
+        ps.Stop();
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         GameEventsScript.clearGems.AddListener(UpdateDestroyedCountText);
         GameEventsScript.countRound.AddListener(UpdateRoundCountText);
         GameEventsScript.countMove.AddListener(UpdateMoveCountText);
         GameEventsScript.gameIsOver.AddListener(DisplayGameOverPanel);
-        origColor = moveNumber.color;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     private void UpdateDestroyedCountText(GameEventsScript.DestroyedGemsData data)
@@ -76,23 +74,22 @@ public class UIManagerScript : MonoBehaviour
         } else 
         {
             roundNumber.text = "ROUND " + data.currRound.ToString();
-            // Color c = Color.white;
         }
     }
 
     private void UpdateMoveCountText(GameEventsScript.CountMoveData data)
     {
-        if(data.currMove <= numTrigMovesParticles)
+        if(data.currMove <= numMovesTrigParticles)
         {
             moveNumber.color = Color.red;
-            if (!movesParticles.isPlaying)
+            if (!ps.isPlaying)
             {
-                movesParticles.Play();
+                ps.Play();
             }
         } else
         {
             moveNumber.color = origColor;
-            movesParticles.Stop();
+            ps.Stop();
         }
         moveNumber.text = data.currMove.ToString();
     }
