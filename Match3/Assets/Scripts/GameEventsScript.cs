@@ -6,6 +6,7 @@ using UnityEngine.Events;
 public class GameEventsScript : MonoBehaviour
 {
     //Event Declarations
+    public static UnityEvent menuListOnOff = new UnityEvent();
     public static UnityEvent undoOnOff = new UnityEvent();
     public static GemsDestroyedEvent clearGems = new GemsDestroyedEvent();
     public static CountRoundEvent countRound = new CountRoundEvent();

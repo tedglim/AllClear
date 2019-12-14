@@ -27,6 +27,8 @@ public class StandardLevelScript : MonoBehaviour
     private bool canUndo;
     private bool wantsUndo;
     private bool movedGemm;
+    private bool menuListOn;
+    private bool oneClickLock;
 
 //serial values
     [SerializeField]
@@ -108,6 +110,8 @@ public class StandardLevelScript : MonoBehaviour
         public int gridXLoc;
         public int gridYLoc;
     }
+    private Gemm leftGemm;
+    private Gemm downGemm;
     private Ray touchPos;
     private Vector2Int prevActiveTouchPos;
     private Vector3 rotationAngle;
@@ -136,6 +140,8 @@ public class StandardLevelScript : MonoBehaviour
         canUndo = false;
         showUndo = false;
         wantsUndo = false;
+        menuListOn = false;
+        oneClickLock = false;
 
         cyansRemaining = goalNumCyan;
         greensRemaining = goalNumGreen;
@@ -162,12 +168,18 @@ public class StandardLevelScript : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine(GameEventFuncs());
+        StartCoroutine(SetupInitialBoard());
+    }
+
+    IEnumerator GameEventFuncs()
+    {
+        yield return new WaitForSeconds(0);
+        GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
         GameEventsScript.undoOnOff.AddListener(DoUndo);
         GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
         GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
-
-        StartCoroutine(SetupInitialBoard());
     }
 
     //Controls boolean for undo state from ResetAlphaScript
@@ -176,12 +188,27 @@ public class StandardLevelScript : MonoBehaviour
         wantsUndo = !wantsUndo;
     }
 
+    //tracks menu list state
+    private void IsMenuListOn()
+    {
+        menuListOn = !menuListOn;
+        oneClickLock = true;
+    }
+
     void Update()
     {
-        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver)
+        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver || menuListOn)
         {
             return;
         }
+
+        //prevents board from being touched during open menu
+        if(!menuListOn && oneClickLock)
+        {
+            oneClickLock = false;
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             //copy BoardState for Revert
@@ -238,8 +265,15 @@ public class StandardLevelScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isFirstDrop || areGemmsFalling || isMatching || isGameOver)
+        if (isFirstDrop || areGemmsFalling || isMatching || isGameOver || menuListOn)
         {
+            return;
+        }
+
+        //prevents board from being touched during open menu
+        if(!menuListOn && oneClickLock)
+        {
+            oneClickLock = false;
             return;
         }
 
@@ -281,31 +315,57 @@ public class StandardLevelScript : MonoBehaviour
     IEnumerator SetupInitialBoard()
     {
         yield return new WaitForSecondsRealtime(1.0f);
-        MakeGemmsInGridTutorial();
+        MakeGemmsInGrid();
         MoveGemmsDown();
         isFirstDrop = false;
     }
 
-    //Create Gemms in Tutorial Grid
-    private void MakeGemmsInGridTutorial()
+    //Create Gemms in Standard Grid
+    private void MakeGemmsInGrid()
     {
+        GameObject randGemm;
         for (int y = 0; y < boardDimY; y++)
         {
             for (int x = 0; x < boardDimX; x++)
             {
-                GameObject gemm;
-                //if rows 3/5, shift gem to the left by 1/2 color
-                if (y == 4)
+                //List gemm options
+                List<GameObject> availableGems = new List<GameObject>();    
+                availableGems.AddRange(GemmOptions);
+                
+                //detect if 2 in a row left and down when in row/column 3+
+                //assign a random gemm that makes it so grid does not contain 3 in a rows
+                while(true)
                 {
-                    gemm = GemmOptions[(x+2)%GemmOptions.Count];
-                } else if (y == 2)
-                {
-                    gemm = GemmOptions[(x+1)%GemmOptions.Count];
-                } else 
-                {
-                    gemm = GemmOptions[x%GemmOptions.Count];
+                    randGemm = availableGems[UnityEngine.Random.Range(0, availableGems.Count)];
+                    if (x > 1)
+                    {
+                        leftGemm = GemmGridLayout[x - 1, y];
+                        if (randGemm.tag == leftGemm.tagId)
+                        {
+                            leftGemm = GemmGridLayout[x - 2, y];
+                            if (randGemm.tag == leftGemm.tagId)
+                            {
+                                availableGems.Remove(randGemm);
+                                continue;
+                            }
+                        }
+                    }
+                    if (y > 1)
+                    {
+                        downGemm = GemmGridLayout[x, y - 1];
+                        if (randGemm.tag == downGemm.tagId)
+                        {
+                            downGemm = GemmGridLayout[x, y - 2];
+                            if (randGemm.tag == downGemm.tagId)
+                            {
+                                availableGems.Remove(randGemm);
+                                continue;
+                            }
+                        }
+                    }
+                    break;
                 }
-                MakeGemm(gemm, x, y);
+                MakeGemm(randGemm, x, y);
             }
         }
     }

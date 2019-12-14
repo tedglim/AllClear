@@ -27,6 +27,8 @@ public class TutorialScript : MonoBehaviour
     private bool canUndo;
     private bool wantsUndo;
     private bool movedGemm;
+    private bool menuListOn;
+    private bool oneClickLock;
 
 //serial values
     [SerializeField]
@@ -44,7 +46,15 @@ public class TutorialScript : MonoBehaviour
     [SerializeField]
     private int goalNumGreen;
     [SerializeField]
+    private int goalNumOrange;
+    [SerializeField]
+    private int goalNumPink;
+    [SerializeField]
     private int goalNumRed;
+    [SerializeField]
+    private int goalNumViolet;
+    [SerializeField]
+    private int goalNumYellow;
     [SerializeField]
     private float fallTimeInterval;
     [SerializeField]
@@ -65,9 +75,13 @@ public class TutorialScript : MonoBehaviour
 //nonserial values
     private int currNumRounds;
     private int currNumMoves;
-    private int redsRemaining;
-    private int greensRemaining;
     private int cyansRemaining;
+    private int greensRemaining;
+    private int orangesRemaining;
+    private int pinksRemaining;
+    private int redsRemaining;
+    private int violetsRemaining;
+    private int yellowsRemaining;
 
 //other serialized
     [SerializeField]
@@ -124,10 +138,17 @@ public class TutorialScript : MonoBehaviour
         canUndo = false;
         showUndo = false;
         wantsUndo = false;
+        menuListOn = false;
+        oneClickLock = false;
 
         cyansRemaining = goalNumCyan;
         greensRemaining = goalNumGreen;
+        orangesRemaining = goalNumOrange;
+        pinksRemaining = goalNumPink;
         redsRemaining = goalNumRed;
+        violetsRemaining = goalNumViolet;
+        yellowsRemaining = goalNumYellow;
+
         currNumMoves = movesPerRound;
         currNumRounds = 1;
 
@@ -145,12 +166,18 @@ public class TutorialScript : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine(GameEventFuncs());
+        StartCoroutine(SetupInitialBoard());
+    }
+
+    IEnumerator GameEventFuncs()
+    {
+        yield return new WaitForSeconds(0);
+        GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
         GameEventsScript.undoOnOff.AddListener(DoUndo);
         GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
-        // GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, redsRemaining));
+        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
         GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
-
-        StartCoroutine(SetupTutorialBoard());
     }
 
     //Controls boolean for undo state from ResetAlphaScript
@@ -159,12 +186,27 @@ public class TutorialScript : MonoBehaviour
         wantsUndo = !wantsUndo;
     }
 
+    //tracks menu list state
+    private void IsMenuListOn()
+    {
+        menuListOn = !menuListOn;
+        oneClickLock = true;
+    }
+
     void Update()
     {
-        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver)
+        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver || menuListOn)
         {
             return;
         }
+
+        //prevents board from being touched during open menu
+        if(!menuListOn && oneClickLock)
+        {
+            oneClickLock = false;
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             //copy BoardState for Revert
@@ -221,8 +263,15 @@ public class TutorialScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isFirstDrop || areGemmsFalling || isMatching || isGameOver)
+        if (isFirstDrop || areGemmsFalling || isMatching || isGameOver || menuListOn)
         {
+            return;
+        }
+
+        //prevents board from being touched during open menu
+        if(!menuListOn && oneClickLock)
+        {
+            oneClickLock = false;
             return;
         }
 
@@ -261,16 +310,16 @@ public class TutorialScript : MonoBehaviour
     }
 
     //Wrapper for creating initial board
-    IEnumerator SetupTutorialBoard()
+    IEnumerator SetupInitialBoard()
     {
         yield return new WaitForSecondsRealtime(1.0f);
-        MakeGemmsInGrid();
+        MakeGemmsInGridTutorial();
         MoveGemmsDown();
         isFirstDrop = false;
     }
 
     //Create Gemms in Tutorial Grid
-    private void MakeGemmsInGrid()
+    private void MakeGemmsInGridTutorial()
     {
         for (int y = 0; y < boardDimY; y++)
         {
@@ -523,7 +572,7 @@ public class TutorialScript : MonoBehaviour
                     CountAndDestroyGemms();
                     if(didDestroy)
                     {
-                        // GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, redsRemaining));
+                        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
                         yield return new WaitForSeconds(0.25f);
                         didDestroy = false;
                     }
@@ -551,7 +600,7 @@ public class TutorialScript : MonoBehaviour
             GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
             currNumRounds++;
             GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
-            if (redsRemaining <= 0 && greensRemaining <= 0 && cyansRemaining <=0)
+            if (redsRemaining <= 0 && greensRemaining <= 0 && cyansRemaining <= 0 && orangesRemaining <= 0 && pinksRemaining <= 0 && violetsRemaining <= 0 && yellowsRemaining <= 0)
             {
                 isGameOver = true;
                 isWin = true;
@@ -714,11 +763,11 @@ public class TutorialScript : MonoBehaviour
     {
         foreach (var gemm in GemmDictToDestroy)
         {
-            if(gemm.Value.gemmGObj.tag == "Red")
+            if (gemm.Value.gemmGObj.tag == "Cyan")
             {
-                if(redsRemaining > 0)
+                if(cyansRemaining > 0)
                 {
-                    redsRemaining--;
+                    cyansRemaining--;
                 }
             } else if (gemm.Value.gemmGObj.tag == "Green")
             {
@@ -726,11 +775,35 @@ public class TutorialScript : MonoBehaviour
                 {
                     greensRemaining--;
                 }
-            } else if (gemm.Value.gemmGObj.tag == "Cyan")
+            } else if (gemm.Value.gemmGObj.tag == "Orange")
+            {
+                if(greensRemaining > 0)
+                {
+                    orangesRemaining--;
+                }
+            } else if (gemm.Value.gemmGObj.tag == "Pink")
             {
                 if(cyansRemaining > 0)
                 {
-                    cyansRemaining--;
+                    pinksRemaining--;
+                }
+            } else if(gemm.Value.gemmGObj.tag == "Red")
+            {
+                if(redsRemaining > 0)
+                {
+                    redsRemaining--;
+                }
+            } else if (gemm.Value.gemmGObj.tag == "Violet")
+            {
+                if(cyansRemaining > 0)
+                {
+                    violetsRemaining--;
+                }
+            } else if (gemm.Value.gemmGObj.tag == "Yellow")
+            {
+                if(greensRemaining > 0)
+                {
+                    yellowsRemaining--;
                 }
             }
         }
