@@ -777,13 +777,13 @@ public class TutorialScript : MonoBehaviour
                 }
             } else if (gemm.Value.gemmGObj.tag == "Orange")
             {
-                if(greensRemaining > 0)
+                if(orangesRemaining > 0)
                 {
                     orangesRemaining--;
                 }
             } else if (gemm.Value.gemmGObj.tag == "Pink")
             {
-                if(cyansRemaining > 0)
+                if(pinksRemaining > 0)
                 {
                     pinksRemaining--;
                 }
@@ -795,13 +795,13 @@ public class TutorialScript : MonoBehaviour
                 }
             } else if (gemm.Value.gemmGObj.tag == "Violet")
             {
-                if(cyansRemaining > 0)
+                if(violetsRemaining > 0)
                 {
                     violetsRemaining--;
                 }
             } else if (gemm.Value.gemmGObj.tag == "Yellow")
             {
-                if(greensRemaining > 0)
+                if(yellowsRemaining > 0)
                 {
                     yellowsRemaining--;
                 }
