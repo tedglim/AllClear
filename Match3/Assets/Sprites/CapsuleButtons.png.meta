@@ -1,16 +1,16 @@
 fileFormatVersion: 2
-guid: e62184cdc2e414b25a07bc3a4fbf675e
+guid: 0f146442a18b448c19b22615c295aeb2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2780540300400067551
-    second: Checkmark_0
+      213: -7146319601327356098
+    second: CapsuleButtons_0
   - first:
-      213: -8786284156296452713
-    second: Checkmark_1
+      213: -6303382944387762468
+    second: CapsuleButtons_1
   - first:
-      213: -32803517627597584
-    second: Checkmark_2
+      213: -158037162691589096
+    second: CapsuleButtons_2
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -119,13 +119,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Checkmark_0
+      name: CapsuleButtons_0
       rect:
         serializedVersion: 2
-        x: 40
-        y: 423
-        width: 257
-        height: 257
+        x: 48
+        y: 480
+        width: 288
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -133,20 +133,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 67901ebba93d9469ba64f0d253d827e8
-      internalID: 2780540300400067551
+      spriteID: 5f058f7af89754ea5a94c8e23e3242ec
+      internalID: -7146319601327356098
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Checkmark_1
+      name: CapsuleButtons_1
       rect:
         serializedVersion: 2
-        x: 348
-        y: 466
-        width: 214
-        height: 171
+        x: 414
+        y: 510
+        width: 132
+        height: 132
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,20 +154,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6230ae612accd412c825968ea62f1dc4
-      internalID: -8786284156296452713
+      spriteID: d4517412ec58b4994bc5480afa954b0a
+      internalID: -6303382944387762468
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Checkmark_2
+      name: CapsuleButtons_2
       rect:
         serializedVersion: 2
-        x: 622
-        y: 466
-        width: 214
-        height: 171
+        x: 48
+        y: 240
+        width: 288
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -175,8 +175,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ebf87ff409a8d4aa7ab4b52504c67c0c
-      internalID: -32803517627597584
+      spriteID: 41bb6b5e6edd84ef2a9bc6b1cc174d60
+      internalID: -158037162691589096
       vertices: []
       indices: 
       edges: []
