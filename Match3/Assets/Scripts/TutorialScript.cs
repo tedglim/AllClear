@@ -183,6 +183,7 @@ public class TutorialScript : MonoBehaviour
     //Controls boolean for undo state from ResetAlphaScript
     private void DoUndo()
     {
+        Debug.Log("Undo");
         wantsUndo = !wantsUndo;
     }
 
@@ -234,9 +235,11 @@ public class TutorialScript : MonoBehaviour
             }
         } else if (Input.GetMouseButtonUp(0))
         {
+            Debug.Log("Lift finger up");
             //check for UNDO
             if(wantsUndo)
             {
+                Debug.Log("perform undo");
                 DropGemm();
                 GemmGridLayout = GemmGridLayoutCopy;
                 ClearGridLayout();
