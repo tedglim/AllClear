@@ -81,4 +81,9 @@ public class MenuScript : MonoBehaviour
     {
         SceneManager.LoadSceneAsync(3);
     }
+
+    public void LoadVariation01Scene()
+    {
+        SceneManager.LoadSceneAsync(4);
+    }
 }

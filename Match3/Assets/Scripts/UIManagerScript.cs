@@ -230,7 +230,7 @@ public class UIManagerScript : MonoBehaviour
             gameOverPanel.transform.Find("WinImg").gameObject.SetActive(true);
         } else 
         {
-            title.text = "DEFEAT";
+            title.text = "TRY AGAIN";
             gameOverPanel.transform.Find("LoseImg").gameObject.SetActive(true);
         }
     }

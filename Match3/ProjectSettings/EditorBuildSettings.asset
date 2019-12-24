@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/IntenseLevel.unity
     guid: 952b8b29bad494b96addb20c96139fbd
+  - enabled: 1
+    path: Assets/Scenes/Variation01Scene.unity
+    guid: 08f7f9d166c20473baa4d48c121d24c5
   - enabled: 0
     path: Assets/Scenes/InstructionScene.unity
     guid: ea5f5a511d9ce462a9b4080c68be6c9d

@@ -28,7 +28,18 @@ public class ResetAlphaScript : MonoBehaviour
     //UNDO Button half transparent
     public void changeAlphaHalf()
     {
-        image.color = origColor;
-        GameEventsScript.undoOnOff.Invoke();
+        if (Input.touchCount < 1)
+        {
+            image.color = origColor;
+            GameEventsScript.undoOnOff.Invoke();            
+        } else 
+        {
+            Touch touch = Input.GetTouch(0);
+            if(touch.phase != TouchPhase.Ended)
+            {
+                image.color = origColor;
+                GameEventsScript.undoOnOff.Invoke();
+            }
+        }
     }
 }
