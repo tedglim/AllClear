@@ -113,6 +113,7 @@ public class UIManagerScript : MonoBehaviour
 
         GameEventsScript.clearGems.AddListener(UpdateDestroyedCountText);
         GameEventsScript.countRound.AddListener(UpdateRoundCountText);
+        GameEventsScript.countRoundV1.AddListener(UpdateRoundCountTextForV1);
         GameEventsScript.countMove.AddListener(UpdateMoveCountText);
         GameEventsScript.gameIsOver.AddListener(DisplayGameOverPanel);
     }
@@ -200,6 +201,11 @@ public class UIManagerScript : MonoBehaviour
         {
             roundNumber.text = "ROUND " + data.currRound.ToString();
         }
+    }
+
+    private void UpdateRoundCountTextForV1(GameEventsScript.CountRoundsV1Data data)
+    {
+        moveNumber.text = data.currRound.ToString();
     }
 
     private void UpdateMoveCountText(GameEventsScript.CountMoveData data)

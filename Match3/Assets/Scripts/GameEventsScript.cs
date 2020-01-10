@@ -10,12 +10,14 @@ public class GameEventsScript : MonoBehaviour
     public static UnityEvent undoOnOff = new UnityEvent();
     public static GemsDestroyedEvent clearGems = new GemsDestroyedEvent();
     public static CountRoundEvent countRound = new CountRoundEvent();
+    public static CountRoundV1Event countRoundV1 = new CountRoundV1Event();
     public static CountMoveEvent countMove = new CountMoveEvent();
     public static GameOverEvent gameIsOver = new GameOverEvent();
 
     //Even Class Declarations
     public class GemsDestroyedEvent: UnityEvent<DestroyedGemsData>{}
     public class CountRoundEvent: UnityEvent<CountRoundsData>{}
+    public class CountRoundV1Event: UnityEvent<CountRoundsV1Data>{}
     public class CountMoveEvent: UnityEvent<CountMoveData>{}
     public class GameOverEvent: UnityEvent<GameOverData>{}
 
@@ -49,6 +51,15 @@ public class GameEventsScript : MonoBehaviour
         {
             this.currRound = currRound;
             this.totalRounds = totalRounds;
+        }
+    }
+
+    public class CountRoundsV1Data {
+        public int currRound;
+        
+        public CountRoundsV1Data(int currRound)
+        {
+            this.currRound = currRound;
         }
     }
 

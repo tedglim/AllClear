@@ -23,7 +23,7 @@ public class Variation01Script : MonoBehaviour
     private bool canContinueMatching;
     private bool isGameOver;
     private bool isWin;
-    private bool noMoves;
+    // private bool noMoves;
     private bool showUndo;
     private bool canUndo;
     private bool wantsUndo;
@@ -40,8 +40,8 @@ public class Variation01Script : MonoBehaviour
     private int dropOffset;
     [SerializeField]
     private int totalRounds;
-    [SerializeField]
-    private int movesPerRound;
+    // [SerializeField]
+    // private int movesPerRound;
     [SerializeField]
     private int goalNumCyan;
     [SerializeField]
@@ -75,7 +75,7 @@ public class Variation01Script : MonoBehaviour
     
 //nonserial values
     private int currNumRounds;
-    private int currNumMoves;
+    // private int currNumMoves;
     private int cyansRemaining;
     private int greensRemaining;
     private int orangesRemaining;
@@ -87,10 +87,10 @@ public class Variation01Script : MonoBehaviour
 //other serialized
     [SerializeField]
     private List<GameObject> GemmOptions;
-    [SerializeField]
-    private GameObject undoButton;
-    [SerializeField]
-    private GameObject roundsButton;
+    // [SerializeField]
+    // private GameObject undoButton;
+    // [SerializeField]
+    // private GameObject roundsButton;
 
 //other nonserialized
     private Gemm[,] GemmGridLayout;
@@ -120,8 +120,8 @@ public class Variation01Script : MonoBehaviour
     private Dictionary<GemmLoc, Gemm> FloodMatchDict;
     private Dictionary<GemmLoc, Gemm> GemmDictToDestroy;
     private List<GemmLoc> Check3List;
-    private Image undoButtonImg;
-    private Color undoButtonOrigColor;
+    // private Image undoButtonImg;
+    // private Color undoButtonOrigColor;
 
 
     // declare inits
@@ -132,8 +132,8 @@ public class Variation01Script : MonoBehaviour
         FloodMatchDict = new Dictionary<GemmLoc, Gemm>();
         GemmDictToDestroy = new Dictionary<GemmLoc, Gemm>();
         Check3List = new List<GemmLoc>();
-        undoButtonImg = undoButton.GetComponent<Image>();
-        undoButtonOrigColor = undoButtonImg.color;
+        // undoButtonImg = undoButton.GetComponent<Image>();
+        // undoButtonOrigColor = undoButtonImg.color;
 
         isMatching = false;
         areGemmsFalling = false;
@@ -152,20 +152,20 @@ public class Variation01Script : MonoBehaviour
         violetsRemaining = goalNumViolet;
         yellowsRemaining = goalNumYellow;
 
-        currNumMoves = movesPerRound;
-        currNumRounds = 1;
+        // currNumMoves = movesPerRound;
+        currNumRounds = totalRounds;
 
-        SwapUndoStates();
+        // SwapUndoStates();
     }
 
-    //controls display of "UNDO" vs "ROUND"
-    private void SwapUndoStates()
-    {
-        showUndo = !showUndo;
-        undoButton.GetComponent<Image>().color = undoButtonOrigColor;
-        undoButton.SetActive(!showUndo);
-        roundsButton.SetActive(showUndo);
-    }
+    // //controls display of "UNDO" vs "ROUND"
+    // private void SwapUndoStates()
+    // {
+    //     showUndo = !showUndo;
+    //     undoButton.GetComponent<Image>().color = undoButtonOrigColor;
+    //     undoButton.SetActive(!showUndo);
+    //     roundsButton.SetActive(showUndo);
+    // }
 
     void Start()
     {
@@ -177,17 +177,18 @@ public class Variation01Script : MonoBehaviour
     {
         yield return new WaitForSeconds(0);
         GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
-        GameEventsScript.undoOnOff.AddListener(DoUndo);
-        GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
+        // GameEventsScript.undoOnOff.AddListener(DoUndo);
+        // GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
+        // GameEventsScript.countRoundV1.Invoke(new GameEventsScript.CountRoundsV1Data(currNumRounds));
         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
-        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumRounds, totalRounds));
     }
 
     //Controls boolean for undo state from ResetAlphaScript
-    private void DoUndo()
-    {
-        wantsUndo = !wantsUndo;
-    }
+    // private void DoUndo()
+    // {
+    //     wantsUndo = !wantsUndo;
+    // }
 
     //tracks menu list state
     private void IsMenuListOn()
@@ -219,11 +220,11 @@ public class Variation01Script : MonoBehaviour
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);            
             if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
-                if(!canUndo)
-                {
-                    SwapUndoStates();
-                    canUndo = true;
-                }
+                // if(!canUndo)
+                // {
+                //     SwapUndoStates();
+                //     canUndo = true;
+                // }
                 isGemmSelected = true;
                 DisplayGemmClone(touchPos.origin);
             }
@@ -244,8 +245,8 @@ public class Variation01Script : MonoBehaviour
                 GemmGridLayout = GemmGridLayoutCopy;
                 ClearGridLayout();
                 RemakeGemmsForUndo();
-                currNumMoves = movesPerRound;
-                GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+                // currNumMoves = movesPerRound;
+                // GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
             } else
             {
                 //proceed to matching state
@@ -253,11 +254,11 @@ public class Variation01Script : MonoBehaviour
             }
 
             //Swap out UNDO button
-            if(canUndo)
-            {
-                SwapUndoStates();
-                canUndo = false;
-            }
+            // if(canUndo)
+            // {
+            //     SwapUndoStates();
+            //     canUndo = false;
+            // }
 
             //Reset States
             isGemmSelected = canGemmFollowMe = wantsUndo = false;
@@ -282,23 +283,29 @@ public class Variation01Script : MonoBehaviour
         if(isGemmSelected && canGemmFollowMe)
         {
             //if GemmClone alive and there are remaining moves, show all the gemm movements on screen
-            if(isGemmCloneAlive && !noMoves)
+            if(isGemmCloneAlive)
             {
                 gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
                 ShowGemmMovement(touchPos.origin);
-
-                //once you run out of moves, hide clone, noMoves = true
-                if (currNumMoves <= 0)
-                {
-                    gemmClone.gemmGObj.SetActive(false);
-                    noMoves = true;
-                }
-            
-            //if there are moves remaining, set noMoves = false
-            } else if (currNumMoves > 0)
-            {
-                noMoves = false;
             }
+            
+            // if(isGemmCloneAlive && !noMoves)
+            // {
+            //     gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
+            //     ShowGemmMovement(touchPos.origin);
+
+            //     //once you run out of moves, hide clone, noMoves = true
+            //     if (currNumMoves <= 0)
+            //     {
+            //         gemmClone.gemmGObj.SetActive(false);
+            //         noMoves = true;
+            //     }
+            
+            // //if there are moves remaining, set noMoves = false
+            // } else if (currNumMoves > 0)
+            // {
+            //     noMoves = false;
+            // }
         }
 
         //when player releases gemm and gemm has moved, start matching
@@ -564,11 +571,11 @@ public class Variation01Script : MonoBehaviour
         isRotating = false;
 
         //Count Move
-        if(currNumMoves > 0)
-        {
-            currNumMoves--;
-        }
-        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+        // if(currNumMoves > 0)
+        // {
+        //     currNumMoves--;
+        // }
+        // GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
         
     }
 
@@ -625,15 +632,18 @@ public class Variation01Script : MonoBehaviour
             //Cleanup board, reset moves, count round, check win/gameover conditions
             isMatching = false;
             movedGemm = false;
-            currNumMoves = movesPerRound;
-            GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
-            currNumRounds++;
-            GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
+            // currNumMoves = movesPerRound;
+            // GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+            currNumRounds--;
+            // GameEventsScript.countRoundV1.Invoke(new GameEventsScript.CountRoundsV1Data(currNumRounds));
+            GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumRounds, totalRounds));
+
+            // GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
             if (redsRemaining <= 0 && greensRemaining <= 0 && cyansRemaining <= 0 && orangesRemaining <= 0 && pinksRemaining <= 0 && violetsRemaining <= 0 && yellowsRemaining <= 0)
             {
                 isGameOver = true;
                 isWin = true;
-            } else if (currNumRounds > totalRounds)
+            } else if (currNumRounds < 1)
             {
                 isGameOver = true;
                 isWin = false;
