@@ -23,13 +23,13 @@ public class Variation01Script : MonoBehaviour
     private bool canContinueMatching;
     private bool isGameOver;
     private bool isWin;
-    // private bool noMoves;
     private bool showUndo;
     private bool canUndo;
     private bool wantsUndo;
     private bool movedGemm;
     private bool menuListOn;
     private bool oneClickLock;
+    private bool gameOverTriggered;
 
 //serial values
     [SerializeField]
@@ -39,9 +39,7 @@ public class Variation01Script : MonoBehaviour
     [SerializeField]
     private int dropOffset;
     [SerializeField]
-    private int totalRounds;
-    // [SerializeField]
-    // private int movesPerRound;
+    private int totalMoves;
     [SerializeField]
     private int goalNumCyan;
     [SerializeField]
@@ -74,8 +72,7 @@ public class Variation01Script : MonoBehaviour
     private float fadeStep;
     
 //nonserial values
-    private int currNumRounds;
-    // private int currNumMoves;
+    private int currNumMoves;
     private int cyansRemaining;
     private int greensRemaining;
     private int orangesRemaining;
@@ -83,18 +80,15 @@ public class Variation01Script : MonoBehaviour
     private int redsRemaining;
     private int violetsRemaining;
     private int yellowsRemaining;
+    private float gameOverTimer;
 
 //other serialized
     [SerializeField]
     private List<GameObject> GemmOptions;
-    // [SerializeField]
-    // private GameObject undoButton;
-    // [SerializeField]
-    // private GameObject roundsButton;
 
 //other nonserialized
     private Gemm[,] GemmGridLayout;
-    private Gemm[,] GemmGridLayoutCopy;
+    // private Gemm[,] GemmGridLayoutCopy;
     private struct Gemm
     {
         public GameObject gemmGObj;
@@ -120,20 +114,15 @@ public class Variation01Script : MonoBehaviour
     private Dictionary<GemmLoc, Gemm> FloodMatchDict;
     private Dictionary<GemmLoc, Gemm> GemmDictToDestroy;
     private List<GemmLoc> Check3List;
-    // private Image undoButtonImg;
-    // private Color undoButtonOrigColor;
-
 
     // declare inits
     void Awake()
     {
         GemmGridLayout = new Gemm[boardDimX, boardDimY];
-        GemmGridLayoutCopy = new Gemm[boardDimX, boardDimY];
+        // GemmGridLayoutCopy = new Gemm[boardDimX, boardDimY];
         FloodMatchDict = new Dictionary<GemmLoc, Gemm>();
         GemmDictToDestroy = new Dictionary<GemmLoc, Gemm>();
         Check3List = new List<GemmLoc>();
-        // undoButtonImg = undoButton.GetComponent<Image>();
-        // undoButtonOrigColor = undoButtonImg.color;
 
         isMatching = false;
         areGemmsFalling = false;
@@ -143,6 +132,7 @@ public class Variation01Script : MonoBehaviour
         wantsUndo = false;
         menuListOn = false;
         oneClickLock = false;
+        gameOverTriggered = false;
 
         cyansRemaining = goalNumCyan;
         greensRemaining = goalNumGreen;
@@ -151,21 +141,11 @@ public class Variation01Script : MonoBehaviour
         redsRemaining = goalNumRed;
         violetsRemaining = goalNumViolet;
         yellowsRemaining = goalNumYellow;
+        gameOverTimer = 0f;
 
-        // currNumMoves = movesPerRound;
-        currNumRounds = totalRounds;
+        currNumMoves = totalMoves;
 
-        // SwapUndoStates();
     }
-
-    // //controls display of "UNDO" vs "ROUND"
-    // private void SwapUndoStates()
-    // {
-    //     showUndo = !showUndo;
-    //     undoButton.GetComponent<Image>().color = undoButtonOrigColor;
-    //     undoButton.SetActive(!showUndo);
-    //     roundsButton.SetActive(showUndo);
-    // }
 
     void Start()
     {
@@ -177,18 +157,10 @@ public class Variation01Script : MonoBehaviour
     {
         yield return new WaitForSeconds(0);
         GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
-        // GameEventsScript.undoOnOff.AddListener(DoUndo);
-        // GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
-        // GameEventsScript.countRoundV1.Invoke(new GameEventsScript.CountRoundsV1Data(currNumRounds));
+        GameEventsScript.setTime.AddListener(SetTime);
         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
-        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumRounds, totalRounds));
+        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, totalMoves));
     }
-
-    //Controls boolean for undo state from ResetAlphaScript
-    // private void DoUndo()
-    // {
-    //     wantsUndo = !wantsUndo;
-    // }
 
     //tracks menu list state
     private void IsMenuListOn()
@@ -213,18 +185,10 @@ public class Variation01Script : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            //copy BoardState for Revert
-            GemmGridLayoutCopy = GemmGridLayout.Clone() as Gemm[,];
-
             //track cursor position/state for if gemmselected, clone, and undo button
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);            
             if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
-                // if(!canUndo)
-                // {
-                //     SwapUndoStates();
-                //     canUndo = true;
-                // }
                 isGemmSelected = true;
                 DisplayGemmClone(touchPos.origin);
             }
@@ -238,27 +202,8 @@ public class Variation01Script : MonoBehaviour
             }
         } else if (Input.GetMouseButtonUp(0))
         {
-            //check for UNDO
-            if(wantsUndo)
-            {
-                DropGemm();
-                GemmGridLayout = GemmGridLayoutCopy;
-                ClearGridLayout();
-                RemakeGemmsForUndo();
-                // currNumMoves = movesPerRound;
-                // GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
-            } else
-            {
-                //proceed to matching state
-                wantGemmDrop = true;
-            }
-
-            //Swap out UNDO button
-            // if(canUndo)
-            // {
-            //     SwapUndoStates();
-            //     canUndo = false;
-            // }
+            //proceed to matching state
+            wantGemmDrop = true;
 
             //Reset States
             isGemmSelected = canGemmFollowMe = wantsUndo = false;
@@ -267,7 +212,7 @@ public class Variation01Script : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isFirstDrop || areGemmsFalling || isMatching || isGameOver || menuListOn)
+        if (isFirstDrop || isRotating || areGemmsFalling || isMatching || isGameOver || menuListOn)
         {
             return;
         }
@@ -288,24 +233,6 @@ public class Variation01Script : MonoBehaviour
                 gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
                 ShowGemmMovement(touchPos.origin);
             }
-            
-            // if(isGemmCloneAlive && !noMoves)
-            // {
-            //     gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
-            //     ShowGemmMovement(touchPos.origin);
-
-            //     //once you run out of moves, hide clone, noMoves = true
-            //     if (currNumMoves <= 0)
-            //     {
-            //         gemmClone.gemmGObj.SetActive(false);
-            //         noMoves = true;
-            //     }
-            
-            // //if there are moves remaining, set noMoves = false
-            // } else if (currNumMoves > 0)
-            // {
-            //     noMoves = false;
-            // }
         }
 
         //when player releases gemm and gemm has moved, start matching
@@ -381,7 +308,15 @@ public class Variation01Script : MonoBehaviour
     //Instantiate Gemm in Setup Grid
     private void MakeGemm(GameObject gemmGObj, int x, int y)
     {
-        GameObject currentGemm = (GameObject)Instantiate(gemmGObj, new Vector2((float)x, (float)y + (float)dropOffset), Quaternion.identity);
+        int drop;
+        if (isFirstDrop)
+        {
+            drop = 0;
+        } else 
+        {
+            drop = dropOffset;
+        }
+        GameObject currentGemm = (GameObject)Instantiate(gemmGObj, new Vector2((float)x, (float)y + (float)drop), Quaternion.identity);
         currentGemm.transform.parent = transform;
         GemmGridLayout[x, y] = new Gemm {
             gemmGObj = currentGemm,
@@ -389,7 +324,7 @@ public class Variation01Script : MonoBehaviour
             floodVisited = false,
             floodMatched = false,
             destroyed = false,
-            dropDist = dropOffset,
+            dropDist = drop,
             gridXLoc = x,
             gridYLoc = y,
         };
@@ -569,14 +504,6 @@ public class Variation01Script : MonoBehaviour
         //Cleanup
         Destroy(gemRotator);
         isRotating = false;
-
-        //Count Move
-        // if(currNumMoves > 0)
-        // {
-        //     currNumMoves--;
-        // }
-        // GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
-        
     }
 
     //Setup for Gemm Matching
@@ -632,18 +559,14 @@ public class Variation01Script : MonoBehaviour
             //Cleanup board, reset moves, count round, check win/gameover conditions
             isMatching = false;
             movedGemm = false;
-            // currNumMoves = movesPerRound;
-            // GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
-            currNumRounds--;
-            // GameEventsScript.countRoundV1.Invoke(new GameEventsScript.CountRoundsV1Data(currNumRounds));
-            GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumRounds, totalRounds));
+            currNumMoves--;
+            GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, totalMoves));
 
-            // GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
             if (redsRemaining <= 0 && greensRemaining <= 0 && cyansRemaining <= 0 && orangesRemaining <= 0 && pinksRemaining <= 0 && violetsRemaining <= 0 && yellowsRemaining <= 0)
             {
                 isGameOver = true;
                 isWin = true;
-            } else if (currNumRounds < 1)
+            } else if (currNumMoves < 1)
             {
                 isGameOver = true;
                 isWin = false;
@@ -652,9 +575,12 @@ public class Variation01Script : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
 
         //check game over
-        if (isGameOver)
+        if (isGameOver && !gameOverTriggered)
         {
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(isWin));
+            gameOverTriggered = true;
+            GameEventsScript.getTime.Invoke();
+            int movesTaken = totalMoves - currNumMoves;
+            GameEventsScript.gameIsOverV1.Invoke(new GameEventsScript.GameOverDataV1(isWin, movesTaken, gameOverTimer));
         }
     }
 
@@ -977,6 +903,12 @@ public class Variation01Script : MonoBehaviour
         } 
     }
 
+    private void SetTime(GameEventsScript.TimeData data)
+    {
+        gameOverTimer = data.time;
+        //set time for endgame
+    }
+
     //Debug function for main grid
     private void checkGridState()
     {
@@ -993,22 +925,4 @@ public class Variation01Script : MonoBehaviour
             }
         }
     }
-
-    //Debug function for grid copy
-    private void checkGridStateCopy()
-    {
-        for (int y = 0; y < boardDimY; y++)
-        {
-            for (int x = 0; x < boardDimX; x++)
-            {
-                Debug.Log("Coordinates: [" + x + ", " + y + "]" + "\n" + 
-                "[DropDistance, gridX, gridY]: [" + GemmGridLayoutCopy[x, y].dropDist + ", " + GemmGridLayoutCopy[x,y].gridXLoc + ", " + GemmGridLayoutCopy[x, y].gridYLoc + "]");
-                Debug.Log("Color: " + GemmGridLayoutCopy[x, y].gemmGObj.tag + ": " + GemmGridLayoutCopy[x,y].tagId + "\n" +
-                "World Space: " + GemmGridLayoutCopy[x, y].gemmGObj.transform.position);
-                Debug.Log("Matched: " + GemmGridLayoutCopy[x, y].floodMatched + "\n" +
-                "Visited: " + GemmGridLayoutCopy[x,y].floodVisited);
-            }
-        }
-    }
-
 }

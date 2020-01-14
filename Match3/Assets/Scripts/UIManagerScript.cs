@@ -26,6 +26,8 @@ public class UIManagerScript : MonoBehaviour
     private Text roundNumber;
     [SerializeField]
     private Text moveNumber;
+    [SerializeField]
+    private Text timer;
 
 //nonserialized
     private Text cyanDestroyedText;
@@ -116,6 +118,8 @@ public class UIManagerScript : MonoBehaviour
         GameEventsScript.countRoundV1.AddListener(UpdateRoundCountTextForV1);
         GameEventsScript.countMove.AddListener(UpdateMoveCountText);
         GameEventsScript.gameIsOver.AddListener(DisplayGameOverPanel);
+        GameEventsScript.gameIsOverV1.AddListener(DisplayGameOverPanelV1);
+        GameEventsScript.updateTime.AddListener(UpdateTimeText);
     }
 
     private void UpdateDestroyedCountText(GameEventsScript.DestroyedGemsData data)
@@ -239,6 +243,25 @@ public class UIManagerScript : MonoBehaviour
             title.text = "TRY AGAIN";
             gameOverPanel.transform.Find("LoseImg").gameObject.SetActive(true);
         }
+    }
+
+    private void DisplayGameOverPanelV1(GameEventsScript.GameOverDataV1 data)
+    {
+        Debug.Log("TO DO HERE " + data.timer);
+    }
+
+    private void UpdateTimeText(GameEventsScript.TimeData data)
+    {
+        int timerSeconds;
+        if (data.time > 999)
+        {
+            timerSeconds = 999;
+        } else
+        {
+            timerSeconds = (int)(data.time);
+        }
+
+        timer.text = timerSeconds.ToString();
     }
 
     public void Restart()

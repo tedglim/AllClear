@@ -13,13 +13,21 @@ public class GameEventsScript : MonoBehaviour
     public static CountRoundV1Event countRoundV1 = new CountRoundV1Event();
     public static CountMoveEvent countMove = new CountMoveEvent();
     public static GameOverEvent gameIsOver = new GameOverEvent();
-
-    //Even Class Declarations
+    public static GameOverEventV1 gameIsOverV1 = new GameOverEventV1();
+    public static UpdateTimeEvent updateTime = new UpdateTimeEvent();
+    public static GetTimeEvent getTime = new GetTimeEvent();
+    public static SetTimeEvent setTime = new SetTimeEvent();
+    
+    //Event Class Declarations
     public class GemsDestroyedEvent: UnityEvent<DestroyedGemsData>{}
     public class CountRoundEvent: UnityEvent<CountRoundsData>{}
     public class CountRoundV1Event: UnityEvent<CountRoundsV1Data>{}
     public class CountMoveEvent: UnityEvent<CountMoveData>{}
     public class GameOverEvent: UnityEvent<GameOverData>{}
+    public class GameOverEventV1: UnityEvent<GameOverDataV1>{}
+    public class UpdateTimeEvent: UnityEvent<TimeData>{}
+    public class GetTimeEvent: UnityEvent{}
+    public class SetTimeEvent: UnityEvent<TimeData>{}
 
     //Event Classes
     public class DestroyedGemsData {
@@ -81,6 +89,30 @@ public class GameEventsScript : MonoBehaviour
         public GameOverData(bool isWin)
         {
             this.isWin = isWin;
+        }
+    }
+
+    public class GameOverDataV1 {
+
+        public bool isWin;
+        public int movesTaken;
+        public float timer;
+
+        public GameOverDataV1(bool isWin, int movesTaken, float timer)
+        {
+            this.isWin = isWin;
+            this.movesTaken = movesTaken;
+            this.timer = timer;
+        }
+    }
+
+    public class TimeData {
+
+        public float time;
+
+        public TimeData(float time)
+        {
+            this.time = time;
         }
     }
 
