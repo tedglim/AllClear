@@ -53,19 +53,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\BoardManagerScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaVersion\BoardManagerScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaVersion\GameManagerScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaVersion\PlayStatsScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaVersion\ResetAlphaScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaVersion\RestartMenuScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaVersion\RulesScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaVersion\StandardLevelScript.cs" />
      <Compile Include="Assets\Scripts\GameEventsScript.cs" />
-     <Compile Include="Assets\Scripts\GameManagerScript.cs" />
      <Compile Include="Assets\Scripts\MenuScript.cs" />
-     <Compile Include="Assets\Scripts\PlayStatsScript.cs" />
-     <Compile Include="Assets\Scripts\ResetAlphaScript.cs" />
-     <Compile Include="Assets\Scripts\RestartMenuScript.cs" />
-     <Compile Include="Assets\Scripts\RulesScript.cs" />
-     <Compile Include="Assets\Scripts\StandardLevelScript.cs" />
      <Compile Include="Assets\Scripts\TimerScript.cs" />
      <Compile Include="Assets\Scripts\TutorialScript.cs" />
      <Compile Include="Assets\Scripts\UIManagerScript.cs" />
      <Compile Include="Assets\Scripts\Variation01Script.cs" />
+     <Compile Include="Assets\Scripts\WinStatsScript.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>/Users/TedLim/Documents/GitHub/AllClear/Match3/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>

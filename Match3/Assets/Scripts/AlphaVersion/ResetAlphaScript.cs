@@ -22,7 +22,7 @@ public class ResetAlphaScript : MonoBehaviour
         Color tempColor = image.color;
         tempColor.a = 1f;
         image.color = tempColor;
-        GameEventsScript.undoOnOff.Invoke();
+        GameEventsScript.undoOnOffOld.Invoke();
     }
 
     //UNDO Button half transparent
@@ -31,14 +31,14 @@ public class ResetAlphaScript : MonoBehaviour
         if (Input.touchCount < 1)
         {
             image.color = origColor;
-            GameEventsScript.undoOnOff.Invoke();            
+            GameEventsScript.undoOnOffOld.Invoke();            
         } else 
         {
             Touch touch = Input.GetTouch(0);
             if(touch.phase != TouchPhase.Ended)
             {
                 image.color = origColor;
-                GameEventsScript.undoOnOff.Invoke();
+                GameEventsScript.undoOnOffOld.Invoke();
             }
         }
     }

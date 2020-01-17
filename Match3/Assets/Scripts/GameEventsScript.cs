@@ -7,27 +7,29 @@ public class GameEventsScript : MonoBehaviour
 {
     //Event Declarations
     public static UnityEvent menuListOnOff = new UnityEvent();
-    public static UnityEvent undoOnOff = new UnityEvent();
+    public static UnityEvent undoOnOffOld = new UnityEvent();
     public static GemsDestroyedEvent clearGems = new GemsDestroyedEvent();
-    public static CountRoundEvent countRound = new CountRoundEvent();
+    public static CountRoundOldEvent countRoundOld = new CountRoundOldEvent();
+    public static CountMoveOldEvent countMoveOld = new CountMoveOldEvent();
+    public static GameOverOldEvent gameIsOverOld = new GameOverOldEvent();
     public static CountRoundV1Event countRoundV1 = new CountRoundV1Event();
-    public static CountMoveEvent countMove = new CountMoveEvent();
-    public static GameOverEvent gameIsOver = new GameOverEvent();
     public static GameOverEventV1 gameIsOverV1 = new GameOverEventV1();
     public static UpdateTimeEvent updateTime = new UpdateTimeEvent();
     public static GetTimeEvent getTime = new GetTimeEvent();
     public static SetTimeEvent setTime = new SetTimeEvent();
+    public static SendStatsEvent sendStats = new SendStatsEvent();
     
     //Event Class Declarations
     public class GemsDestroyedEvent: UnityEvent<DestroyedGemsData>{}
-    public class CountRoundEvent: UnityEvent<CountRoundsData>{}
+    public class CountRoundOldEvent: UnityEvent<CountRoundsData>{}
+    public class CountMoveOldEvent: UnityEvent<CountMoveData>{}
+    public class GameOverOldEvent: UnityEvent<GameOverData>{}
     public class CountRoundV1Event: UnityEvent<CountRoundsV1Data>{}
-    public class CountMoveEvent: UnityEvent<CountMoveData>{}
-    public class GameOverEvent: UnityEvent<GameOverData>{}
     public class GameOverEventV1: UnityEvent<GameOverDataV1>{}
     public class UpdateTimeEvent: UnityEvent<TimeData>{}
     public class GetTimeEvent: UnityEvent{}
     public class SetTimeEvent: UnityEvent<TimeData>{}
+    public class SendStatsEvent: UnityEvent<GameOverDataV1>{}
 
     //Event Classes
     public class DestroyedGemsData {
@@ -64,10 +66,12 @@ public class GameEventsScript : MonoBehaviour
 
     public class CountRoundsV1Data {
         public int currRound;
+        public int totalRounds;
         
-        public CountRoundsV1Data(int currRound)
+        public CountRoundsV1Data(int currRound, int totalRounds)
         {
             this.currRound = currRound;
+            this.totalRounds = totalRounds;
         }
     }
 

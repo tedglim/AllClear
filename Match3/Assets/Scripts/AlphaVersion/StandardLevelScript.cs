@@ -176,10 +176,10 @@ public class StandardLevelScript : MonoBehaviour
     {
         yield return new WaitForSeconds(0);
         GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
-        GameEventsScript.undoOnOff.AddListener(DoUndo);
-        GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
+        GameEventsScript.undoOnOffOld.AddListener(DoUndo);
+        GameEventsScript.countRoundOld.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
-        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+        GameEventsScript.countMoveOld.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
     }
 
     //Controls boolean for undo state from ResetAlphaScript
@@ -244,7 +244,7 @@ public class StandardLevelScript : MonoBehaviour
                 ClearGridLayout();
                 RemakeGemmsForUndo();
                 currNumMoves = movesPerRound;
-                GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+                GameEventsScript.countMoveOld.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
             } else
             {
                 //proceed to matching state
@@ -567,7 +567,7 @@ public class StandardLevelScript : MonoBehaviour
         {
             currNumMoves--;
         }
-        GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+        GameEventsScript.countMoveOld.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
         
     }
 
@@ -625,9 +625,9 @@ public class StandardLevelScript : MonoBehaviour
             isMatching = false;
             movedGemm = false;
             currNumMoves = movesPerRound;
-            GameEventsScript.countMove.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
+            GameEventsScript.countMoveOld.Invoke(new GameEventsScript.CountMoveData(currNumMoves, movesPerRound));
             currNumRounds++;
-            GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
+            GameEventsScript.countRoundOld.Invoke(new GameEventsScript.CountRoundsData(currNumRounds, totalRounds));
             if (redsRemaining <= 0 && greensRemaining <= 0 && cyansRemaining <= 0 && orangesRemaining <= 0 && pinksRemaining <= 0 && violetsRemaining <= 0 && yellowsRemaining <= 0)
             {
                 isGameOver = true;
@@ -643,7 +643,7 @@ public class StandardLevelScript : MonoBehaviour
         //check game over
         if (isGameOver)
         {
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(isWin));
+            GameEventsScript.gameIsOverOld.Invoke(new GameEventsScript.GameOverData(isWin));
         }
     }
 
