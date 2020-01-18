@@ -151,7 +151,7 @@ public class Variation01Script : MonoBehaviour
         GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
         GameEventsScript.setTime.AddListener(SetTime);
         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
-        GameEventsScript.countRoundV1.Invoke(new GameEventsScript.CountRoundsV1Data(currNumMoves, totalMoves));
+        GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
     }
 
     //tracks menu list state
@@ -557,7 +557,7 @@ public class Variation01Script : MonoBehaviour
             isMatching = false;
             movedGemm = false;
             currNumMoves--;
-            GameEventsScript.countRoundV1.Invoke(new GameEventsScript.CountRoundsV1Data(currNumMoves, totalMoves));
+            GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
 
             if (redsRemaining <= 0 && greensRemaining <= 0 && cyansRemaining <= 0 && orangesRemaining <= 0 && pinksRemaining <= 0 && violetsRemaining <= 0 && yellowsRemaining <= 0)
             {
@@ -577,7 +577,7 @@ public class Variation01Script : MonoBehaviour
             gameOverTriggered = true;
             GameEventsScript.getTime.Invoke();
             int movesTaken = totalMoves - currNumMoves;
-            GameEventsScript.gameIsOverV1.Invoke(new GameEventsScript.GameOverDataV1(isWin, movesTaken, gameOverTimer));
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(isWin, movesTaken, gameOverTimer));
         }
     }
 
@@ -721,6 +721,7 @@ public class Variation01Script : MonoBehaviour
         DestroyGemms();
     }
 
+    //count destroyed gemms
     private void CountDestroyedGemms()
     {
         foreach (var gemm in GemmDictToDestroy)

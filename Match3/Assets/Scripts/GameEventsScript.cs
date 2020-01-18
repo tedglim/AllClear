@@ -12,8 +12,8 @@ public class GameEventsScript : MonoBehaviour
     public static CountRoundOldEvent countRoundOld = new CountRoundOldEvent();
     public static CountMoveOldEvent countMoveOld = new CountMoveOldEvent();
     public static GameOverOldEvent gameIsOverOld = new GameOverOldEvent();
-    public static CountRoundV1Event countRoundV1 = new CountRoundV1Event();
-    public static GameOverEventV1 gameIsOverV1 = new GameOverEventV1();
+    public static CountRoundEvent countRound = new CountRoundEvent();
+    public static GameOverEvent gameIsOver = new GameOverEvent();
     public static UpdateTimeEvent updateTime = new UpdateTimeEvent();
     public static GetTimeEvent getTime = new GetTimeEvent();
     public static SetTimeEvent setTime = new SetTimeEvent();
@@ -21,15 +21,15 @@ public class GameEventsScript : MonoBehaviour
     
     //Event Class Declarations
     public class GemsDestroyedEvent: UnityEvent<DestroyedGemsData>{}
-    public class CountRoundOldEvent: UnityEvent<CountRoundsData>{}
-    public class CountMoveOldEvent: UnityEvent<CountMoveData>{}
-    public class GameOverOldEvent: UnityEvent<GameOverData>{}
-    public class CountRoundV1Event: UnityEvent<CountRoundsV1Data>{}
-    public class GameOverEventV1: UnityEvent<GameOverDataV1>{}
+    public class CountRoundOldEvent: UnityEvent<CountRoundOldData>{}
+    public class CountMoveOldEvent: UnityEvent<CountMoveOldData>{}
+    public class GameOverOldEvent: UnityEvent<GameOverOldData>{}
+    public class CountRoundEvent: UnityEvent<CountRoundData>{}
+    public class GameOverEvent: UnityEvent<GameOverData>{}
     public class UpdateTimeEvent: UnityEvent<TimeData>{}
     public class GetTimeEvent: UnityEvent{}
     public class SetTimeEvent: UnityEvent<TimeData>{}
-    public class SendStatsEvent: UnityEvent<GameOverDataV1>{}
+    public class SendStatsEvent: UnityEvent<GameOverData>{}
 
     //Event Classes
     public class DestroyedGemsData {
@@ -53,56 +53,56 @@ public class GameEventsScript : MonoBehaviour
         }
     }
 
-    public class CountRoundsData {
+    public class CountRoundOldData {
         public int currRound;
         public int totalRounds;
         
-        public CountRoundsData(int currRound, int totalRounds)
+        public CountRoundOldData(int currRound, int totalRounds)
         {
             this.currRound = currRound;
             this.totalRounds = totalRounds;
         }
     }
 
-    public class CountRoundsV1Data {
-        public int currRound;
-        public int totalRounds;
-        
-        public CountRoundsV1Data(int currRound, int totalRounds)
-        {
-            this.currRound = currRound;
-            this.totalRounds = totalRounds;
-        }
-    }
-
-    public class CountMoveData {
+    public class CountMoveOldData {
         public int currMove;
         public int totalMoves;
         
-        public CountMoveData(int currMove, int totalMoves)
+        public CountMoveOldData(int currMove, int totalMoves)
         {
             this.currMove = currMove;
             this.totalMoves = totalMoves;
         }
     }
 
-    public class GameOverData {
+    public class GameOverOldData {
 
         public bool isWin;
 
-        public GameOverData(bool isWin)
+        public GameOverOldData(bool isWin)
         {
             this.isWin = isWin;
         }
     }
 
-    public class GameOverDataV1 {
+    public class CountRoundData {
+        public int currRound;
+        public int totalRounds;
+        
+        public CountRoundData(int currRound, int totalRounds)
+        {
+            this.currRound = currRound;
+            this.totalRounds = totalRounds;
+        }
+    }
+
+    public class GameOverData {
 
         public bool isWin;
         public int movesTaken;
         public float timer;
 
-        public GameOverDataV1(bool isWin, int movesTaken, float timer)
+        public GameOverData(bool isWin, int movesTaken, float timer)
         {
             this.isWin = isWin;
             this.movesTaken = movesTaken;
@@ -119,5 +119,4 @@ public class GameEventsScript : MonoBehaviour
             this.time = time;
         }
     }
-
 }

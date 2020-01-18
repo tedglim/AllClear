@@ -53,7 +53,7 @@ public class WinStatsScript : MonoBehaviour
         GameEventsScript.sendStats.AddListener(ShowStats);
     }
 
-    private void ShowStats(GameEventsScript.GameOverDataV1 data)
+    private void ShowStats(GameEventsScript.GameOverData data)
     {
         //initialize
         if(!PlayerPrefs.HasKey("gamesPlayed"))

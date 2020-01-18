@@ -52,8 +52,8 @@ public class UIManagerScript : MonoBehaviour
     private List<GameObject> roundCircles;
     [SerializeField]
     private ParticleSystem movesParticles;
-    // [SerializeField]
-    // private int numMovesTrigParticlesOld;
+    [SerializeField]
+    private int numMovesTrigParticlesOld;
     [SerializeField]
     private float posX;
     [SerializeField]
@@ -118,12 +118,12 @@ public class UIManagerScript : MonoBehaviour
         }
 
         GameEventsScript.clearGems.AddListener(UpdateDestroyedCountText);
-        // GameEventsScript.countMoveOld.AddListener(UpdateMoveCountText);
-        // GameEventsScript.countRoundOld.AddListener(UpdateRoundCountText);
-        // GameEventsScript.gameIsOverOld.AddListener(DisplayGameOverPanel);
+        GameEventsScript.countMoveOld.AddListener(UpdateMoveCountText);
+        GameEventsScript.countRoundOld.AddListener(UpdateRoundCountText);
+        GameEventsScript.gameIsOverOld.AddListener(DisplayGameOverPanel);
         GameEventsScript.updateTime.AddListener(UpdateTimeText);        
-        GameEventsScript.countRoundV1.AddListener(UpdateRoundCountTextForV1);
-        GameEventsScript.gameIsOverV1.AddListener(DisplayGameOverPanelV1);
+        GameEventsScript.countRound.AddListener(UpdateRoundCountTextForRA);
+        GameEventsScript.gameIsOver.AddListener(DisplayGameOverPanelRA);
     }
 
     //updates destroyed gem count
@@ -194,58 +194,59 @@ public class UIManagerScript : MonoBehaviour
         }
     }
 
-    // private void UpdateMoveCountText(GameEventsScript.CountMoveData data)
-    // {
-    //     if(data.currMove <= numMovesTrigParticlesOld)
-    //     {
-    //         moveNumber.color = Color.red;
-    //         if (!ps.isPlaying)
-    //         {
-    //             ps.Play();
-    //         }
-    //     } else
-    //     {
-    //         moveNumber.color = origColor;
-    //         ps.Stop();
-    //     }
-    //     moveNumber.text = data.currMove.ToString();
-    // }
+    //update move count for alpha version
+    private void UpdateMoveCountText(GameEventsScript.CountMoveOldData data)
+    {
+        if(data.currMove <= numMovesTrigParticlesOld)
+        {
+            moveNumber.color = Color.red;
+            if (!ps.isPlaying)
+            {
+                ps.Play();
+            }
+        } else
+        {
+            moveNumber.color = origColor;
+            ps.Stop();
+        }
+        moveNumber.text = data.currMove.ToString();
+    }
 
-    // //update rounds for alpha version
-    // private void UpdateRoundCountText(GameEventsScript.CountRoundsData data)
-    // {
-    //     if (data.currRound <= data.totalRounds)
-    //     {
-    //         roundCircles[data.currRound-1].GetComponent<SpriteRenderer>().color = Color.white;
-    //     } else
-    //     {
-    //         return;
-    //     }
-    //     if(data.currRound == data.totalRounds)
-    //     {
-    //         roundNumber.text = "FINAL ROUND";
-    //     } else 
-    //     {
-    //         roundNumber.text = "ROUND " + data.currRound.ToString();
-    //     }
-    // }
+    //update rounds for alpha version
+    private void UpdateRoundCountText(GameEventsScript.CountRoundOldData data)
+    {
+        if (data.currRound <= data.totalRounds)
+        {
+            roundCircles[data.currRound-1].GetComponent<SpriteRenderer>().color = Color.white;
+        } else
+        {
+            return;
+        }
+        if(data.currRound == data.totalRounds)
+        {
+            roundNumber.text = "FINAL ROUND";
+        } else 
+        {
+            roundNumber.text = "ROUND " + data.currRound.ToString();
+        }
+    }
 
-    // //display game over for alpha version
-    // private void DisplayGameOverPanel(GameEventsScript.GameOverData data)
-    // {
-    //     gameOverPanel.SetActive(true);
-    //     Text title = gameOverPanel.transform.Find("Title").GetComponent<Text>();
+    //display game over for alpha version
+    private void DisplayGameOverPanel(GameEventsScript.GameOverOldData data)
+    {
+        gameOverPanel.SetActive(true);
+        Text title = gameOverPanel.transform.Find("Title").GetComponent<Text>();
 
-    //     if (data.isWin)
-    //     {
-    //         title.text = "VICTORY";
-    //         gameOverPanel.transform.Find("WinImg").gameObject.SetActive(true);
-    //     } else 
-    //     {
-    //         title.text = "TRY AGAIN";
-    //         gameOverPanel.transform.Find("LoseImg").gameObject.SetActive(true);
-    //     }
-    // }
+        if (data.isWin)
+        {
+            title.text = "VICTORY";
+            gameOverPanel.transform.Find("WinImg").gameObject.SetActive(true);
+        } else 
+        {
+            title.text = "TRY AGAIN";
+            gameOverPanel.transform.Find("LoseImg").gameObject.SetActive(true);
+        }
+    }
 
     //update time UI for Revised Alpha
     private void UpdateTimeText(GameEventsScript.TimeData data)
@@ -263,16 +264,28 @@ public class UIManagerScript : MonoBehaviour
     }
 
     //update moves Left for Revised Alpha
-    private void UpdateRoundCountTextForV1(GameEventsScript.CountRoundsV1Data data)
+    private void UpdateRoundCountTextForRA(GameEventsScript.CountRoundData data)
     {
-        moveNumber.text = data.currRound.ToString();
+        if(data.currRound <= numMovesTrigParticlesOld)
+        {
+            moveNumber.color = Color.red;
+            if (!ps.isPlaying)
+            {
+                ps.Play();
+            }
+        } else
+        {
+            moveNumber.color = origColor;
+            ps.Stop();
+        }
+        moveNumber.text = data.currRound.ToString();        
     }
 
     //display game over for Revised Alpha
-    private void DisplayGameOverPanelV1(GameEventsScript.GameOverDataV1 data)
+    private void DisplayGameOverPanelRA(GameEventsScript.GameOverData data)
     {
         gameOverPanelContainer.SetActive(true);
-        GameEventsScript.sendStats.Invoke(new GameEventsScript.GameOverDataV1(data.isWin, data.movesTaken, data.timer));
+        GameEventsScript.sendStats.Invoke(new GameEventsScript.GameOverData(data.isWin, data.movesTaken, data.timer));
     }
 
     public void Restart()

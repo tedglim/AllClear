@@ -53,13 +53,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\AlphaVersion\BoardManagerScript.cs" />
-     <Compile Include="Assets\Scripts\AlphaVersion\GameManagerScript.cs" />
-     <Compile Include="Assets\Scripts\AlphaVersion\PlayStatsScript.cs" />
-     <Compile Include="Assets\Scripts\AlphaVersion\ResetAlphaScript.cs" />
-     <Compile Include="Assets\Scripts\AlphaVersion\RestartMenuScript.cs" />
-     <Compile Include="Assets\Scripts\AlphaVersion\RulesScript.cs" />
-     <Compile Include="Assets\Scripts\AlphaVersion\StandardLevelScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaScripts\BoardManagerScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaScripts\GameManagerScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaScripts\PlayStatsScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaScripts\ResetAlphaScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaScripts\RestartMenuScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaScripts\RulesScript.cs" />
+     <Compile Include="Assets\Scripts\AlphaScripts\StandardLevelScript.cs" />
      <Compile Include="Assets\Scripts\GameEventsScript.cs" />
      <Compile Include="Assets\Scripts\MenuScript.cs" />
      <Compile Include="Assets\Scripts\TimerScript.cs" />
