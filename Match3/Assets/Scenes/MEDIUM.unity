@@ -2457,6 +2457,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuList: {fileID: 1887163651}
+  difficulty: M
 --- !u!114 &707977732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2817,7 +2818,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 707977731}
-        m_MethodName: LoadVariation01Scene
+        m_MethodName: LoadMedium
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4450,7 +4451,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 707977731}
-        m_MethodName: LoadVariation01Scene
+        m_MethodName: LoadMedium
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4846,6 +4847,7 @@ MonoBehaviour:
   - {fileID: 289091105515473180, guid: 31cc64441c91548638d8296e2de3e81b, type: 3}
   - {fileID: 7864371813379511983, guid: 8e5cc4b0d081047728fe52ce722a26db, type: 3}
   - {fileID: 13706659628005381, guid: d2c31ec124f18448398d2516ac46e1ef, type: 3}
+  difficulty: M
 --- !u!4 &1392157435
 Transform:
   m_ObjectHideFlags: 0
@@ -5588,7 +5590,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 707977731}
-        m_MethodName: LoadVariation01Scene
+        m_MethodName: LoadMedium
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

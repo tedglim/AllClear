@@ -8,22 +8,19 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 32670992afff743b485cfd2a7cf02d63
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/AlphaScenes/TutorialLevel.unity
     guid: f9f7de215ff574b978f8d39aa7d2f520
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/AlphaScenes/StandardLevel.unity
     guid: 851c6979057d7470fa6981ef1283dcd0
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/AlphaScenes/IntenseLevel.unity
     guid: 952b8b29bad494b96addb20c96139fbd
-  - enabled: 1
-    path: Assets/Scenes/MEDIUM.unity
-    guid: 08f7f9d166c20473baa4d48c121d24c5
   - enabled: 0
     path: Assets/Scenes/AlphaScenes/InstructionScene.unity
     guid: ea5f5a511d9ce462a9b4080c68be6c9d
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/AlphaScenes/TutorialScene.unity
     guid: ccceb97673886410a9cc2d789f6d07c2
   - enabled: 0
@@ -32,4 +29,13 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/AlphaScenes/RestartScene.unity
     guid: 236028c69856c491685c7517471284e4
+  - enabled: 1
+    path: Assets/Scenes/EASY.unity
+    guid: 61cbdbc1328a8455a92073741cc9cb1c
+  - enabled: 1
+    path: Assets/Scenes/MEDIUM.unity
+    guid: 08f7f9d166c20473baa4d48c121d24c5
+  - enabled: 1
+    path: Assets/Scenes/HARD.unity
+    guid: fe127096307334fcfb2186d134c212ce
   m_configObjects: {}

@@ -285,7 +285,7 @@ public class UIManagerScript : MonoBehaviour
     private void DisplayGameOverPanelRA(GameEventsScript.GameOverData data)
     {
         gameOverPanelContainer.SetActive(true);
-        GameEventsScript.sendStats.Invoke(new GameEventsScript.GameOverData(data.isWin, data.movesTaken, data.timer));
+        GameEventsScript.sendStats.Invoke(new GameEventsScript.GameOverData(data.difficulty, data.isWin, data.movesTaken, data.timer));
     }
 
     public void Restart()

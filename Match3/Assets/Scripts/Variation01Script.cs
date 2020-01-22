@@ -82,6 +82,8 @@ public class Variation01Script : MonoBehaviour
 //other serialized
     [SerializeField]
     private List<GameObject> GemmOptions;
+    [SerializeField]
+    public string difficulty;
 
 //other nonserialized
     private Gemm[,] GemmGridLayout;
@@ -577,7 +579,7 @@ public class Variation01Script : MonoBehaviour
             gameOverTriggered = true;
             GameEventsScript.getTime.Invoke();
             int movesTaken = totalMoves - currNumMoves;
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(isWin, movesTaken, gameOverTimer));
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, isWin, movesTaken, gameOverTimer));
         }
     }
 

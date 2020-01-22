@@ -25,9 +25,11 @@ public class WinStatsScript : MonoBehaviour
     [SerializeField]
     private Text winPct;
 
+//non serialized values
     private List<WinTimeEntry> winTimeEntryList;
     private List<MovesTakenEntry> movesTakenEntryList;
 
+//db classes
     private class WinTime {
         public List<WinTimeEntry> winTimeEntryList;
     }
@@ -56,14 +58,14 @@ public class WinStatsScript : MonoBehaviour
     private void ShowStats(GameEventsScript.GameOverData data)
     {
         //initialize
-        if(!PlayerPrefs.HasKey("gamesPlayed"))
+        if(!PlayerPrefs.HasKey(data.difficulty + "gamesPlayed"))
         {
-            PlayerPrefs.SetInt("gamesPlayed", 0);
+            PlayerPrefs.SetInt(data.difficulty + "gamesPlayed", 0);
             PlayerPrefs.Save();
         }
-        if(!PlayerPrefs.HasKey("gamesWon"))
+        if(!PlayerPrefs.HasKey(data.difficulty + "gamesWon"))
         {
-            PlayerPrefs.SetInt("gamesWon", 0);
+            PlayerPrefs.SetInt(data.difficulty + "gamesWon", 0);
             PlayerPrefs.Save();
         }
 
@@ -75,11 +77,11 @@ public class WinStatsScript : MonoBehaviour
             yourMoves.text = data.movesTaken.ToString();
 
             //record times and moves taken
-            AddWinTimeEntry(data.timer);
-            AddMovesTakenEntry(data.movesTaken);
-            string jsonTimes = PlayerPrefs.GetString("winTimeTable");
+            AddWinTimeEntry(data.difficulty, data.timer);
+            AddMovesTakenEntry(data.difficulty, data.movesTaken);
+            string jsonTimes = PlayerPrefs.GetString(data.difficulty + "winTimeTable");
             WinTime wintimes = JsonUtility.FromJson<WinTime>(jsonTimes);
-            string jsonMoves = PlayerPrefs.GetString("movesTakenTable");
+            string jsonMoves = PlayerPrefs.GetString(data.difficulty + "movesTakenTable");
             MovesTaken movesTaken = JsonUtility.FromJson<MovesTaken>(jsonMoves);
 
             //sort times
@@ -129,32 +131,32 @@ public class WinStatsScript : MonoBehaviour
             avgTimeTxt.text = avgTime.ToString("F2");
             avgMovesTxt.text = avgMoves.ToString("F2");
 
-            int gamesWon = PlayerPrefs.GetInt("gamesWon");
+            int gamesWon = PlayerPrefs.GetInt(data.difficulty + "gamesWon");
             gamesWon += 1;
-            int gamesPlayed = PlayerPrefs.GetInt("gamesPlayed");
+            int gamesPlayed = PlayerPrefs.GetInt(data.difficulty + "gamesPlayed");
             gamesPlayed += 1;
             winPct.text = ((float)gamesWon/(float)gamesPlayed*100.0f).ToString("F2") + "%";
-            PlayerPrefs.SetInt("gamesWon", gamesWon);
-            PlayerPrefs.SetInt("gamesPlayed", gamesPlayed);
+            PlayerPrefs.SetInt(data.difficulty + "gamesWon", gamesWon);
+            PlayerPrefs.SetInt(data.difficulty + "gamesPlayed", gamesPlayed);
             PlayerPrefs.Save();
         } else 
         {
             losePanel.SetActive(true);
-            int gamesPlayed = PlayerPrefs.GetInt("gamesPlayed");
+            int gamesPlayed = PlayerPrefs.GetInt(data.difficulty + "gamesPlayed");
             gamesPlayed += 1;
-            PlayerPrefs.SetInt("gamesPlayed", gamesPlayed);
+            PlayerPrefs.SetInt(data.difficulty + "gamesPlayed", gamesPlayed);
             PlayerPrefs.Save();
         }
     }
 
-    private void AddWinTimeEntry(float time)
+    private void AddWinTimeEntry(string difficulty, float time)
     {
         //Create Entry
         WinTimeEntry winTimeEntry = new WinTimeEntry {
             time = time
         };
 
-        if (!PlayerPrefs.HasKey("winTimeTable"))
+        if (!PlayerPrefs.HasKey(difficulty + "winTimeTable"))
         {
             //INIT LIST ON FIRST PLAY
             winTimeEntryList = new List<WinTimeEntry>(){};
@@ -163,12 +165,12 @@ public class WinStatsScript : MonoBehaviour
                 winTimeEntryList = winTimeEntryList
             };
             string jsTimes = JsonUtility.ToJson(times);
-            PlayerPrefs.SetString("winTimeTable", jsTimes);
+            PlayerPrefs.SetString(difficulty + "winTimeTable", jsTimes);
             PlayerPrefs.Save();
         }
 
         //load Saved HighScores
-        string jsonLoadTimes = PlayerPrefs.GetString("winTimeTable");
+        string jsonLoadTimes = PlayerPrefs.GetString(difficulty + "winTimeTable");
         WinTime loadedTimes = JsonUtility.FromJson<WinTime>(jsonLoadTimes);
         
         //add entry to highscores
@@ -176,18 +178,18 @@ public class WinStatsScript : MonoBehaviour
 
         //save updated highscores
         string jsonSaveTimes = JsonUtility.ToJson(loadedTimes);
-        PlayerPrefs.SetString("winTimeTable", jsonSaveTimes);
+        PlayerPrefs.SetString(difficulty + "winTimeTable", jsonSaveTimes);
         PlayerPrefs.Save();
     }
 
-    private void AddMovesTakenEntry (int movesTaken)
+    private void AddMovesTakenEntry (string difficulty, int movesTaken)
     {
         MovesTakenEntry movesTakenEntry = new MovesTakenEntry
         {
             movesTaken = movesTaken
         };
 
-        if (!PlayerPrefs.HasKey("movesTakenTable"))
+        if (!PlayerPrefs.HasKey(difficulty + "movesTakenTable"))
         {
             //INIT LIST ON FIRST PLAY
             movesTakenEntryList = new List<MovesTakenEntry>(){};
@@ -196,12 +198,12 @@ public class WinStatsScript : MonoBehaviour
                 movesTakenEntryList = movesTakenEntryList
             };
             string jsMoves = JsonUtility.ToJson(moves);
-            PlayerPrefs.SetString("movesTakenTable", jsMoves);
+            PlayerPrefs.SetString(difficulty + "movesTakenTable", jsMoves);
             PlayerPrefs.Save();
         }
 
         //load Saved HighScores
-        string jsonLoadMoves = PlayerPrefs.GetString("movesTakenTable");
+        string jsonLoadMoves = PlayerPrefs.GetString(difficulty + "movesTakenTable");
         MovesTaken loadedMoves = JsonUtility.FromJson<MovesTaken>(jsonLoadMoves);
         
         //add entry to highscores
@@ -209,7 +211,7 @@ public class WinStatsScript : MonoBehaviour
 
         //save updated highscores
         string jsonSaveMoves = JsonUtility.ToJson(loadedMoves);
-        PlayerPrefs.SetString("movesTakenTable", jsonSaveMoves);
+        PlayerPrefs.SetString(difficulty + "movesTakenTable", jsonSaveMoves);
         PlayerPrefs.Save();
     }
 }

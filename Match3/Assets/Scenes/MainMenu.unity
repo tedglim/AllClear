@@ -280,7 +280,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 414228046}
-        m_MethodName: LoadIntenseScene
+        m_MethodName: LoadMedium
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -974,7 +974,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 414228046}
-        m_MethodName: LoadIntenseScene
+        m_MethodName: LoadHard
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1104,7 +1104,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 414228046}
-        m_MethodName: LoadStandardScene
+        m_MethodName: LoadEasy
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

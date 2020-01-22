@@ -97,13 +97,14 @@ public class GameEventsScript : MonoBehaviour
     }
 
     public class GameOverData {
-
+        public string difficulty;
         public bool isWin;
         public int movesTaken;
         public float timer;
 
-        public GameOverData(bool isWin, int movesTaken, float timer)
+        public GameOverData(string difficulty, bool isWin, int movesTaken, float timer)
         {
+            this.difficulty = difficulty;
             this.isWin = isWin;
             this.movesTaken = movesTaken;
             this.timer = timer;

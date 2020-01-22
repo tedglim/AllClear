@@ -5,9 +5,13 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour
 {
+    //Serialized values
     [SerializeField]
     private GameObject menuList;
+    [SerializeField]
+    private string difficulty;
 
+    //non-serialized values
     private bool inside;
     void Start()
     {
@@ -72,18 +76,30 @@ public class MenuScript : MonoBehaviour
         SceneManager.LoadSceneAsync(1);
     }
 
-    public void LoadStandardScene()
+    public void LoadEasy()
     {
+        if(menuList.activeInHierarchy)
+        {
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, 0, 0));
+        }
         SceneManager.LoadSceneAsync(2);
     }
 
-    public void LoadIntenseScene()
+    public void LoadMedium()
     {
+        if(menuList.activeInHierarchy)
+        {
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, 0, 0));
+        }
         SceneManager.LoadSceneAsync(3);
     }
 
-    public void LoadVariation01Scene()
+    public void LoadHard()
     {
+        if(menuList.activeInHierarchy)
+        {
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, 0, 0));
+        }
         SceneManager.LoadSceneAsync(4);
     }
 }
