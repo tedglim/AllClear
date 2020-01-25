@@ -132,7 +132,7 @@ public class UIManagerScript : MonoBehaviour
         if(cyanDestroyedText != null)
         {
             cyanDestroyedText.text = data.cyanCleared.ToString();
-            if(data.cyanCleared == 0)
+            if(data.cyanCleared <= 0)
             {
                 cyanDestroyedText.text = "";
                 cyanCheck.SetActive(true);
@@ -141,7 +141,7 @@ public class UIManagerScript : MonoBehaviour
         if(greenDestroyedText != null)
         {
             greenDestroyedText.text = data.greenCleared.ToString();
-            if(data.greenCleared == 0)
+            if(data.greenCleared <= 0)
             {
                 greenDestroyedText.text = "";
                 greenCheck.SetActive(true);
@@ -150,7 +150,7 @@ public class UIManagerScript : MonoBehaviour
         if(orangeDestroyedText != null)
         {
             orangeDestroyedText.text = data.orangeCleared.ToString();
-            if(data.orangeCleared == 0)
+            if(data.orangeCleared <= 0)
             {
                 orangeDestroyedText.text = "";
                 orangeCheck.SetActive(true);
@@ -159,7 +159,7 @@ public class UIManagerScript : MonoBehaviour
         if(pinkDestroyedText != null)
         {
             pinkDestroyedText.text = data.pinkCleared.ToString();
-            if(data.pinkCleared == 0)
+            if(data.pinkCleared <= 0)
             {
                 pinkDestroyedText.text = "";
                 pinkCheck.SetActive(true);
@@ -168,7 +168,7 @@ public class UIManagerScript : MonoBehaviour
         if(redDestroyedText != null)
         {
             redDestroyedText.text = data.redCleared.ToString();
-            if(data.redCleared == 0)
+            if(data.redCleared <= 0)
             {
                 redDestroyedText.text = "";
                 redCheck.SetActive(true);
@@ -177,7 +177,7 @@ public class UIManagerScript : MonoBehaviour
         if(violetDestroyedText != null)
         {
             violetDestroyedText.text = data.violetCleared.ToString();
-            if(data.violetCleared == 0)
+            if(data.violetCleared <= 0)
             {
                 violetDestroyedText.text = "";
                 violetCheck.SetActive(true);        
@@ -186,7 +186,7 @@ public class UIManagerScript : MonoBehaviour
         if(yellowDestroyedText != null)
         {
             yellowDestroyedText.text = data.yellowCleared.ToString();
-            if(data.yellowCleared == 0)
+            if(data.yellowCleared <= 0)
             {
                 yellowDestroyedText.text = "";
                 yellowCheck.SetActive(true);

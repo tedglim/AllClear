@@ -8,6 +8,10 @@ public class GameEventsScript : MonoBehaviour
     //Event Declarations
     public static UnityEvent menuListOnOff = new UnityEvent();
     public static UnityEvent undoOnOffOld = new UnityEvent();
+    public static UnityEvent startAllClearFX = new UnityEvent();
+    public static UnityEvent endAllClearFX = new UnityEvent();
+    public static UnityEvent startBonusFX = new UnityEvent();
+    public static UnityEvent endBonusFX = new UnityEvent();
     public static GemsDestroyedEvent clearGems = new GemsDestroyedEvent();
     public static CountRoundOldEvent countRoundOld = new CountRoundOldEvent();
     public static CountMoveOldEvent countMoveOld = new CountMoveOldEvent();

@@ -17,6 +17,7 @@ public class Variation01Script : MonoBehaviour
     private bool isGemmCloneAlive;
     private bool canGemmFollowMe;
     private bool isRotating;
+    private bool w8ForRotation;
     private bool wantGemmDrop;
     private bool isMatching;
     private bool didDestroy;
@@ -26,6 +27,10 @@ public class Variation01Script : MonoBehaviour
     private bool movedGemm;
     private bool menuListOn;
     private bool oneClickLock;
+    private bool didAllClear;
+    private bool part1AllClear;
+    private bool allClearFXOn;
+    private bool bonusFXOn;
     private bool gameOverTriggered;
 
 //serial values
@@ -52,6 +57,8 @@ public class Variation01Script : MonoBehaviour
     [SerializeField]
     private int goalNumYellow;
     [SerializeField]
+    private int allClearBonusAmount;
+    [SerializeField]
     private float fallTimeInterval;
     [SerializeField]
     private float fallPercentIncrease;
@@ -77,6 +84,7 @@ public class Variation01Script : MonoBehaviour
     private int redsRemaining;
     private int violetsRemaining;
     private int yellowsRemaining;
+    private int gemmsDestroyedin1Board;
     private float gameOverTimer;
 
 //other serialized
@@ -114,6 +122,7 @@ public class Variation01Script : MonoBehaviour
     private Dictionary<GemmLoc, Gemm> GemmDictToDestroy;
     private List<GemmLoc> Check3List;
 
+
     // declare inits
     void Awake()
     {
@@ -127,6 +136,10 @@ public class Variation01Script : MonoBehaviour
         isFirstDrop = true;
         menuListOn = false;
         oneClickLock = false;
+        w8ForRotation = false;
+        wantGemmDrop = false;
+        didAllClear = false;
+        part1AllClear = false;
         gameOverTriggered = false;
 
         cyansRemaining = goalNumCyan;
@@ -136,6 +149,7 @@ public class Variation01Script : MonoBehaviour
         redsRemaining = goalNumRed;
         violetsRemaining = goalNumViolet;
         yellowsRemaining = goalNumYellow;
+        gemmsDestroyedin1Board = 0;
         gameOverTimer = 0f;
 
         currNumMoves = totalMoves;
@@ -152,17 +166,20 @@ public class Variation01Script : MonoBehaviour
         yield return new WaitForSeconds(0);
         GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
         GameEventsScript.setTime.AddListener(SetTime);
+        GameEventsScript.endAllClearFX.AddListener(endAllClearFX);
+        GameEventsScript.endBonusFX.AddListener(endBonusFX);
         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
         GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
     }
 
-    //tracks menu list state
+    //tracks menu state
     private void IsMenuListOn()
     {
         menuListOn = !menuListOn;
         oneClickLock = true;
     }
 
+    //provide time for gameover event
     private void SetTime(GameEventsScript.TimeData data)
     {
         gameOverTimer = data.time;
@@ -170,7 +187,7 @@ public class Variation01Script : MonoBehaviour
 
     void Update()
     {
-        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver || menuListOn)
+        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver || menuListOn || w8ForRotation)
         {
             return;
         }
@@ -201,11 +218,8 @@ public class Variation01Script : MonoBehaviour
             }
         } else if (Input.GetMouseButtonUp(0))
         {
-            //proceed to matching state
-            wantGemmDrop = true;
-
-            //Reset States
-            isGemmSelected = canGemmFollowMe = false;
+            //send out signal to drop the gemm
+            StartCoroutine(delayDrop());
         }
     }
 
@@ -226,7 +240,7 @@ public class Variation01Script : MonoBehaviour
         //if GemmSelected and Gemmcan follow cursor
         if(isGemmSelected && canGemmFollowMe)
         {
-            //if GemmClone alive and there are remaining moves, show all the gemm movements on screen
+            //if GemmClone alive, show gemm movements on screen
             if(isGemmCloneAlive)
             {
                 gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
@@ -237,6 +251,7 @@ public class Variation01Script : MonoBehaviour
         //when player releases gemm and gemm has moved, start matching
         if (wantGemmDrop)
         {
+            w8ForRotation = false;
             DropGemm();
             if (movedGemm)
             {
@@ -374,6 +389,17 @@ public class Variation01Script : MonoBehaviour
         selectedGem.gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(selectedGem, underlayAlpha);
     }
 
+    //delay want gemmdrop request
+    IEnumerator delayDrop()
+    {
+        w8ForRotation = true;
+        yield return new WaitUntil(() => !isRotating);
+        wantGemmDrop = true;
+
+        //Reset States
+        isGemmSelected = canGemmFollowMe = false;
+    }
+
     //Get grid position of cursor x/y independently
     private int GetPosOnGrid(float main, int size)
     {
@@ -399,7 +425,7 @@ public class Variation01Script : MonoBehaviour
         isGemmCloneAlive = true;
     }
 
-    //adjusts gemm transparency (clone and gid)
+    //adjusts gemm transparency (clone and grid)
     private Color ChangeGemmAlpha(Gemm gemm, float aVal)
     {
         Color gemmColor = gemm.gemmGObj.GetComponent<SpriteRenderer>().color;
@@ -416,6 +442,7 @@ public class Variation01Script : MonoBehaviour
         //Updates gem movement when finger moves to new cell
         if ((prevActiveTouchPos.x != gridXPos || prevActiveTouchPos.y != gridYPos) && !isRotating)
         {
+
             //diagonals
             if(gridXPos - prevActiveTouchPos.x > 0 && gridYPos - prevActiveTouchPos.y > 0)
             {
@@ -521,6 +548,7 @@ public class Variation01Script : MonoBehaviour
     {
         ResetBoardForMatching();
         isMatching = true;
+        //match and clear gemms
         for (int y = 0; y < boardDimY; y++)
         {
             for (int x = 0; x < boardDimX; x++)
@@ -541,8 +569,14 @@ public class Variation01Script : MonoBehaviour
                 }
             }
         }
+        checkForAllClear();
+        if(didAllClear && part1AllClear)
+        {
+            part1AllClear = false;
+            yield return new WaitUntil(() => !allClearFXOn);
+        }
         
-        //Cleanup board after matching
+        //Replenish board after matching
         SetupRemainingGemmsForDrop();
         RemakeDestroyedGemms();
         MoveGemmsDown();
@@ -555,25 +589,52 @@ public class Variation01Script : MonoBehaviour
             StartCoroutine(RepeatMatchGemms());
         } else
         {
-            //Cleanup board, reset moves, count round, check win/gameover conditions
-            isMatching = false;
-            movedGemm = false;
+            //if all clear happened, play bonus FX and revert states.
+            if (didAllClear && !isGameOver)
+            {
+                fallPercentIncrease /= 2;
+                cyansRemaining -= allClearBonusAmount;
+                greensRemaining -= allClearBonusAmount;
+                orangesRemaining -= allClearBonusAmount;
+                pinksRemaining -= allClearBonusAmount;
+                redsRemaining -= allClearBonusAmount;
+                yellowsRemaining -= allClearBonusAmount;
+                violetsRemaining -= allClearBonusAmount;
+                GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
+                GameEventsScript.startBonusFX.Invoke();
+                yield return new WaitUntil(() => !bonusFXOn);
+                didAllClear = false;
+            }
+
+            //Count remaining moves, check win/gameover conditions
             currNumMoves--;
             GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
-
-            if (redsRemaining <= 0 && greensRemaining <= 0 && cyansRemaining <= 0 && orangesRemaining <= 0 && pinksRemaining <= 0 && violetsRemaining <= 0 && yellowsRemaining <= 0)
-            {
-                isGameOver = true;
-                isWin = true;
-            } else if (currNumMoves < 1)
-            {
-                isGameOver = true;
-                isWin = false;
-            }
+            isMatching = false;
+            movedGemm = false;
+            CheckGameOver();
         }
-        yield return new WaitForSeconds(1.0f);
 
         //check game over
+        // TriggerGameOver();
+    }
+
+    //check gameover condition
+    private void CheckGameOver()
+    {
+        if (redsRemaining <= 0 && greensRemaining <= 0 && cyansRemaining <= 0 && orangesRemaining <= 0 && pinksRemaining <= 0 && violetsRemaining <= 0 && yellowsRemaining <= 0)
+        {
+            isGameOver = true;
+            isWin = true;
+        } else if (currNumMoves < 1)
+        {
+            isGameOver = true;
+            isWin = false;
+        }
+        TriggerGameOver();
+    }
+
+    private void TriggerGameOver()
+    {
         if (isGameOver && !gameOverTriggered)
         {
             gameOverTriggered = true;
@@ -789,6 +850,7 @@ public class Variation01Script : MonoBehaviour
                 canContinueMatching = true;
             }
         }
+        gemmsDestroyedin1Board += GemmDictToDestroy.Count;
         FloodMatchDict.Clear();
         GemmDictToDestroy.Clear();
     }
@@ -813,6 +875,30 @@ public class Variation01Script : MonoBehaviour
             }
  
         }
+    }
+
+    //check for allclear
+    private void checkForAllClear()
+    {
+        if (gemmsDestroyedin1Board == (boardDimX * boardDimY))
+        {
+            didAllClear = true;
+            part1AllClear = true;
+            allClearFXOn = true;
+            GameEventsScript.startAllClearFX.Invoke();
+            fallPercentIncrease *= 2;
+        }
+        gemmsDestroyedin1Board = 0;
+    }
+
+    private void endAllClearFX()
+    {
+        allClearFXOn = false;
+    }
+
+    private void endBonusFX()
+    {
+        bonusFXOn = false;
     }
 
     //if gemms were deleted, drop remaining gems to fill in gaps
@@ -865,6 +951,21 @@ public class Variation01Script : MonoBehaviour
     {
         yield return new WaitUntil(() => !areGemmsFalling);
         StartCoroutine(MatchGemms());
+    }
+
+    private bool checkGridLayoutSafe()
+    {
+        for (int y = 0; y < boardDimY; y++)
+        {
+            for (int x = 0; x < boardDimX; x++)
+            {
+                if(GemmGridLayout[x, y].gemmGObj == null)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     //Debug function for main grid
