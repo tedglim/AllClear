@@ -13,6 +13,16 @@ public class ColorChangingScript : MonoBehaviour
     private float allClearFXTime;
     [SerializeField]
     private float allClearFXDuration;
+    [SerializeField]
+    private float allClearFXTimeExt;
+    private float modAllClearFXDuration;
+    [SerializeField]
+    private float fxTextLarge;
+    [SerializeField]
+    private float fxTextNorm;
+    private int currFXTextSize;
+    private float growthTime;
+    private float shrinkTime;
     private float allClearFXColorTime;
     [SerializeField]
     private float allClearFXColorSpeed;
@@ -20,6 +30,7 @@ public class ColorChangingScript : MonoBehaviour
     Color[] allClearColorList;
     private int colorIndex;
 
+//bonus vars
     private bool bonusFXOn;
     private float bonusFXTime;
     [SerializeField]
@@ -28,11 +39,10 @@ public class ColorChangingScript : MonoBehaviour
     [SerializeField]
     private float bonusFXDelayDuration;
     [SerializeField]
-    private float textLarge;
+    private float goalTextLarge;
     [SerializeField]
-    private float textNorm;
-    int currTextSize;
-
+    private float goalTextNorm;
+    private int currGoalTextSize;
 
     void Awake()
     {
@@ -47,7 +57,10 @@ public class ColorChangingScript : MonoBehaviour
         allClearFXOn = false;
         allClearFXTime = 0;
         allClearFXColorTime = 0;
+        modAllClearFXDuration = allClearFXDuration - allClearFXTimeExt;
         colorIndex = 0;
+        growthTime = 0;
+        shrinkTime = 0;
         bonusFXOn = false;
         bonusFXTime = 0;
         bonusFXDelay = 0;
@@ -60,6 +73,17 @@ public class ColorChangingScript : MonoBehaviour
         if (allClearFXOn)
         {
             FXText.color = Color.Lerp (FXText.color, allClearColorList[colorIndex], allClearFXTime/allClearFXDuration);
+            if (allClearFXTime < (modAllClearFXDuration/2))
+            {
+                currFXTextSize = (int) Mathf.Lerp(fxTextNorm, fxTextLarge, growthTime/(modAllClearFXDuration/2));
+                FXText.fontSize = currFXTextSize;
+                growthTime += Time.deltaTime;
+            } else if (allClearFXTime >= (modAllClearFXDuration/2) && allClearFXTime < modAllClearFXDuration)
+            {
+                currFXTextSize = (int) Mathf.Lerp(fxTextLarge, fxTextNorm, shrinkTime/(modAllClearFXDuration/2));
+                FXText.fontSize = currFXTextSize;
+                shrinkTime += Time.deltaTime;
+            }
             if (allClearFXTime/allClearFXDuration >= 1f)
             {
                 turnOffAllClearFX();
@@ -96,8 +120,8 @@ public class ColorChangingScript : MonoBehaviour
 
             for (int i = 0; i < goalTextList.Count; i++)
             {
-                currTextSize = (int) Mathf.Lerp(textLarge, textNorm, bonusFXTime/bonusFXDuration);
-                goalTextList[i].fontSize = currTextSize;
+                currGoalTextSize = (int) Mathf.Lerp(goalTextLarge, goalTextNorm, bonusFXTime/bonusFXDuration);
+                goalTextList[i].fontSize = currGoalTextSize;
                 Text goalText = goalTextList[i];
                 goalText.color = Color.Lerp(goalText.color, Color.white, bonusFXTime/bonusFXDuration);
             }
@@ -128,6 +152,8 @@ public class ColorChangingScript : MonoBehaviour
         Color c = FXText.color;
         c.a = 0;
         FXText.color = c;
+        growthTime = 0;
+        shrinkTime = 0;
     }
 
     //set init goal text to large, red text
@@ -137,7 +163,7 @@ public class ColorChangingScript : MonoBehaviour
         for (int i = 0; i < goalTextList.Count; i++)
         {
             goalTextList[i].color = c;
-            goalTextList[i].fontSize = (int) textLarge;
+            goalTextList[i].fontSize = (int) goalTextLarge;
         }
         bonusFXOn = true;
     }

@@ -176,7 +176,7 @@ public class TutorialScript : MonoBehaviour
         GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
         GameEventsScript.undoOnOffOld.AddListener(DoUndo);
         GameEventsScript.countRoundOld.Invoke(new GameEventsScript.CountRoundOldData(currNumRounds, totalRounds));
-        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
+        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, false, 0));
         GameEventsScript.countMoveOld.Invoke(new GameEventsScript.CountMoveOldData(currNumMoves, movesPerRound));
     }
 
@@ -572,7 +572,7 @@ public class TutorialScript : MonoBehaviour
                     CountAndDestroyGemms();
                     if(didDestroy)
                     {
-                        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
+                        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, false, 0));
                         yield return new WaitForSeconds(0.25f);
                         didDestroy = false;
                     }

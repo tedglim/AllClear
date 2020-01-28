@@ -17,10 +17,10 @@ public class GameEventsScript : MonoBehaviour
     public static CountMoveOldEvent countMoveOld = new CountMoveOldEvent();
     public static GameOverOldEvent gameIsOverOld = new GameOverOldEvent();
     public static CountRoundEvent countRound = new CountRoundEvent();
-    public static GameOverEvent gameIsOver = new GameOverEvent();
     public static UpdateTimeEvent updateTime = new UpdateTimeEvent();
     public static GetTimeEvent getTime = new GetTimeEvent();
     public static SetTimeEvent setTime = new SetTimeEvent();
+    public static GameOverEvent gameIsOver = new GameOverEvent();
     public static SendStatsEvent sendStats = new SendStatsEvent();
     
     //Event Class Declarations
@@ -29,10 +29,10 @@ public class GameEventsScript : MonoBehaviour
     public class CountMoveOldEvent: UnityEvent<CountMoveOldData>{}
     public class GameOverOldEvent: UnityEvent<GameOverOldData>{}
     public class CountRoundEvent: UnityEvent<CountRoundData>{}
-    public class GameOverEvent: UnityEvent<GameOverData>{}
     public class UpdateTimeEvent: UnityEvent<TimeData>{}
     public class GetTimeEvent: UnityEvent{}
     public class SetTimeEvent: UnityEvent<TimeData>{}
+    public class GameOverEvent: UnityEvent<GameOverData>{}
     public class SendStatsEvent: UnityEvent<GameOverData>{}
 
     //Event Classes
@@ -44,8 +44,10 @@ public class GameEventsScript : MonoBehaviour
         public int redCleared;
         public int violetCleared;
         public int yellowCleared;
+        public bool bonusFXOn;
+        public int bonusAmt;
         
-        public DestroyedGemsData(int cyan, int green, int orange, int pink, int red, int violet, int yellow)
+        public DestroyedGemsData(int cyan, int green, int orange, int pink, int red, int violet, int yellow, bool bonusFXOn, int bonusAmt)
         {
             this.cyanCleared = cyan;
             this.greenCleared = green;
@@ -54,6 +56,8 @@ public class GameEventsScript : MonoBehaviour
             this.redCleared = red;
             this.violetCleared = violet;
             this.yellowCleared = yellow;
+            this.bonusFXOn = bonusFXOn;
+            this.bonusAmt = bonusAmt;
         }
     }
 
@@ -100,21 +104,6 @@ public class GameEventsScript : MonoBehaviour
         }
     }
 
-    public class GameOverData {
-        public string difficulty;
-        public bool isWin;
-        public int movesTaken;
-        public float timer;
-
-        public GameOverData(string difficulty, bool isWin, int movesTaken, float timer)
-        {
-            this.difficulty = difficulty;
-            this.isWin = isWin;
-            this.movesTaken = movesTaken;
-            this.timer = timer;
-        }
-    }
-
     public class TimeData {
 
         public float time;
@@ -122,6 +111,24 @@ public class GameEventsScript : MonoBehaviour
         public TimeData(float time)
         {
             this.time = time;
+        }
+    }
+
+    public class GameOverData {
+        public string difficulty;
+        public bool isWin;
+        public bool didAllClear;
+        public int movesTaken;
+        public float timer;
+        
+
+        public GameOverData(string difficulty, bool isWin, bool didAllClear, int movesTaken, float timer)
+        {
+            this.difficulty = difficulty;
+            this.isWin = isWin;
+            this.didAllClear = didAllClear;
+            this.movesTaken = movesTaken;
+            this.timer = timer;
         }
     }
 }

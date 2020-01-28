@@ -25,6 +25,10 @@ public class WinStatsScript : MonoBehaviour
     [SerializeField]
     private Text winPct;
 
+//other serialized values
+    [SerializeField]
+    private GameObject allClearUI;
+
 //non serialized values
     private List<WinTimeEntry> winTimeEntryList;
     private List<MovesTakenEntry> movesTakenEntryList;
@@ -72,10 +76,10 @@ public class WinStatsScript : MonoBehaviour
         //if game was won
         if(data.isWin)
         {
-            winPanel.SetActive(true);
-            yourTime.text = data.timer.ToString("F2");
-            yourMoves.text = data.movesTaken.ToString();
-
+            if(data.didAllClear)
+            {
+                allClearUI.SetActive(true);
+            }
             //record times and moves taken
             AddWinTimeEntry(data.difficulty, data.timer);
             AddMovesTakenEntry(data.difficulty, data.movesTaken);
@@ -127,10 +131,13 @@ public class WinStatsScript : MonoBehaviour
             }
             float avgMoves = (float)movesSum/(float)movesTaken.movesTakenEntryList.Count;
 
+            //stats to text and save data
+            winPanel.SetActive(true);
+            yourTime.text = data.timer.ToString("F2");
+            yourMoves.text = data.movesTaken.ToString();
             bestTime.text = wintimes.winTimeEntryList[0].time.ToString("F2");
             avgTimeTxt.text = avgTime.ToString("F2");
             avgMovesTxt.text = avgMoves.ToString("F2");
-
             int gamesWon = PlayerPrefs.GetInt(data.difficulty + "gamesWon");
             gamesWon += 1;
             int gamesPlayed = PlayerPrefs.GetInt(data.difficulty + "gamesPlayed");

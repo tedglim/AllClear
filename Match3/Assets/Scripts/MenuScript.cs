@@ -80,7 +80,7 @@ public class MenuScript : MonoBehaviour
     {
         if(menuList.activeInHierarchy)
         {
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, 0, 0));
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, false, 0, 0));
         }
         SceneManager.LoadSceneAsync(2);
     }
@@ -89,7 +89,7 @@ public class MenuScript : MonoBehaviour
     {
         if(menuList.activeInHierarchy)
         {
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, 0, 0));
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, false, 0, 0));
         }
         SceneManager.LoadSceneAsync(3);
     }
@@ -98,7 +98,7 @@ public class MenuScript : MonoBehaviour
     {
         if(menuList.activeInHierarchy)
         {
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, 0, 0));
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, false, 0, 0));
         }
         SceneManager.LoadSceneAsync(4);
     }

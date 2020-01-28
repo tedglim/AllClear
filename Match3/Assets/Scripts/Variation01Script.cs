@@ -27,6 +27,7 @@ public class Variation01Script : MonoBehaviour
     private bool movedGemm;
     private bool menuListOn;
     private bool oneClickLock;
+    private bool didAllClearAtLeastOnce;
     private bool didAllClear;
     private bool part1AllClear;
     private bool allClearFXOn;
@@ -139,6 +140,7 @@ public class Variation01Script : MonoBehaviour
         w8ForRotation = false;
         wantGemmDrop = false;
         didAllClear = false;
+        didAllClearAtLeastOnce = false;
         part1AllClear = false;
         gameOverTriggered = false;
 
@@ -168,7 +170,7 @@ public class Variation01Script : MonoBehaviour
         GameEventsScript.setTime.AddListener(SetTime);
         GameEventsScript.endAllClearFX.AddListener(endAllClearFX);
         GameEventsScript.endBonusFX.AddListener(endBonusFX);
-        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
+        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, bonusFXOn, allClearBonusAmount));
         GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
     }
 
@@ -562,7 +564,7 @@ public class Variation01Script : MonoBehaviour
                     CountAndDestroyGemms();
                     if(didDestroy)
                     {
-                        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
+                        GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, bonusFXOn, allClearBonusAmount));
                         yield return new WaitForSeconds(0.25f);
                         didDestroy = false;
                     }
@@ -592,6 +594,7 @@ public class Variation01Script : MonoBehaviour
             //if all clear happened, play bonus FX and revert states.
             if (didAllClear && !isGameOver)
             {
+                // bonusFXOn = true;
                 fallPercentIncrease /= 2;
                 cyansRemaining -= allClearBonusAmount;
                 greensRemaining -= allClearBonusAmount;
@@ -600,7 +603,7 @@ public class Variation01Script : MonoBehaviour
                 redsRemaining -= allClearBonusAmount;
                 yellowsRemaining -= allClearBonusAmount;
                 violetsRemaining -= allClearBonusAmount;
-                GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining));
+                GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, bonusFXOn, allClearBonusAmount));
                 GameEventsScript.startBonusFX.Invoke();
                 yield return new WaitUntil(() => !bonusFXOn);
                 didAllClear = false;
@@ -613,9 +616,6 @@ public class Variation01Script : MonoBehaviour
             movedGemm = false;
             CheckGameOver();
         }
-
-        //check game over
-        // TriggerGameOver();
     }
 
     //check gameover condition
@@ -640,7 +640,7 @@ public class Variation01Script : MonoBehaviour
             gameOverTriggered = true;
             GameEventsScript.getTime.Invoke();
             int movesTaken = totalMoves - currNumMoves;
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, isWin, movesTaken, gameOverTimer));
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, isWin, didAllClearAtLeastOnce, movesTaken, gameOverTimer));
         }
     }
 
@@ -882,6 +882,10 @@ public class Variation01Script : MonoBehaviour
     {
         if (gemmsDestroyedin1Board == (boardDimX * boardDimY))
         {
+            if(!didAllClearAtLeastOnce)
+            {
+                didAllClearAtLeastOnce = true;
+            }
             didAllClear = true;
             part1AllClear = true;
             allClearFXOn = true;

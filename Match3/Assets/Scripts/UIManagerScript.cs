@@ -46,6 +46,8 @@ public class UIManagerScript : MonoBehaviour
     private GameObject yellowCheck;
     private Color origColor;
     private ParticleSystem ps;
+    private bool isBonusFXOn;
+    private int bonusAmt;
 
 //serialized
     [SerializeField]
@@ -74,6 +76,7 @@ public class UIManagerScript : MonoBehaviour
     //setup color ui reqs + event listeners
     void Start()
     {
+        isBonusFXOn = false;
         if (cyanGObj != null)
         {
             cyanDestroyedText = cyanGObj.transform.Find("Text").GetComponent<Text>();
@@ -126,9 +129,15 @@ public class UIManagerScript : MonoBehaviour
         GameEventsScript.gameIsOver.AddListener(DisplayGameOverPanelRA);
     }
 
+    void Update()
+    {
+
+    }
+
     //updates destroyed gem count
     private void UpdateDestroyedCountText(GameEventsScript.DestroyedGemsData data)
     {
+        isBonusFXOn = data.bonusFXOn;
         if(cyanDestroyedText != null)
         {
             cyanDestroyedText.text = data.cyanCleared.ToString();
@@ -285,7 +294,7 @@ public class UIManagerScript : MonoBehaviour
     private void DisplayGameOverPanelRA(GameEventsScript.GameOverData data)
     {
         gameOverPanelContainer.SetActive(true);
-        GameEventsScript.sendStats.Invoke(new GameEventsScript.GameOverData(data.difficulty, data.isWin, data.movesTaken, data.timer));
+        GameEventsScript.sendStats.Invoke(new GameEventsScript.GameOverData(data.difficulty, data.isWin, data.didAllClear, data.movesTaken, data.timer));
     }
 
     public void Restart()
