@@ -591,11 +591,9 @@ public class Variation01Script : MonoBehaviour
             StartCoroutine(RepeatMatchGemms());
         } else
         {
-            //if all clear happened, play bonus FX and revert states.
-            if (didAllClear && !isGameOver)
+            //if all clear happened, apply bonus
+            if(didAllClear)
             {
-                // bonusFXOn = true;
-                fallPercentIncrease /= 2;
                 cyansRemaining -= allClearBonusAmount;
                 greensRemaining -= allClearBonusAmount;
                 orangesRemaining -= allClearBonusAmount;
@@ -604,17 +602,29 @@ public class Variation01Script : MonoBehaviour
                 yellowsRemaining -= allClearBonusAmount;
                 violetsRemaining -= allClearBonusAmount;
                 GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, bonusFXOn, allClearBonusAmount));
-                GameEventsScript.startBonusFX.Invoke();
-                yield return new WaitUntil(() => !bonusFXOn);
+                currNumMoves--;
+                GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
+                CheckGameOver();
+                //if game isn't over, apply bonus FX
+                if(!isGameOver)
+                {
+                    bonusFXOn = true;
+                    fallPercentIncrease /= 2;
+                    GameEventsScript.startBonusFX.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, bonusFXOn, allClearBonusAmount));
+                    yield return new WaitUntil(() => !bonusFXOn);
+                }
                 didAllClear = false;
+            } else
+            {
+                //no all clear, just count the move and check gameover conditions
+                currNumMoves--;
+                GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
+                CheckGameOver();
             }
 
-            //Count remaining moves, check win/gameover conditions
-            currNumMoves--;
-            GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
+            //reset bools
             isMatching = false;
             movedGemm = false;
-            CheckGameOver();
         }
     }
 
@@ -640,7 +650,7 @@ public class Variation01Script : MonoBehaviour
             gameOverTriggered = true;
             GameEventsScript.getTime.Invoke();
             int movesTaken = totalMoves - currNumMoves;
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, isWin, didAllClearAtLeastOnce, movesTaken, gameOverTimer));
+            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, isWin, didAllClearAtLeastOnce, movesTaken, gameOverTimer));
         }
     }
 

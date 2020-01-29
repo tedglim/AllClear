@@ -148,7 +148,10 @@ public class WinStatsScript : MonoBehaviour
             PlayerPrefs.Save();
         } else 
         {
-            losePanel.SetActive(true);
+            if(!data.menuRestart)
+            {
+                losePanel.SetActive(true);
+            }
             int gamesPlayed = PlayerPrefs.GetInt(data.difficulty + "gamesPlayed");
             gamesPlayed += 1;
             PlayerPrefs.SetInt(data.difficulty + "gamesPlayed", gamesPlayed);

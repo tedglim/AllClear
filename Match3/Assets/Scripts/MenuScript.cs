@@ -13,6 +13,7 @@ public class MenuScript : MonoBehaviour
 
     //non-serialized values
     private bool inside;
+    
     void Start()
     {
         inside = false;
@@ -78,27 +79,36 @@ public class MenuScript : MonoBehaviour
 
     public void LoadEasy()
     {
-        if(menuList.activeInHierarchy)
+        if(menuList != null)
         {
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, false, 0, 0));
+            if(menuList.activeInHierarchy)
+            {
+                GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, true, false, false, 0, 0));
+            }
         }
         SceneManager.LoadSceneAsync(2);
     }
 
     public void LoadMedium()
     {
-        if(menuList.activeInHierarchy)
+        if(menuList != null)
         {
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, false, 0, 0));
+            if(menuList.activeInHierarchy)
+            {
+                GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, true, false, false, 0, 0));
+            }
         }
         SceneManager.LoadSceneAsync(3);
     }
 
     public void LoadHard()
     {
-        if(menuList.activeInHierarchy)
+        if(menuList != null)
         {
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, false, 0, 0));
+            if(menuList.activeInHierarchy)
+            {
+                GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, true, false, false, 0, 0));
+            }
         }
         SceneManager.LoadSceneAsync(4);
     }

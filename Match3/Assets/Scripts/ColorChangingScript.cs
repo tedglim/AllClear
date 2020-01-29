@@ -5,7 +5,10 @@ using UnityEngine.UI;
 
 public class ColorChangingScript : MonoBehaviour
 {
-    private Text FXText;
+    [SerializeField]
+    private Text AllClearFXText;
+    [SerializeField]
+    private Text BonusFXText;
     [SerializeField]
     private List<Text> goalTextList;
 
@@ -43,6 +46,9 @@ public class ColorChangingScript : MonoBehaviour
     [SerializeField]
     private float goalTextNorm;
     private int currGoalTextSize;
+    private float bonusFXColorTime;
+    [SerializeField]
+    private float bonusFXColorSpeed;
 
     void Awake()
     {
@@ -53,7 +59,7 @@ public class ColorChangingScript : MonoBehaviour
 
     void Start()
     {
-        FXText = GetComponent<Text>();
+        // FXText = GetComponent<Text>();
         allClearFXOn = false;
         allClearFXTime = 0;
         allClearFXColorTime = 0;
@@ -72,16 +78,16 @@ public class ColorChangingScript : MonoBehaviour
         //allClearFX Controls
         if (allClearFXOn)
         {
-            FXText.color = Color.Lerp (FXText.color, allClearColorList[colorIndex], allClearFXTime/allClearFXDuration);
+            AllClearFXText.color = Color.Lerp (AllClearFXText.color, allClearColorList[colorIndex], allClearFXTime/allClearFXDuration);
             if (allClearFXTime < (modAllClearFXDuration/2))
             {
                 currFXTextSize = (int) Mathf.Lerp(fxTextNorm, fxTextLarge, growthTime/(modAllClearFXDuration/2));
-                FXText.fontSize = currFXTextSize;
+                AllClearFXText.fontSize = currFXTextSize;
                 growthTime += Time.deltaTime;
             } else if (allClearFXTime >= (modAllClearFXDuration/2) && allClearFXTime < modAllClearFXDuration)
             {
                 currFXTextSize = (int) Mathf.Lerp(fxTextLarge, fxTextNorm, shrinkTime/(modAllClearFXDuration/2));
-                FXText.fontSize = currFXTextSize;
+                AllClearFXText.fontSize = currFXTextSize;
                 shrinkTime += Time.deltaTime;
             }
             if (allClearFXTime/allClearFXDuration >= 1f)
@@ -109,15 +115,18 @@ public class ColorChangingScript : MonoBehaviour
         //Bonus FX controls
         if(bonusFXOn)
         {
+            //reset bonus vars
             if(bonusFXTime/bonusFXDuration >= 1f)
             {
                 bonusFXOn = false;
                 bonusFXTime = 0f;
                 bonusFXDelay = 0f;
+                BonusFXText.text = "";
                 GameEventsScript.endBonusFX.Invoke();
                 return;
             }
 
+            //loop through all goal texts
             for (int i = 0; i < goalTextList.Count; i++)
             {
                 currGoalTextSize = (int) Mathf.Lerp(goalTextLarge, goalTextNorm, bonusFXTime/bonusFXDuration);
@@ -125,10 +134,29 @@ public class ColorChangingScript : MonoBehaviour
                 Text goalText = goalTextList[i];
                 goalText.color = Color.Lerp(goalText.color, Color.white, bonusFXTime/bonusFXDuration);
             }
-            bonusFXDelay += Time.deltaTime;
+
+            //change bonus FX text color
+            BonusFXText.color = Color.Lerp (BonusFXText.color, allClearColorList[colorIndex], (bonusFXDelay+bonusFXTime)/bonusFXDuration);
+            bonusFXColorTime += Time.deltaTime;
+            if(bonusFXColorTime > bonusFXColorSpeed)
+            {
+                if (colorIndex < allClearColorList.Length - 1)
+                {
+                    colorIndex++;
+                } else
+                {
+                    colorIndex = 0;
+                }
+                bonusFXColorTime = 0;
+            }
+
+            //bonus time controls
             if (bonusFXDelay >= bonusFXDelayDuration)
             {
                 bonusFXTime += Time.deltaTime;
+            } else
+            {
+                bonusFXDelay += Time.deltaTime;
             }
         }
     }
@@ -139,8 +167,8 @@ public class ColorChangingScript : MonoBehaviour
     {
         Color c = Color.white;
         c.a = 1;
-        FXText.color = c;
-        FXText.text = "ALL CLEAR";
+        AllClearFXText.color = c;
+        AllClearFXText.text = "ALL CLEAR";
         allClearFXOn = true;
     }
 
@@ -149,15 +177,13 @@ public class ColorChangingScript : MonoBehaviour
     {
         allClearFXOn = false;
         allClearFXTime = 0f;
-        Color c = FXText.color;
-        c.a = 0;
-        FXText.color = c;
+        AllClearFXText.text = "";
         growthTime = 0;
         shrinkTime = 0;
     }
 
     //set init goal text to large, red text
-    void StartBonusFX()
+    void StartBonusFX(GameEventsScript.DestroyedGemsData data)
     {
         Color c = Color.red;
         for (int i = 0; i < goalTextList.Count; i++)
@@ -165,7 +191,12 @@ public class ColorChangingScript : MonoBehaviour
             goalTextList[i].color = c;
             goalTextList[i].fontSize = (int) goalTextLarge;
         }
+        Color w = Color.white;
+        w.a = 1;
+        BonusFXText.color = w;
+        BonusFXText.text = "BONUS";
         bonusFXOn = true;
+
     }
 
     //title
@@ -173,8 +204,8 @@ public class ColorChangingScript : MonoBehaviour
     {
         allClearFXOn = false;
         bonusFXOn = false;
-        Color c = FXText.color;
+        Color c = AllClearFXText.color;
         c.a = 0;
-        FXText.color = c;
+        AllClearFXText.color = c;
     }
 }

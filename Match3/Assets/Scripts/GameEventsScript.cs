@@ -10,30 +10,32 @@ public class GameEventsScript : MonoBehaviour
     public static UnityEvent undoOnOffOld = new UnityEvent();
     public static UnityEvent startAllClearFX = new UnityEvent();
     public static UnityEvent endAllClearFX = new UnityEvent();
-    public static UnityEvent startBonusFX = new UnityEvent();
     public static UnityEvent endBonusFX = new UnityEvent();
     public static GemsDestroyedEvent clearGems = new GemsDestroyedEvent();
-    public static CountRoundOldEvent countRoundOld = new CountRoundOldEvent();
-    public static CountMoveOldEvent countMoveOld = new CountMoveOldEvent();
-    public static GameOverOldEvent gameIsOverOld = new GameOverOldEvent();
     public static CountRoundEvent countRound = new CountRoundEvent();
+    public static StartBonusEvent startBonusFX = new StartBonusEvent();
     public static UpdateTimeEvent updateTime = new UpdateTimeEvent();
     public static GetTimeEvent getTime = new GetTimeEvent();
     public static SetTimeEvent setTime = new SetTimeEvent();
     public static GameOverEvent gameIsOver = new GameOverEvent();
     public static SendStatsEvent sendStats = new SendStatsEvent();
-    
+    public static CountRoundOldEvent countRoundOld = new CountRoundOldEvent();
+    public static CountMoveOldEvent countMoveOld = new CountMoveOldEvent();
+    public static GameOverOldEvent gameIsOverOld = new GameOverOldEvent();
+
     //Event Class Declarations
     public class GemsDestroyedEvent: UnityEvent<DestroyedGemsData>{}
-    public class CountRoundOldEvent: UnityEvent<CountRoundOldData>{}
-    public class CountMoveOldEvent: UnityEvent<CountMoveOldData>{}
-    public class GameOverOldEvent: UnityEvent<GameOverOldData>{}
+
     public class CountRoundEvent: UnityEvent<CountRoundData>{}
+    public class StartBonusEvent: UnityEvent<DestroyedGemsData>{}
     public class UpdateTimeEvent: UnityEvent<TimeData>{}
     public class GetTimeEvent: UnityEvent{}
     public class SetTimeEvent: UnityEvent<TimeData>{}
     public class GameOverEvent: UnityEvent<GameOverData>{}
     public class SendStatsEvent: UnityEvent<GameOverData>{}
+    public class CountRoundOldEvent: UnityEvent<CountRoundOldData>{}
+    public class CountMoveOldEvent: UnityEvent<CountMoveOldData>{}
+    public class GameOverOldEvent: UnityEvent<GameOverOldData>{}
 
     //Event Classes
     public class DestroyedGemsData {
@@ -58,6 +60,46 @@ public class GameEventsScript : MonoBehaviour
             this.yellowCleared = yellow;
             this.bonusFXOn = bonusFXOn;
             this.bonusAmt = bonusAmt;
+        }
+    }
+
+    public class CountRoundData {
+        public int currRound;
+        public int totalRounds;
+        
+        public CountRoundData(int currRound, int totalRounds)
+        {
+            this.currRound = currRound;
+            this.totalRounds = totalRounds;
+        }
+    }
+
+    public class TimeData {
+
+        public float time;
+
+        public TimeData(float time)
+        {
+            this.time = time;
+        }
+    }
+
+    public class GameOverData {
+        public string difficulty;
+        public bool menuRestart;
+        public bool isWin;
+        public bool didAllClear;
+        public int movesTaken;
+        public float timer;
+
+        public GameOverData(string difficulty, bool menuRestart, bool isWin, bool didAllClear, int movesTaken, float timer)
+        {
+            this.difficulty = difficulty;
+            this.menuRestart = menuRestart;
+            this.isWin = isWin;
+            this.didAllClear = didAllClear;
+            this.movesTaken = movesTaken;
+            this.timer = timer;
         }
     }
 
@@ -90,45 +132,6 @@ public class GameEventsScript : MonoBehaviour
         public GameOverOldData(bool isWin)
         {
             this.isWin = isWin;
-        }
-    }
-
-    public class CountRoundData {
-        public int currRound;
-        public int totalRounds;
-        
-        public CountRoundData(int currRound, int totalRounds)
-        {
-            this.currRound = currRound;
-            this.totalRounds = totalRounds;
-        }
-    }
-
-    public class TimeData {
-
-        public float time;
-
-        public TimeData(float time)
-        {
-            this.time = time;
-        }
-    }
-
-    public class GameOverData {
-        public string difficulty;
-        public bool isWin;
-        public bool didAllClear;
-        public int movesTaken;
-        public float timer;
-        
-
-        public GameOverData(string difficulty, bool isWin, bool didAllClear, int movesTaken, float timer)
-        {
-            this.difficulty = difficulty;
-            this.isWin = isWin;
-            this.didAllClear = didAllClear;
-            this.movesTaken = movesTaken;
-            this.timer = timer;
         }
     }
 }
