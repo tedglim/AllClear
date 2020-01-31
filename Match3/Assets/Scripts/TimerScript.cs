@@ -29,6 +29,10 @@ public class TimerScript : MonoBehaviour
 
     void GetTime()
     {
+        if(timer>=999.99f)
+        {
+            timer = 999.99f;
+        }
         GameEventsScript.setTime.Invoke(new GameEventsScript.TimeData(timer));
         stopTime = true;
     }

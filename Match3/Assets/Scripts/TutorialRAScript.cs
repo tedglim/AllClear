@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 
-public class Variation01Script : MonoBehaviour
+public class TutorialRAScript : MonoBehaviour
 {
 
 //booleans
@@ -158,13 +158,13 @@ public class Variation01Script : MonoBehaviour
     void Start()
     {
         StartCoroutine(GameEventFuncs());
-        StartCoroutine(SetupInitialBoard());
+        StartCoroutine(SetupTutorialBoard());
     }
 
     IEnumerator GameEventFuncs()
     {
         yield return new WaitForSeconds(0);
-        GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
+        // GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
         GameEventsScript.setTime.AddListener(SetTime);
         GameEventsScript.endAllClearFX.AddListener(endAllClearFX);
         GameEventsScript.endBonusFX.AddListener(endBonusFX);
@@ -172,12 +172,12 @@ public class Variation01Script : MonoBehaviour
         GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
     }
 
-    //tracks menu state
-    private void IsMenuListOn()
-    {
-        menuListOn = !menuListOn;
-        oneClickLock = true;
-    }
+    // //tracks menu state
+    // private void IsMenuListOn()
+    // {
+    //     menuListOn = !menuListOn;
+    //     oneClickLock = true;
+    // }
 
     //provide time for gameover event
     private void SetTime(GameEventsScript.TimeData data)
@@ -192,12 +192,12 @@ public class Variation01Script : MonoBehaviour
             return;
         }
 
-        //prevents board from being touched during open menu
-        if(!menuListOn && oneClickLock)
-        {
-            oneClickLock = false;
-            return;
-        }
+        // //prevents board from being touched during open menu
+        // if(!menuListOn && oneClickLock)
+        // {
+        //     oneClickLock = false;
+        //     return;
+        // }
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -261,18 +261,18 @@ public class Variation01Script : MonoBehaviour
     }
 
     //Wrapper for creating initial board
-    IEnumerator SetupInitialBoard()
+    IEnumerator SetupTutorialBoard()
     {
         yield return new WaitForSecondsRealtime(0);
-        MakeGemmsInGrid();
+        MakeGemmsInTutorialGrid();
         MoveGemmsDown();
         isFirstDrop = false;
     }
 
     //Create Gemms in Grid
-    private void MakeGemmsInGrid()
+    private void MakeGemmsInTutorialGrid()
     {
-        GameObject randGemm;
+        GameObject gemm;
         for (int y = 0; y < boardDimY; y++)
         {
             for (int x = 0; x < boardDimX; x++)
@@ -283,38 +283,17 @@ public class Variation01Script : MonoBehaviour
                 
                 //detect if 2 in a row left and down when in row/column 3+
                 //assign a random gemm that makes it so grid does not contain 3 in a rows
-                while(true)
+                if (y == 4)
                 {
-                    randGemm = availableGems[UnityEngine.Random.Range(0, availableGems.Count)];
-                    if (x > 1)
-                    {
-                        leftGemm = GemmGridLayout[x - 1, y];
-                        if (randGemm.tag == leftGemm.tagId)
-                        {
-                            leftGemm = GemmGridLayout[x - 2, y];
-                            if (randGemm.tag == leftGemm.tagId)
-                            {
-                                availableGems.Remove(randGemm);
-                                continue;
-                            }
-                        }
-                    }
-                    if (y > 1)
-                    {
-                        downGemm = GemmGridLayout[x, y - 1];
-                        if (randGemm.tag == downGemm.tagId)
-                        {
-                            downGemm = GemmGridLayout[x, y - 2];
-                            if (randGemm.tag == downGemm.tagId)
-                            {
-                                availableGems.Remove(randGemm);
-                                continue;
-                            }
-                        }
-                    }
-                    break;
+                    gemm = GemmOptions[(x+2)%GemmOptions.Count];
+                } else if (y == 2)
+                {
+                    gemm = GemmOptions[(x+1)%GemmOptions.Count];
+                } else 
+                {
+                    gemm = GemmOptions[x%GemmOptions.Count];
                 }
-                MakeGemm(randGemm, x, y);
+                MakeGemm(gemm, x, y);
             }
         }
     }

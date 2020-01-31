@@ -8,6 +8,7 @@ public class BackgroundScript : MonoBehaviour
     private float initPosY;
     private int totalGems;
     private int currentGems;
+    private bool wasPinged;
 
     private int cyan;
     private int green;
@@ -53,21 +54,19 @@ public class BackgroundScript : MonoBehaviour
                 prevGemmCount = currentGems;
                 return;
             }
-            if(prevGemmCount == currentGems)
+            if(wasPinged)
             {
-                FXOn = false;
-                return;
-            } else
-            {
-                if(currentGems == 0)
-                {
-                    background.transform.position = new Vector3(paddingX, Mathf.Lerp(background.transform.position.y, distance + initPosY, currFXTime/FXDuration), 0);
-                } else 
-                {
-                    background.transform.position = new Vector3(paddingX, Mathf.Lerp(background.transform.position.y, (1f - (float)currentGems/(float)totalGems) * distance + initPosY, currFXTime/FXDuration), 0);
-                }
-                currFXTime += Time.deltaTime;
+                wasPinged = false;
+                currFXTime = 0f;
             }
+            if(currentGems == 0)
+            {
+                background.transform.position = new Vector3(paddingX, Mathf.Lerp(background.transform.position.y, distance + initPosY, currFXTime/FXDuration), 0);
+            } else 
+            {
+                background.transform.position = new Vector3(paddingX, Mathf.Lerp(background.transform.position.y, (1f - (float)currentGems/(float)totalGems) * distance + initPosY, currFXTime/FXDuration), 0);
+            }
+            currFXTime += Time.deltaTime;
         }
     }
 
@@ -131,7 +130,9 @@ public class BackgroundScript : MonoBehaviour
             }
             currentGems = cyan + green + orange + pink + red + violet + yellow;
             FXOn = true;
-            currFXTime = 0;
+            wasPinged = true;
+            Debug.Log("IS PINGED");
+            // currFXTime = 0;
         }
     }
 
