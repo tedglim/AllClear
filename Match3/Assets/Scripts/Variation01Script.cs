@@ -965,21 +965,6 @@ public class Variation01Script : MonoBehaviour
         StartCoroutine(MatchGemms());
     }
 
-    private bool checkGridLayoutSafe()
-    {
-        for (int y = 0; y < boardDimY; y++)
-        {
-            for (int x = 0; x < boardDimX; x++)
-            {
-                if(GemmGridLayout[x, y].gemmGObj == null)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     //Debug function for main grid
     private void checkGridState()
     {

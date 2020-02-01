@@ -33,6 +33,7 @@ public class TutorialRAScript : MonoBehaviour
     private bool allClearFXOn;
     private bool bonusFXOn;
     private bool gameOverTriggered;
+    private bool textLock;
 
 //serial values
     [SerializeField]
@@ -93,9 +94,16 @@ public class TutorialRAScript : MonoBehaviour
     private List<GameObject> GemmOptions;
     [SerializeField]
     public string difficulty;
+    [SerializeField]
+    private Text tutorialButton;
+    // [SerializeField]
+    // private GameObject arrow;
+    // [SerializeField]
+    // private GameObject pointer;
 
 //other nonserialized
     private Gemm[,] GemmGridLayout;
+    private Gemm[,] GemmGridLayoutCopy;
     private struct Gemm
     {
         public GameObject gemmGObj;
@@ -112,8 +120,6 @@ public class TutorialRAScript : MonoBehaviour
         public int gridXLoc;
         public int gridYLoc;
     }
-    private Gemm leftGemm;
-    private Gemm downGemm;
     private Ray touchPos;
     private Vector2Int prevActiveTouchPos;
     private Vector3 rotationAngle;
@@ -141,6 +147,7 @@ public class TutorialRAScript : MonoBehaviour
         didAllClearAtLeastOnce = false;
         part1AllClear = false;
         gameOverTriggered = false;
+        textLock = true;
 
         cyansRemaining = goalNumCyan;
         greensRemaining = goalNumGreen;
@@ -187,17 +194,17 @@ public class TutorialRAScript : MonoBehaviour
 
     void Update()
     {
-        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver || menuListOn || w8ForRotation)
+        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver || menuListOn || w8ForRotation || textLock)
         {
             return;
         }
 
-        // //prevents board from being touched during open menu
-        // if(!menuListOn && oneClickLock)
-        // {
-        //     oneClickLock = false;
-        //     return;
-        // }
+        //prevents board from being touched during open menu
+        if(!menuListOn && oneClickLock)
+        {
+            oneClickLock = false;
+            return;
+        }
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -225,7 +232,7 @@ public class TutorialRAScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isFirstDrop || isRotating || areGemmsFalling || isMatching || isGameOver || menuListOn)
+        if (isFirstDrop || isRotating || areGemmsFalling || isMatching || isGameOver || menuListOn || textLock)
         {
             return;
         }
@@ -258,6 +265,7 @@ public class TutorialRAScript : MonoBehaviour
                 StartCoroutine(MatchGemms());
             }
         }
+        //GemmGridLayout = GemmGridLayoutCopy;
     }
 
     //Wrapper for creating initial board
@@ -852,7 +860,6 @@ public class TutorialRAScript : MonoBehaviour
             Color fine = sr.color;
             c.a = c.a - fadeStep;
             sr.color = c;
-           
             yield return null;
  
             if (sr.color.a <= 0f)
@@ -860,7 +867,6 @@ public class TutorialRAScript : MonoBehaviour
                 Destroy(gemm);
                 break;
             }
- 
         }
     }
 
@@ -944,19 +950,47 @@ public class TutorialRAScript : MonoBehaviour
         StartCoroutine(MatchGemms());
     }
 
-    private bool checkGridLayoutSafe()
+    //Prep for Undo procedure
+    private void ClearGridLayout()
     {
-        for (int y = 0; y < boardDimY; y++)
+        for(int y = 0; y < boardDimY; y++)
         {
-            for (int x = 0; x < boardDimX; x++)
+            for(int x = 0; x < boardDimX; x++)
             {
-                if(GemmGridLayout[x, y].gemmGObj == null)
+                if (GemmGridLayout[x,y].gemmGObj != null)
                 {
-                    return false;
+                    Destroy(GemmGridLayout[x,y].gemmGObj);
                 }
             }
         }
-        return true;
+    }
+
+    //Remake Gemms for UNDO process; revert to previous board state
+    private void RemakeGemmsForUndo()
+    {
+        for(int y = 0; y < boardDimY; y++)
+        {
+            for(int x = 0; x < boardDimX; x++)
+            {
+                for(int z = 0; z < GemmOptions.Count; z++)
+                {
+                    if (GemmGridLayout[x,y].tagId == GemmOptions[z].tag)
+                    {
+                        GameObject gObj = (GameObject) Instantiate(GemmOptions[z], new Vector2((float)x, (float)y), Quaternion.identity);
+                        gObj.transform.parent = transform;
+                        GemmGridLayout[x,y].gemmGObj = gObj;
+                        break;
+                    }
+                }
+            }
+        } 
+    }
+
+    public void tutorialTransition01()
+    {
+        textLock = false;
+        tutorialButton.text = "Drag the Orb across the board as shown above.";
+        GameEventsScript.tutorialEvent01.Invoke();
     }
 
     //Debug function for main grid
