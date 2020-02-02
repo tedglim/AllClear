@@ -38,6 +38,10 @@ public class BasicTransparencyScript : MonoBehaviour
     void Start()
     {
         GameEventsScript.tutorialEvent01.AddListener(tutorialTransition01);
+        GameEventsScript.tutorialEvent01dot5.AddListener(tutorialTransition01dot5);
+        GameEventsScript.tutorialEvent02.AddListener(tutorialTransition02);
+        GameEventsScript.tutorialEvent02dot5.AddListener(tutorialTransition02dot5);
+
 
         arrowSR = arrow.GetComponent<SpriteRenderer>();
         arrowStartColor = arrowSR.color;
@@ -129,5 +133,29 @@ public class BasicTransparencyScript : MonoBehaviour
         arrow.SetActive(true);
         pointer01.SetActive(false);
         pointer02.SetActive(true);
+    }
+
+    private void tutorialTransition01dot5()
+    {
+        if(pointer02.activeInHierarchy)
+        {
+            pointer02.SetActive(false);
+
+        } else
+        {
+            pointer02.SetActive(true);
+        }
+    }
+
+    private void tutorialTransition02()
+    {
+        arrow.SetActive(false);
+        pointer01.SetActive(true);
+        pointer02.SetActive(false);
+    }
+
+    private void tutorialTransition02dot5()
+    {
+        pointer01.SetActive(false);
     }
 }
