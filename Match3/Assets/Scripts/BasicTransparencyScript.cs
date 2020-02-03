@@ -5,34 +5,48 @@ using UnityEngine;
 public class BasicTransparencyScript : MonoBehaviour
 {
     [SerializeField]
-    private GameObject arrow;
-    private SpriteRenderer arrowSR;
-    private Color arrowStartColor;
-    private Color arrowTargetColor;
-    private bool arrowSwitch;
+    private GameObject arrow01;
+    private SpriteRenderer arrow01SR;
+    private Color arrow01StartColor;
+    private Color arrow01TargetColor;
+
+    [SerializeField]
+    private GameObject arrow02;
+    private SpriteRenderer arrow02SR;
+    private Color arrow02StartColor;
+    private Color arrow02TargetColor;
 
     [SerializeField]
     private GameObject pointer01;
     private SpriteRenderer pointer01SR;
     private Color pointer01StartColor;
     private Color pointer01TargetColor;
-    private bool pointer01Switch;
 
     [SerializeField]
     private GameObject pointer02;
-    private float pointerStartPosY;
-    private float pointerTargetPosY;
-    [SerializeField]
-    private float distance;
-    private bool pointerSwitch;
+    private float pointer02StartPosY;
+    private float pointer02TargetPosY;
 
-    private float currTimeArrow;
-    private float currTimePointer01;
-    private float currTimePointer02;
+    [SerializeField]
+    private GameObject pointer03;
+    private float pointer03StartPosY;
+    private float pointer03TargetPosY;
+
+    private bool transparencySwitch;
+    private bool bounceSwitch;
+    private float currTimeTransparencyFX;
     [SerializeField]
     private float transparencyDeltaSpeed;
+    private float currTimeBounceFX;
+    [SerializeField]
+    private float distance;
     [SerializeField]
     private float upDownDeltaSpeed;
+
+    [SerializeField]
+    private GameObject highlightBoxGoal;
+    [SerializeField]
+    private GameObject highlightBoxMoves;
 
     // Start is called before the first frame update
     void Start()
@@ -41,96 +55,109 @@ public class BasicTransparencyScript : MonoBehaviour
         GameEventsScript.tutorialEvent01dot5.AddListener(tutorialTransition01dot5);
         GameEventsScript.tutorialEvent02.AddListener(tutorialTransition02);
         GameEventsScript.tutorialEvent02dot5.AddListener(tutorialTransition02dot5);
+        GameEventsScript.tutorialEvent03.AddListener(tutorialTransition03);
+        GameEventsScript.tutorialEvent03dot5.AddListener(tutorialTransition03dot5);
+        GameEventsScript.tutorialEvent04.AddListener(tutorialTransition04);
+        GameEventsScript.tutorialEvent04dot5.AddListener(tutorialTransition04dot5);
+        GameEventsScript.tutorialEvent05.AddListener(tutorialTransition05);
+        GameEventsScript.tutorialEvent05dot5.AddListener(tutorialTransition05dot5);
+        GameEventsScript.tutorialEvent05dot51.AddListener(tutorialTransition05dot51);
 
 
-        arrowSR = arrow.GetComponent<SpriteRenderer>();
-        arrowStartColor = arrowSR.color;
-        Color c = arrowStartColor;
+        arrow01SR = arrow01.GetComponent<SpriteRenderer>();
+        arrow01StartColor = arrow01SR.color;
+        Color c = arrow01StartColor;
         c.a = .5f;
-        arrowTargetColor = c;
-        arrowSwitch = false;
-        arrow.SetActive(false);
+        arrow01TargetColor = c;
+        transparencySwitch = false;
+        arrow01.SetActive(false);
+
+        arrow02SR = arrow02.GetComponent<SpriteRenderer>();
+        arrow02StartColor = arrow02SR.color;
+        Color e = arrow02StartColor;
+        e.a = .5f;
+        arrow02TargetColor = e;
+        arrow02.SetActive(false);
 
         pointer01SR = pointer01.GetComponent<SpriteRenderer>();
         pointer01StartColor = pointer01SR.color;
         Color d = pointer01StartColor;
         d.a = 1f;
         pointer01TargetColor = d;
-        pointer01Switch = false;
 
-        pointerStartPosY = pointer02.transform.position.y;
-        pointerTargetPosY = pointerStartPosY + distance;
-        pointerSwitch = false;
+        pointer02StartPosY = pointer02.transform.position.y;
+        pointer02TargetPosY = pointer02StartPosY + distance;
+        bounceSwitch = false;
         pointer02.SetActive(false);
+
+        pointer03StartPosY = pointer03.transform.position.y;
+        pointer03TargetPosY = pointer03StartPosY + distance;
+        pointer03.SetActive(false);
+
+        highlightBoxGoal.SetActive(false);
+        highlightBoxMoves.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
+        doTransparencyFX(arrow01, arrow01SR, arrow01StartColor, arrow01TargetColor);
+        doTransparencyFX(arrow02, arrow02SR, arrow02StartColor, arrow02TargetColor);
+        doTransparencyFX(pointer01, pointer01SR, pointer01StartColor, pointer01TargetColor);
+
+        doBounceFX(pointer02, pointer02StartPosY, pointer02TargetPosY);
+        doBounceFX(pointer03, pointer03StartPosY, pointer03TargetPosY);
+    }
+
+    private void doTransparencyFX(GameObject arrow, SpriteRenderer spriteRenderer, Color startColor, Color endColor)
+    {
         if(arrow != null)
         {
             if(arrow.activeInHierarchy)
             {
-                if(currTimeArrow/(transparencyDeltaSpeed/2) >= 1)
+                if(currTimeTransparencyFX/(transparencyDeltaSpeed/2) >= 1)
                 {
-                    arrowSwitch = !arrowSwitch;
-                    currTimeArrow = 0f;
+                    transparencySwitch = !transparencySwitch;
+                    currTimeTransparencyFX = 0f;
                 }
-                if(!arrowSwitch)
+                if(!transparencySwitch)
                 {
-                    arrowSR.color = Color.Lerp(arrowStartColor, arrowTargetColor, (currTimeArrow/(transparencyDeltaSpeed/2f)));
+                    spriteRenderer.color = Color.Lerp(startColor, endColor, (currTimeTransparencyFX/(transparencyDeltaSpeed/2f)));
                 } else
                 {
-                    arrowSR.color = Color.Lerp(arrowTargetColor, arrowStartColor, (currTimeArrow/(transparencyDeltaSpeed/2f)));
+                    spriteRenderer.color = Color.Lerp(endColor, startColor, (currTimeTransparencyFX/(transparencyDeltaSpeed/2f)));
                 }
-                currTimeArrow += Time.deltaTime;
-            }
-        }
-
-        if(pointer01 != null)
-        {
-            if(pointer01.activeInHierarchy)
-            {
-                if(currTimePointer01/(transparencyDeltaSpeed/2) >= 1)
-                {
-                    pointer01Switch = !pointer01Switch;
-                    currTimePointer01 = 0f;
-                }
-                if(!pointer01Switch)
-                {
-                    pointer01SR.color = Color.Lerp(pointer01StartColor, pointer01TargetColor, (currTimePointer01/(transparencyDeltaSpeed/2f)));
-                } else
-                {
-                    pointer01SR.color = Color.Lerp(pointer01TargetColor, pointer01StartColor, (currTimePointer01/(transparencyDeltaSpeed/2f)));
-                }
-                currTimePointer01 += Time.deltaTime;
-            }
-        }
-
-        if(pointer02 != null)
-        {
-            if(pointer02.activeInHierarchy)
-            {
-                if(currTimePointer02/(upDownDeltaSpeed/2) >= 1)
-                {
-                    pointerSwitch = !pointerSwitch;
-                    currTimePointer02 = 0f;
-                }
-                if(!pointerSwitch)
-                {
-                    pointer02.transform.position = new Vector3(pointer02.transform.position.x, Mathf.Lerp(pointerStartPosY, pointerTargetPosY, currTimePointer02/(upDownDeltaSpeed/2f)), pointer02.transform.position.z);
-                } else
-                {
-                    pointer02.transform.position = new Vector3(pointer02.transform.position.x, Mathf.Lerp(pointerTargetPosY, pointerStartPosY, currTimePointer02/(upDownDeltaSpeed/2f)), pointer02.transform.position.z);
-                }
-                currTimePointer02 += Time.deltaTime;
+                currTimeTransparencyFX += Time.deltaTime;
             }
         }
     }
 
+    private void doBounceFX(GameObject pointer, float startPos, float targetPos)
+    {
+        if(pointer != null)
+        {
+            if(pointer.activeInHierarchy)
+            {
+                if(currTimeBounceFX/(upDownDeltaSpeed/2) >= 1)
+                {
+                    bounceSwitch = !bounceSwitch;
+                    currTimeBounceFX = 0f;
+                }
+                if(!bounceSwitch)
+                {
+                    pointer.transform.position = new Vector3(pointer.transform.position.x, Mathf.Lerp(startPos, targetPos, currTimeBounceFX/(upDownDeltaSpeed/2f)), pointer.transform.position.z);
+                } else
+                {
+                    pointer.transform.position = new Vector3(pointer.transform.position.x, Mathf.Lerp(targetPos, startPos, currTimeBounceFX/(upDownDeltaSpeed/2f)), pointer.transform.position.z);
+                }
+                currTimeBounceFX += Time.deltaTime;
+            }
+        }        
+    }
+
     private void tutorialTransition01()
     {
-        arrow.SetActive(true);
+        arrow01.SetActive(true);
         pointer01.SetActive(false);
         pointer02.SetActive(true);
     }
@@ -149,12 +176,60 @@ public class BasicTransparencyScript : MonoBehaviour
 
     private void tutorialTransition02()
     {
-        arrow.SetActive(false);
+        arrow01.SetActive(false);
         pointer01.SetActive(true);
         pointer02.SetActive(false);
     }
 
     private void tutorialTransition02dot5()
+    {
+        pointer01.SetActive(false);
+    }
+
+    private void tutorialTransition03()
+    {
+        pointer01.SetActive(true);
+        highlightBoxGoal.SetActive(true);
+    }
+
+    private void tutorialTransition03dot5()
+    {
+        highlightBoxGoal.SetActive(false);
+        highlightBoxMoves.SetActive(true);
+    }
+
+    private void tutorialTransition04()
+    {
+        highlightBoxMoves.SetActive(false);
+        pointer01.SetActive(false);
+        arrow02.SetActive(true);
+        pointer03.SetActive(true);
+    }
+
+    private void tutorialTransition04dot5()
+    {
+        if(pointer03.activeInHierarchy)
+        {
+            pointer03.SetActive(false);
+
+        } else
+        {
+            pointer03.SetActive(true);
+        }
+    }
+
+    private void tutorialTransition05()
+    {
+        arrow02.SetActive(false); 
+        pointer03.SetActive(false);
+    }
+
+    private void tutorialTransition05dot5()
+    {
+        pointer01.SetActive(true);
+    }
+
+    private void tutorialTransition05dot51()
     {
         pointer01.SetActive(false);
     }

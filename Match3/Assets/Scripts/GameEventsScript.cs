@@ -15,6 +15,13 @@ public class GameEventsScript : MonoBehaviour
     public static UnityEvent tutorialEvent01dot5 = new UnityEvent();
     public static UnityEvent tutorialEvent02 = new UnityEvent();
     public static UnityEvent tutorialEvent02dot5 = new UnityEvent();
+    public static UnityEvent tutorialEvent03 = new UnityEvent();
+    public static UnityEvent tutorialEvent03dot5 = new UnityEvent();
+    public static UnityEvent tutorialEvent04 = new UnityEvent();
+    public static UnityEvent tutorialEvent04dot5 = new UnityEvent();
+    public static UnityEvent tutorialEvent05 = new UnityEvent();
+    public static UnityEvent tutorialEvent05dot5 = new UnityEvent();
+    public static UnityEvent tutorialEvent05dot51 = new UnityEvent();
     public static GemsDestroyedEvent clearGems = new GemsDestroyedEvent();
     public static CountRoundEvent countRound = new CountRoundEvent();
     public static StartBonusEvent startBonusFX = new StartBonusEvent();
