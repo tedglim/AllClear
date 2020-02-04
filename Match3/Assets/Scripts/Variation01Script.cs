@@ -511,7 +511,7 @@ public class Variation01Script : MonoBehaviour
         {
             gemRotator.transform.eulerAngles = Vector3.Lerp(Vector3.zero, rotationAngle, rotatePercent);
             rotatePercent += rotatePercentIncrease;
-            yield return new WaitForSeconds(rotationTimeInterval);
+            yield return new WaitForSeconds(rotationTimeInterval * Time.deltaTime);
         }
 
         //finalize rotation and movements
