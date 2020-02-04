@@ -25,8 +25,6 @@ public class TutorialRAScript : MonoBehaviour
     private bool isGameOver;
     private bool isWin;
     private bool movedGemm;
-    private bool menuListOn;
-    private bool oneClickLock;
     private bool didAllClearAtLeastOnce;
     private bool didAllClear;
     private bool part1AllClear;
@@ -38,6 +36,7 @@ public class TutorialRAScript : MonoBehaviour
     private bool tutorialTransition02Lock;
     private bool tutorialTransition04Lock;
     private bool tutorialTransition05Lock;
+    private bool tutorialTransition06Lock;
 
 //serial values
     [SerializeField]
@@ -113,6 +112,15 @@ public class TutorialRAScript : MonoBehaviour
     [SerializeField]
     private GameObject tutorialButton05;
     private Text tutorialButton05Text;
+    [SerializeField]
+    private GameObject tutorialButton06;
+    private Text tutorialButton06Text;
+    [SerializeField]
+    private GameObject tutorialEndContainer;
+    [SerializeField]
+    private GameObject tutorialWin;
+    [SerializeField]
+    private GameObject tutorialLose;
 
 //other nonserialized
     private Gemm[,] GemmGridLayout;
@@ -160,12 +168,12 @@ public class TutorialRAScript : MonoBehaviour
         tutorialButton04.SetActive(false);
         tutorialButton05Text = tutorialButton05.transform.Find("Text").GetComponent<Text>();
         tutorialButton05.SetActive(false);
+        tutorialButton06Text = tutorialButton06.transform.Find("Text").GetComponent<Text>();
+        tutorialButton06.SetActive(false);
 
         isMatching = false;
         areGemmsFalling = false;
         isFirstDrop = true;
-        menuListOn = false;
-        oneClickLock = false;
         w8ForRotation = false;
         wantGemmDrop = false;
         didAllClear = false;
@@ -196,38 +204,16 @@ public class TutorialRAScript : MonoBehaviour
     IEnumerator GameEventFuncs()
     {
         yield return new WaitForSeconds(0);
-        // GameEventsScript.menuListOnOff.AddListener(IsMenuListOn);
-        GameEventsScript.setTime.AddListener(SetTime);
         GameEventsScript.endAllClearFX.AddListener(endAllClearFX);
         GameEventsScript.endBonusFX.AddListener(endBonusFX);
         GameEventsScript.clearGems.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, bonusFXOn, allClearBonusAmount));
         GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
     }
 
-    // //tracks menu state
-    // private void IsMenuListOn()
-    // {
-    //     menuListOn = !menuListOn;
-    //     oneClickLock = true;
-    // }
-
-    //provide time for gameover event
-    private void SetTime(GameEventsScript.TimeData data)
-    {
-        gameOverTimer = data.time;
-    }
-
     void Update()
     {
-        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver || menuListOn || w8ForRotation || textLock)
+        if (isFirstDrop || isMatching || areGemmsFalling || isGameOver || w8ForRotation || textLock)
         {
-            return;
-        }
-
-        //prevents board from being touched during open menu
-        if(!menuListOn && oneClickLock)
-        {
-            oneClickLock = false;
             return;
         }
 
@@ -239,7 +225,7 @@ public class TutorialRAScript : MonoBehaviour
             //track cursor position/state for if gemmselected and spawn clone
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
             
-            //tutorial stuff
+            //tutorial: check touchpos loc is correct, otherwise reset indicators
             if(tutorialTransition01Lock)
             {
                 int gridXPos = GetPosOnGrid(touchPos.origin.x, boardDimX);
@@ -251,9 +237,7 @@ public class TutorialRAScript : MonoBehaviour
                 {
                     GameEventsScript.tutorialEvent01dot5.Invoke();
                 }
-            }
-
-            if(tutorialTransition04Lock)
+            } else if (tutorialTransition04Lock)
             {
                 int gridXPos = GetPosOnGrid(touchPos.origin.x, boardDimX);
                 int gridYPos = GetPosOnGrid(touchPos.origin.y, boardDimY);
@@ -268,6 +252,10 @@ public class TutorialRAScript : MonoBehaviour
 
             if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
+                if(tutorialTransition06Lock)
+                {
+                    GameEventsScript.tutorialEvent06.Invoke();
+                }
                 isGemmSelected = true;
                 DisplayGemmClone(touchPos.origin);
             }
@@ -288,15 +276,8 @@ public class TutorialRAScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isFirstDrop || isRotating || areGemmsFalling || isMatching || isGameOver || menuListOn || textLock)
+        if (isFirstDrop || isRotating || areGemmsFalling || isMatching || isGameOver || textLock)
         {
-            return;
-        }
-
-        //prevents board from being touched during open menu
-        if(!menuListOn && oneClickLock)
-        {
-            oneClickLock = false;
             return;
         }
 
@@ -306,14 +287,14 @@ public class TutorialRAScript : MonoBehaviour
             //if GemmClone alive, show gemm movements on screen
             if(isGemmCloneAlive)
             {
+                //During tutorial, make sure gemm moves on certain row only
                 if(tutorialTransition01Lock)
                 {
                     Vector3 pos = new Vector3(touchPos.origin.x, 4f, touchPos.origin.z);
                     gemmClone.gemmGObj.transform.Translate((pos - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
                     ShowGemmMovement(pos);
                     return;
-                }
-                if(tutorialTransition04Lock)
+                } else if(tutorialTransition04Lock)
                 {
                     Vector3 pos = new Vector3(touchPos.origin.x, 2f, touchPos.origin.z);
                     gemmClone.gemmGObj.transform.Translate((pos - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
@@ -328,31 +309,23 @@ public class TutorialRAScript : MonoBehaviour
         //when player releases gemm and gemm has moved, start matching
         if (wantGemmDrop)
         {
-            Debug.Log("first");
             w8ForRotation = false;
             DropGemm();
             if (movedGemm)
             {
-                Debug.Log("gem moved");
+                //during tutorial, if gemm is not dropped in correct location, reset indicators and board
+                //otherwise move on to next tutorial part
                 if (tutorialTransition01Lock)
                 {
                     if(prevActiveTouchPos.x != 5 || prevActiveTouchPos.y != 4)
                     {
-            // if(tutorialTransition01Lock)
-            // {
-                        GameEventsScript.tutorialEvent01dot5.Invoke();
-            // }
                         GemmGridLayout = GemmGridLayoutCopy;
                         ClearGridLayout();
                         RemakeGemmsForUndo();
-                        Debug.Log("here");
                         return;
                     } else 
                     {
-                        Debug.Log("else");
-                        tutorialButton01.SetActive(false);
-                        tutorialButton02.SetActive(true);
-                        GameEventsScript.tutorialEvent02.Invoke();
+                        //fix opacity, turn on/off appropriate images
                         for(int y = 2; y < boardDimY - 1; y++)
                         {
                             for(int x = 0; x < boardDimX; x++)
@@ -360,13 +333,15 @@ public class TutorialRAScript : MonoBehaviour
                                 GemmGridLayout[x, y].gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(GemmGridLayout[x, y], 1f);
                             }
                         }
+                        tutorialButton01.SetActive(false);
+                        tutorialButton02.SetActive(true);
+                        GameEventsScript.tutorialEvent02.Invoke();
                         tutorialTransition01Lock = false;
                         tutorialTransition02Lock = true;
                         textLock = true;
                         return;
                     }
-                }
-                if (tutorialTransition04Lock)
+                } else if (tutorialTransition04Lock)
                 {
                     if(prevActiveTouchPos.x != 5 || prevActiveTouchPos.y != 2)
                     {
@@ -376,8 +351,7 @@ public class TutorialRAScript : MonoBehaviour
                         return;
                     } else 
                     {
-                        Debug.Log("change button");
-                        tutorialButton04Text.text = "";
+                        // tutorialButton04Text.text = "";
                         for(int y = 0; y < boardDimY; y++)
                         {
                             for(int x = 0; x < boardDimX; x++)
@@ -385,17 +359,13 @@ public class TutorialRAScript : MonoBehaviour
                                 GemmGridLayout[x, y].gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(GemmGridLayout[x, y], 1f);
                             }
                         }
+                        tutorialButton04.SetActive(false);
                         GameEventsScript.tutorialEvent05.Invoke();
                         tutorialTransition04Lock = false;
                         tutorialTransition05Lock = true;
                         textLock = true;
-
-                        //turn off text
-                        //remove other pngs
-                        //text lock on 
                     }
                 }
-                Debug.Log("i shudnt make it here");
                 StartCoroutine(MatchGemms());
             }
         }
@@ -548,7 +518,7 @@ public class TutorialRAScript : MonoBehaviour
     //adjusts gemm transparency (clone and grid)
     private Color ChangeGemmAlpha(Gemm gemm, float aVal)
     {
-        Debug.Log("my function was called");
+        Debug.Log("where am i called from");
         Color gemmColor = gemm.gemmGObj.GetComponent<SpriteRenderer>().color;
         gemmColor.a = aVal;
         return gemmColor;
@@ -656,20 +626,33 @@ public class TutorialRAScript : MonoBehaviour
     //Setup for Gemm Matching
     private void DropGemm()
     {
-        if(!tutorialTransition01Lock && !tutorialTransition04Lock)
+        // fix opacity of selected gemm
+        if(movedGemm || (!tutorialTransition01Lock && !tutorialTransition04Lock))
         {
             GemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y].gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(GemmGridLayout[prevActiveTouchPos.x, prevActiveTouchPos.y], 1.0f);
+        } else if (tutorialTransition01Lock)
+        {
+            GemmGridLayout[0, 4].gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(GemmGridLayout[0, 4], 1.0f);
+        } else if (tutorialTransition04Lock)
+        {
+            GemmGridLayout[0, 2].gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(GemmGridLayout[0, 2], 1.0f);
         }
+
+        //gemmclone cleanup
         if (gemmClone.gemmGObj != null)
         {
             Destroy(gemmClone.gemmGObj);
-            // if(tutorialTransition01Lock)
-            // {
-            //     GameEventsScript.tutorialEvent01dot5.Invoke();
-            // }
+            if(tutorialTransition01Lock)
+            {
+                GameEventsScript.tutorialEvent01dot5.Invoke();
+            }
             if(tutorialTransition04Lock)
             {
                 GameEventsScript.tutorialEvent04dot5.Invoke();
+            }
+            if(tutorialTransition06Lock)
+            {
+                GameEventsScript.tutorialEvent06.Invoke();
             }
         }
         wantGemmDrop = isGemmCloneAlive = false;
@@ -714,6 +697,11 @@ public class TutorialRAScript : MonoBehaviour
         MoveGemmsDown();
         yield return new WaitUntil(() => !areGemmsFalling);
 
+        CheckGameOver();
+        if(isGameOver)
+        {
+            fallPercentIncrease *= 2;
+        }
         //if gemms were destroyed, we can repeat matching process 
         if(canContinueMatching)
         {
@@ -735,6 +723,7 @@ public class TutorialRAScript : MonoBehaviour
                 currNumMoves--;
                 GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
                 CheckGameOver();
+                TriggerGameOver();
                 //if game isn't over, apply bonus FX
                 if(!isGameOver)
                 {
@@ -742,6 +731,13 @@ public class TutorialRAScript : MonoBehaviour
                     fallPercentIncrease /= 2;
                     GameEventsScript.startBonusFX.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, bonusFXOn, allClearBonusAmount));
                     yield return new WaitUntil(() => !bonusFXOn);
+                    if(tutorialTransition05Lock)
+                    {
+                        tutorialButton04.SetActive(false);
+                        tutorialButton05.SetActive(true);
+                        GameEventsScript.tutorialEvent05dot5.Invoke();
+                        textLock = true;
+                    }
                 }
                 didAllClear = false;
             } else
@@ -750,6 +746,7 @@ public class TutorialRAScript : MonoBehaviour
                 currNumMoves--;
                 GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
                 CheckGameOver();
+                TriggerGameOver();
             }
 
             //reset bools
@@ -758,10 +755,6 @@ public class TutorialRAScript : MonoBehaviour
         }
         if (tutorialTransition02Lock)
         {
-            textLock = true;
-            tutorialTransition02Lock = false;
-            tutorialButton02.SetActive(false);
-            tutorialButton03.SetActive(true);
             for(int y = 0; y < 2; y++)
             {
                 for(int x = 0; x < boardDimX; x++)
@@ -769,16 +762,19 @@ public class TutorialRAScript : MonoBehaviour
                     GemmGridLayout[x, y].gemmGObj.GetComponent<SpriteRenderer>().color = ChangeGemmAlpha(GemmGridLayout[x, y], 1f);
                 }
             }
+            tutorialButton02.SetActive(false);
+            tutorialButton03.SetActive(true);
             GameEventsScript.tutorialEvent03.Invoke();
+            tutorialTransition02Lock = false;
+            textLock = true;
         }
-        if(tutorialTransition05Lock)
-        {
-            tutorialButton04.SetActive(false);
-            tutorialButton05.SetActive(true);
-            GameEventsScript.tutorialEvent05dot5.Invoke();
-
-            //shud change button text lock text
-        }
+        //  else if(tutorialTransition05Lock)
+        // {
+        //     tutorialButton04.SetActive(false);
+        //     tutorialButton05.SetActive(true);
+        //     GameEventsScript.tutorialEvent05dot5.Invoke();
+        //     textLock = true;
+        // }
     }
 
     //check gameover condition
@@ -793,17 +789,24 @@ public class TutorialRAScript : MonoBehaviour
             isGameOver = true;
             isWin = false;
         }
-        TriggerGameOver();
+        // TriggerGameOver();
     }
 
     private void TriggerGameOver()
     {
         if (isGameOver && !gameOverTriggered)
         {
+            tutorialButton06Text.text = "";
+            GameEventsScript.tutorialEvent06.Invoke();
             gameOverTriggered = true;
-            GameEventsScript.getTime.Invoke();
-            int movesTaken = totalMoves - currNumMoves;
-            GameEventsScript.gameIsOver.Invoke(new GameEventsScript.GameOverData(difficulty, false, isWin, didAllClearAtLeastOnce, movesTaken, gameOverTimer));
+            tutorialEndContainer.SetActive(true);
+            if(isWin)
+            {
+                tutorialWin.SetActive(true);
+            } else
+            {
+                tutorialLose.SetActive(true);
+            }
         }
     }
 
@@ -1104,6 +1107,7 @@ public class TutorialRAScript : MonoBehaviour
             {
                 if (GemmGridLayout[x,y].destroyed)
                 {
+                    //randomize recreated gemms for last part of tutorial
                     if(tutorialTransition05Lock)
                     {
                         GameObject randGemm;
@@ -1145,6 +1149,7 @@ public class TutorialRAScript : MonoBehaviour
                             break;
                         }
                         MakeGemm(randGemm, x, y);
+                    //setup tutorial for all-clear opportunity
                     } else if(tutorialTransition02Lock)
                     {
                         GameObject tutGemm;
@@ -1157,6 +1162,7 @@ public class TutorialRAScript : MonoBehaviour
                             tutGemm = GemmOptions[(x+1)%GemmOptions.Count];
                             MakeGemm(tutGemm, x, y);
                         }
+                    //do the normal drops
                     } else
                     {
                         GameObject newGemm = GemmOptions[UnityEngine.Random.Range(0, GemmOptions.Count)];
@@ -1208,6 +1214,8 @@ public class TutorialRAScript : MonoBehaviour
                 }
             }
         }
+
+        //during tutorial, remake gemms with correct opacity
         for(int y = 0; y < boardDimY; y++)
         {
             for(int x = 0; x < boardDimX; x++)
@@ -1221,20 +1229,18 @@ public class TutorialRAScript : MonoBehaviour
 
     }
 
+    //first button click: unlock board, change text, turn on move indicators
     public void tutorialTransition01()
     {
         textLock = false;
         tutorialButton01Text.text = "Let's make a move. Drag the Orb across the board.";
         tutorialTransition01Lock = true;
         GameEventsScript.tutorialEvent01.Invoke();
-        StartCoroutine(changeAlphasT01());
+        changeAlphasT01();
     }
 
-    IEnumerator changeAlphasT01()
+    private void changeAlphasT01()
     {
-        yield return new WaitUntil(() => !textLock);
-        yield return new WaitUntil(() => tutorialTransition01Lock);
-        // yield return new WaitForSeconds(.01f);
         for(int y = 0; y < boardDimY - 1; y++)
         {
             for(int x = 0; x < boardDimX; x++)
@@ -1247,7 +1253,6 @@ public class TutorialRAScript : MonoBehaviour
     public void tutorialTransition02()
     {
         textLock = false;
-        tutorialButton02Text.text = "";
         GameEventsScript.tutorialEvent02dot5.Invoke();
     }
 
@@ -1264,14 +1269,11 @@ public class TutorialRAScript : MonoBehaviour
         tutorialButton04Text.text = "Let's drag the Orb across the board again!";
         tutorialTransition04Lock = true;
         GameEventsScript.tutorialEvent04.Invoke();
-        StartCoroutine(changeAlphasT04());
+        changeAlphasT04();
     }
 
-    IEnumerator changeAlphasT04()
+    private void changeAlphasT04()
     {
-        yield return new WaitUntil(() => !textLock);
-        yield return new WaitUntil(() => tutorialTransition04Lock);
-        yield return new WaitForSeconds(.01f);
         for(int y = 0; y < 2; y++)
         {
             for(int x = 0; x < boardDimX; x++)
@@ -1290,10 +1292,27 @@ public class TutorialRAScript : MonoBehaviour
 
     public void tutorialTransition05()
     {
+        tutorialButton05.SetActive(false);
+        tutorialButton06.SetActive(true);
+    }
+
+    public void tutorialTransition06()
+    {
         tutorialTransition05Lock = false;
         textLock = false;
-        tutorialButton05Text.text = "Now complete the Tutorial level.";
+        tutorialButton06Text.text = "Now complete the Tutorial.";
         GameEventsScript.tutorialEvent05dot51.Invoke();
+        tutorialTransition06Lock = true;
+    }
+
+    public void MainMenu()
+    {
+        SceneManager.LoadSceneAsync(0);
+    }
+    
+    public void RedoTutorial()
+    {
+        SceneManager.LoadSceneAsync(1);
     }
 
     //Debug function for main grid

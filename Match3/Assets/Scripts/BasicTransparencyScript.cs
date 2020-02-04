@@ -17,6 +17,12 @@ public class BasicTransparencyScript : MonoBehaviour
     private Color arrow02TargetColor;
 
     [SerializeField]
+    private GameObject arrow03;
+    private SpriteRenderer arrow03SR;
+    private Color arrow03StartColor;
+    private Color arrow03TargetColor;
+
+    [SerializeField]
     private GameObject pointer01;
     private SpriteRenderer pointer01SR;
     private Color pointer01StartColor;
@@ -62,7 +68,7 @@ public class BasicTransparencyScript : MonoBehaviour
         GameEventsScript.tutorialEvent05.AddListener(tutorialTransition05);
         GameEventsScript.tutorialEvent05dot5.AddListener(tutorialTransition05dot5);
         GameEventsScript.tutorialEvent05dot51.AddListener(tutorialTransition05dot51);
-
+        GameEventsScript.tutorialEvent06.AddListener(tutorialTransition06);
 
         arrow01SR = arrow01.GetComponent<SpriteRenderer>();
         arrow01StartColor = arrow01SR.color;
@@ -78,6 +84,13 @@ public class BasicTransparencyScript : MonoBehaviour
         e.a = .5f;
         arrow02TargetColor = e;
         arrow02.SetActive(false);
+
+        arrow03SR = arrow03.GetComponent<SpriteRenderer>();
+        arrow03StartColor = arrow03SR.color;
+        Color f = arrow03StartColor;
+        f.a = .5f;
+        arrow03TargetColor = e;
+        arrow03.SetActive(false);
 
         pointer01SR = pointer01.GetComponent<SpriteRenderer>();
         pointer01StartColor = pointer01SR.color;
@@ -103,6 +116,7 @@ public class BasicTransparencyScript : MonoBehaviour
     {
         doTransparencyFX(arrow01, arrow01SR, arrow01StartColor, arrow01TargetColor);
         doTransparencyFX(arrow02, arrow02SR, arrow02StartColor, arrow02TargetColor);
+        doTransparencyFX(arrow03, arrow03SR, arrow03StartColor, arrow03TargetColor);
         doTransparencyFX(pointer01, pointer01SR, pointer01StartColor, pointer01TargetColor);
 
         doBounceFX(pointer02, pointer02StartPosY, pointer02TargetPosY);
@@ -232,5 +246,17 @@ public class BasicTransparencyScript : MonoBehaviour
     private void tutorialTransition05dot51()
     {
         pointer01.SetActive(false);
+        arrow03.SetActive(true);
+    }
+
+    private void tutorialTransition06()
+    {
+        if(arrow03.activeInHierarchy)
+        {
+            arrow03.SetActive(false);
+        } else 
+        {
+            arrow03.SetActive(true);
+        }
     }
 }
