@@ -304,6 +304,7 @@ public class UIManagerScript : MonoBehaviour
         violetNum = data.violetCleared;
         yellowNum = data.yellowCleared;
         bonusAmt = data.bonusAmt;
+        bonusTime = 0f;
     }
 
     //update time UI for Revised Alpha

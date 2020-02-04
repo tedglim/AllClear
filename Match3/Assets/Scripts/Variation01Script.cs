@@ -205,6 +205,10 @@ public class Variation01Script : MonoBehaviour
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);            
             if (Mathf.RoundToInt(touchPos.origin.x) < boardDimX && Mathf.RoundToInt(touchPos.origin.x) > -1 && Mathf.RoundToInt(touchPos.origin.y) < boardDimY && Mathf.RoundToInt(touchPos.origin.y) > -1)
             {
+                if(isGemmCloneAlive)
+                {
+                    return;
+                }
                 isGemmSelected = true;
                 DisplayGemmClone(touchPos.origin);
             }
@@ -581,6 +585,11 @@ public class Variation01Script : MonoBehaviour
         RemakeDestroyedGemms();
         MoveGemmsDown();
         yield return new WaitUntil(() => !areGemmsFalling);
+        CheckGameOver();
+        if(isGameOver)
+        {
+            fallPercentIncrease *= 2;
+        }
 
         //if gemms were destroyed, we can repeat matching process 
         if(canContinueMatching)
@@ -603,6 +612,7 @@ public class Variation01Script : MonoBehaviour
                 currNumMoves--;
                 GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
                 CheckGameOver();
+                TriggerGameOver();
                 //if game isn't over, apply bonus FX
                 if(!isGameOver)
                 {
@@ -618,6 +628,7 @@ public class Variation01Script : MonoBehaviour
                 currNumMoves--;
                 GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
                 CheckGameOver();
+                TriggerGameOver();
             }
 
             //reset bools
@@ -638,7 +649,6 @@ public class Variation01Script : MonoBehaviour
             isGameOver = true;
             isWin = false;
         }
-        TriggerGameOver();
     }
 
     private void TriggerGameOver()

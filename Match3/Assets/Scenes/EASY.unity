@@ -3745,14 +3745,14 @@ MonoBehaviour:
   boardDimY: 5
   dropOffset: 4
   totalMoves: 5
-  goalNumCyan: 8
-  goalNumGreen: 8
-  goalNumOrange: 8
-  goalNumPink: 8
+  goalNumCyan: 10
+  goalNumGreen: 10
+  goalNumOrange: 10
+  goalNumPink: 10
   goalNumRed: 0
   goalNumViolet: 0
   goalNumYellow: 0
-  allClearBonusAmount: 5
+  allClearBonusAmount: 7
   fallTimeInterval: 0.001
   fallPercentIncrease: 0.03
   underlayAlpha: 0.5

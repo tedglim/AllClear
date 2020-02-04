@@ -287,7 +287,7 @@ public class TutorialRAScript : MonoBehaviour
             //if GemmClone alive, show gemm movements on screen
             if(isGemmCloneAlive)
             {
-                //During tutorial, make sure gemm moves on certain row only
+                //During tutorial, make sure gemm moves on specified row only
                 if(tutorialTransition01Lock)
                 {
                     Vector3 pos = new Vector3(touchPos.origin.x, 4f, touchPos.origin.z);
@@ -351,7 +351,6 @@ public class TutorialRAScript : MonoBehaviour
                         return;
                     } else 
                     {
-                        // tutorialButton04Text.text = "";
                         for(int y = 0; y < boardDimY; y++)
                         {
                             for(int x = 0; x < boardDimX; x++)
@@ -518,7 +517,6 @@ public class TutorialRAScript : MonoBehaviour
     //adjusts gemm transparency (clone and grid)
     private Color ChangeGemmAlpha(Gemm gemm, float aVal)
     {
-        Debug.Log("where am i called from");
         Color gemmColor = gemm.gemmGObj.GetComponent<SpriteRenderer>().color;
         gemmColor.a = aVal;
         return gemmColor;
@@ -533,7 +531,6 @@ public class TutorialRAScript : MonoBehaviour
         //Updates gem movement when finger moves to new cell
         if ((prevActiveTouchPos.x != gridXPos || prevActiveTouchPos.y != gridYPos) && !isRotating)
         {
-
             //diagonals
             if(gridXPos - prevActiveTouchPos.x > 0 && gridYPos - prevActiveTouchPos.y > 0)
             {
@@ -731,12 +728,12 @@ public class TutorialRAScript : MonoBehaviour
                     fallPercentIncrease /= 2;
                     GameEventsScript.startBonusFX.Invoke(new GameEventsScript.DestroyedGemsData(cyansRemaining, greensRemaining, orangesRemaining, pinksRemaining, redsRemaining, violetsRemaining, yellowsRemaining, bonusFXOn, allClearBonusAmount));
                     yield return new WaitUntil(() => !bonusFXOn);
+                    //wait till bonus FX done before moving on
                     if(tutorialTransition05Lock)
                     {
                         tutorialButton04.SetActive(false);
                         tutorialButton05.SetActive(true);
                         GameEventsScript.tutorialEvent05dot5.Invoke();
-                        textLock = true;
                     }
                 }
                 didAllClear = false;
@@ -753,6 +750,7 @@ public class TutorialRAScript : MonoBehaviour
             isMatching = false;
             movedGemm = false;
         }
+        //wait till matching is done before moving on
         if (tutorialTransition02Lock)
         {
             for(int y = 0; y < 2; y++)
@@ -768,13 +766,6 @@ public class TutorialRAScript : MonoBehaviour
             tutorialTransition02Lock = false;
             textLock = true;
         }
-        //  else if(tutorialTransition05Lock)
-        // {
-        //     tutorialButton04.SetActive(false);
-        //     tutorialButton05.SetActive(true);
-        //     GameEventsScript.tutorialEvent05dot5.Invoke();
-        //     textLock = true;
-        // }
     }
 
     //check gameover condition
@@ -789,9 +780,9 @@ public class TutorialRAScript : MonoBehaviour
             isGameOver = true;
             isWin = false;
         }
-        // TriggerGameOver();
     }
 
+    //cleanup tutorial imgs; display appropriate panels
     private void TriggerGameOver()
     {
         if (isGameOver && !gameOverTriggered)
@@ -1239,6 +1230,7 @@ public class TutorialRAScript : MonoBehaviour
         changeAlphasT01();
     }
 
+    //make specific gemms transparent
     private void changeAlphasT01()
     {
         for(int y = 0; y < boardDimY - 1; y++)
@@ -1272,6 +1264,7 @@ public class TutorialRAScript : MonoBehaviour
         changeAlphasT04();
     }
 
+    //make specific gemms transparent
     private void changeAlphasT04()
     {
         for(int y = 0; y < 2; y++)
@@ -1309,7 +1302,7 @@ public class TutorialRAScript : MonoBehaviour
     {
         SceneManager.LoadSceneAsync(0);
     }
-    
+
     public void RedoTutorial()
     {
         SceneManager.LoadSceneAsync(1);
