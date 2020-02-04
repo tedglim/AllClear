@@ -220,6 +220,16 @@ public class Variation01Script : MonoBehaviour
             {
                 canGemmFollowMe = true;
             }
+            //if GemmSelected and Gemmcan follow cursor
+            if(isGemmSelected && canGemmFollowMe)
+            {
+                //if GemmClone alive, show gemm movements on screen
+                if(isGemmCloneAlive)
+                {
+                    gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
+                    ShowGemmMovement(touchPos.origin);
+                }
+            }
         } else if (Input.GetMouseButtonUp(0))
         {
             //send out signal to drop the gemm
@@ -239,17 +249,6 @@ public class Variation01Script : MonoBehaviour
         {
             oneClickLock = false;
             return;
-        }
-
-        //if GemmSelected and Gemmcan follow cursor
-        if(isGemmSelected && canGemmFollowMe)
-        {
-            //if GemmClone alive, show gemm movements on screen
-            if(isGemmCloneAlive)
-            {
-                gemmClone.gemmGObj.transform.Translate((touchPos.origin - gemmClone.gemmGObj.transform.position) * Time.fixedDeltaTime * moveSpeed);
-                ShowGemmMovement(touchPos.origin);
-            }
         }
 
         //when player releases gemm and gemm has moved, start matching

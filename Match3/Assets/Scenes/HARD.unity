@@ -6491,10 +6491,10 @@ MonoBehaviour:
   goalNumYellow: 0
   allClearBonusAmount: 40
   fallTimeInterval: 0.001
-  fallPercentIncrease: 0.03
+  fallPercentIncrease: 0.05
   underlayAlpha: 0.5
   overlayAlpha: 0.75
-  moveSpeed: 50
+  moveSpeed: 100
   rotationTimeInterval: 0.0005
   rotatePercentIncrease: 0.5
   fadeStep: 0.1
