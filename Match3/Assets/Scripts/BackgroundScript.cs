@@ -131,8 +131,6 @@ public class BackgroundScript : MonoBehaviour
             currentGems = cyan + green + orange + pink + red + violet + yellow;
             FXOn = true;
             wasPinged = true;
-            Debug.Log("IS PINGED");
-            // currFXTime = 0;
         }
     }
 
