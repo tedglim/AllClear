@@ -1,12 +1,7 @@
 # Match3
-![](Match3Demo.gif)
+![](AllClear.gif)
 </br>
-This is a mobile Puzzle game prototype. The objective is to clear as many Dots as possible by dragging a Dot around the board. Players will Touch and Drag a Dot to swap the position of the Dots. Lining up 3 or more Dots of the same color will clear them. Once any amount of Dots are cleared, the game will end.
-</br>
-</br>
-This game features the following:
-* Touch and Drag mechanics to swap Dots into different positions.
-* Matching algorithm to detect when 3 Dots in a row are found.
-* Includes ability to Respawn Dots and perform cascading matches.
-* Records Top 10 High Scores.
-* Tutorial animated gifs and a Retry button to quickly play again.
+This is a 2D Match3 Puzzle game with a twist. Use your mouse to click and drag orbs around the screen. Match 3+ orbs of the same color to clear the different levels before you run out of moves.
+
+Go big! Try to clear the entire board at once and go for the ALL CLEAR bonus! You'll need it for the more challenging levels.
+<a href="https://demastte.itch.io/all-clear">Click here to play!</a></p>
