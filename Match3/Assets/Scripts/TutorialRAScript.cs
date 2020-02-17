@@ -219,9 +219,6 @@ public class TutorialRAScript : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            //copy BoardState for Revert
-            GemmGridLayoutCopy = GemmGridLayout.Clone() as Gemm[,];
-
             //track cursor position/state for if gemmselected and spawn clone
             touchPos = Camera.main.ScreenPointToRay(Input.mousePosition);
             
@@ -376,6 +373,7 @@ public class TutorialRAScript : MonoBehaviour
         yield return new WaitForSecondsRealtime(0);
         MakeGemmsInTutorialGrid();
         MoveGemmsDown();
+        GemmGridLayoutCopy = GemmGridLayout.Clone() as Gemm[,];
         isFirstDrop = false;
     }
 
@@ -740,10 +738,13 @@ public class TutorialRAScript : MonoBehaviour
             } else
             {
                 //no all clear, just count the move and check gameover conditions
-                currNumMoves--;
-                GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
-                CheckGameOver();
-                TriggerGameOver();
+                if(didBoardChange())
+                {
+                    currNumMoves--;
+                    GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
+                    CheckGameOver();
+                    TriggerGameOver();
+                }
             }
 
             //reset bools
@@ -1164,6 +1165,23 @@ public class TutorialRAScript : MonoBehaviour
         }
     }
 
+    //check to see if Gemm Board state changed
+    private bool didBoardChange()
+    {
+        for (int y = 0; y < boardDimY; y++)
+        {
+            for (int x = 0; x < boardDimX; x++)
+            {
+                if (GemmGridLayout[x,y].tagId != GemmGridLayoutCopy[x,y].tagId)
+                {
+                    GemmGridLayoutCopy = GemmGridLayout.Clone() as Gemm[,];
+                    return true;
+                }
+            }
+        }        
+        return false;
+    }
+
     //Repeats Gemm Matching process
     IEnumerator RepeatMatchGemms()
     {
@@ -1291,6 +1309,7 @@ public class TutorialRAScript : MonoBehaviour
 
     public void tutorialTransition06()
     {
+        GemmGridLayoutCopy = GemmGridLayout.Clone() as Gemm[,];
         tutorialTransition05Lock = false;
         textLock = false;
         tutorialButton06Text.text = "Now complete the Tutorial.";

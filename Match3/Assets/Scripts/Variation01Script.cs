@@ -96,6 +96,7 @@ public class Variation01Script : MonoBehaviour
 
 //other nonserialized
     private Gemm[,] GemmGridLayout;
+    private Gemm[,] GemmGridLayoutCopy;
     private struct Gemm
     {
         public GameObject gemmGObj;
@@ -269,6 +270,7 @@ public class Variation01Script : MonoBehaviour
         yield return new WaitForSecondsRealtime(0);
         MakeGemmsInGrid();
         MoveGemmsDown();
+        GemmGridLayoutCopy = GemmGridLayout.Clone() as Gemm[,];
         isFirstDrop = false;
     }
 
@@ -621,13 +623,17 @@ public class Variation01Script : MonoBehaviour
                     yield return new WaitUntil(() => !bonusFXOn);
                 }
                 didAllClear = false;
-            } else
+            } 
+            else
             {
                 //no all clear, just count the move and check gameover conditions
-                currNumMoves--;
-                GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
-                CheckGameOver();
-                TriggerGameOver();
+                if(didBoardChange())
+                {
+                    currNumMoves--;
+                    GameEventsScript.countRound.Invoke(new GameEventsScript.CountRoundData(currNumMoves, totalMoves));
+                    CheckGameOver();
+                    TriggerGameOver();
+                }
             }
 
             //reset bools
@@ -965,6 +971,23 @@ public class Variation01Script : MonoBehaviour
                 }
             }
         }
+    }
+
+    //check to see if Gemm Board state changed
+    private bool didBoardChange()
+    {
+        for (int y = 0; y < boardDimY; y++)
+        {
+            for (int x = 0; x < boardDimX; x++)
+            {
+                if (GemmGridLayout[x,y].tagId != GemmGridLayoutCopy[x,y].tagId)
+                {
+                    GemmGridLayoutCopy = GemmGridLayout.Clone() as Gemm[,];
+                    return true;
+                }
+            }
+        }        
+        return false;
     }
 
     //Repeats Gemm Matching process
