@@ -1,0 +1,141 @@
+Using pre-set license
+
+ COMMAND LINE ARGUMENTS:
+/Users/TedLim/Documents/UnityEditor/2020.3.0f1/Unity.app/Contents/MacOS/Unity
+-adb2
+-batchMode
+-noUpm
+-name
+AssetImportWorker0
+-projectPath
+/Users/TedLim/Documents/GitHub/AllClear/Match3
+-logFile
+Logs/AssetImportWorker0.log
+-srvPort
+55900
+Successfully changed project path to: /Users/TedLim/Documents/GitHub/AllClear/Match3
+/Users/TedLim/Documents/GitHub/AllClear/Match3
+Using Asset Import Pipeline V2.
+Refreshing native plugins compatible for Editor in 77.05 ms, found 1 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 2020.3.0f1 (c7b5465681fb)
+[Subsystems] Discovering subsystems at path /Users/TedLim/Documents/UnityEditor/2020.3.0f1/Unity.app/Contents/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path /Users/TedLim/Documents/GitHub/AllClear/Match3/Assets
+GfxDevice: creating device client; threaded=0
+2021-03-15 18:08:37.865 Unity[73042:1397941] Color LCD preferred device: Intel Iris Graphics (low power)
+2021-03-15 18:08:37.865 Unity[73042:1397941] Metal devices available: 1
+2021-03-15 18:08:37.865 Unity[73042:1397941] 0: Intel Iris Graphics (low power)
+2021-03-15 18:08:37.866 Unity[73042:1397941] Using device Intel Iris Graphics (low power)
+Initializing Metal device caps: Intel Iris Graphics
+Initialize mono
+Mono path[0] = '/Users/TedLim/Documents/UnityEditor/2020.3.0f1/Unity.app/Contents/Managed'
+Mono path[1] = '/Users/TedLim/Documents/UnityEditor/2020.3.0f1/Unity.app/Contents/MonoBleedingEdge/lib/mono/unityjit'
+Mono config path = '/Users/TedLim/Documents/UnityEditor/2020.3.0f1/Unity.app/Contents/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56042
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: /Users/TedLim/Documents/UnityEditor/2020.3.0f1/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: /Users/TedLim/Documents/UnityEditor/2020.3.0f1/Unity.app/Contents/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll
+Registered in 0.011027 seconds.
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 39.23 ms, found 1 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  3.937 seconds
+Platform modules already initialized, skipping
+Registering precompiled user dll's ...
+Registered in 0.004586 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.48 ms, found 1 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.336 seconds
+Platform modules already initialized, skipping
+========================================================================
+Worker process is ready to serve import requests
+Launching external process: /Users/TedLim/Documents/UnityEditor/2020.3.0f1/Unity.app/Contents/Tools/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.02 seconds
+Refreshing native plugins compatible for Editor in 0.78 ms, found 1 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 1415 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 119.4 MB.
+System memory in use after: 119.5 MB.
+
+Unloading 33 unused Assets to reduce memory usage. Loaded Objects now: 1845.
+Total: 2.991854 ms (FindLiveObjects: 0.377325 ms CreateObjectMapping: 0.121360 ms MarkObjects: 2.397415 ms  DeleteObjects: 0.094110 ms)
+
+========================================================================
+Received Import Request.
+  path: Assets/Sprites/exitLeft.png
+  artifactKey: Guid(820e8453a9d4648e9913c1b0685d7163) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/exitLeft.png using Guid(820e8453a9d4648e9913c1b0685d7163) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5cbec579490bcf08b12e344eb8555442') in 3.274403 seconds
+  Import took 3.279348 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.002537 seconds.
+  path: Assets/Sprites/HighlightBoxGoal.png
+  artifactKey: Guid(c0825ab665e964326aacf3a48477b541) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/HighlightBoxGoal.png using Guid(c0825ab665e964326aacf3a48477b541) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6db808821dda53fb38842e93382116d4') in 0.034887 seconds
+  Import took 0.044294 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.001496 seconds.
+  path: Assets/Sprites/M3TestTiles.png
+  artifactKey: Guid(45ba32140c20348bbb4ea655d4983907) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/M3TestTiles.png using Guid(45ba32140c20348bbb4ea655d4983907) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd41e7b5979e3e005758a90b90105e0bb') in 0.062310 seconds
+  Import took 0.068521 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000796 seconds.
+  path: Assets/Sprites/gear.png
+  artifactKey: Guid(b7325e292a1ef49728c7af4045aeface) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/gear.png using Guid(b7325e292a1ef49728c7af4045aeface) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '07db82e4eb44b209efde85add1b385ce') in 0.027916 seconds
+  Import took 0.035031 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.004484 seconds.
+  path: Assets/Sprites/HighlightBoxMoves.png
+  artifactKey: Guid(1acee7a5500d1434db97b5be1fb9a01e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/HighlightBoxMoves.png using Guid(1acee7a5500d1434db97b5be1fb9a01e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a6481009649874f0eb49b0b74a7d0407') in 0.025441 seconds
+  Import took 0.032178 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.001881 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.80 ms, found 1 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.262 seconds
+Platform modules already initialized, skipping
+Switching build target platform(2) subTarget(0) extendedPlatform(0) -> platform(9) subTarget(16777218) extendedPlatform(0)
+Refreshing native plugins compatible for Editor in 0.64 ms, found 1 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 1413 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 127.2 MB.
+System memory in use after: 127.3 MB.
+
+Unloading 24 unused Assets to reduce memory usage. Loaded Objects now: 1858.
+Total: 3.673740 ms (FindLiveObjects: 0.312034 ms CreateObjectMapping: 0.161850 ms MarkObjects: 3.170220 ms  DeleteObjects: 0.028045 ms)
+
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:graphics/normal-map-encoding: 01000000000000000000000000000000 -> 02000000000000000000000000000000
